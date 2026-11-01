@@ -338,16 +338,18 @@ Las simulaciones no se guardan: se recalculan.
 - `datos-reales/` — exportaciones reales de AW; ignorada en `.gitignore`, nunca se sube
 - `docs/` — vault de Obsidian: este archivo, `tareas.md` y `bitacora/`; `docs/_por_borrar/` (ignorada) guarda notas de prueba antiguas
 
-## 16. Entorno (completar en F0-02)
+## 16. Entorno (revisado en F0-02, 2026-11-01)
 
 | Dato | Valor |
 |---|---|
-| Versión de AW | |
-| Servidor (Python o Rust) | |
-| Archivo de configuración | |
-| Hostname | |
-| Navegadores | |
+| Versión de AW | v0.14.1 (app clásica `aw-qt`, en `%LOCALAPPDATA%\Programs\ActivityWatch\`) |
+| Servidor (Python o Rust) | Python (`/info` no termina en "(rust)") |
+| Archivo de configuración | `%LOCALAPPDATA%\activitywatch\activitywatch\aw-server\aw-server.toml` |
+| Hostname | `Dremy` |
+| Navegadores | Instalados: Chrome y Edge. Cuáles usa Dremy: por validar (§17) |
 | Puerto del agente | 5650 (propuesto) |
+| Node.js | v24 |
+| Datos en AW | Desde 2026-10-31; buckets de ventana y AFK, todavía sin `aw-watcher-web` (F0-03) |
 
 ## 17. Por validar
 

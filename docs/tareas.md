@@ -95,7 +95,7 @@ flowchart LR
 
 - [x] **F0-01 · Crear repositorio y carpetas**
   - Hecho cuando: el repo está en GitHub con la estructura de la arquitectura (§15), incluido el `package.json` de la raíz; `docs/` tiene `arquitectura.md` y `tareas.md`; `.gitignore` excluye `datos-reales/`, `docs/_por_borrar/`, el estado personal de Obsidian y los secretos.
-- [ ] **F0-02 · Revisar el entorno de AW**
+- [x] **F0-02 · Revisar el entorno de AW**
   - Hecho cuando: la tabla "Entorno" (§16) está completa.
   - Notas: abrir `http://localhost:5600/api/0/info`; si la versión termina en "(rust)", el servidor es el de Rust.
 - [ ] **F0-03 · Instalar aw-watcher-web**
