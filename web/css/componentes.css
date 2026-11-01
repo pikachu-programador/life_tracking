@@ -91,6 +91,34 @@
   background: var(--color-clase, var(--color-texto-suave));
 }
 
+/* ── Selector de fecha o de rango ── */
+.selector-fecha {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--espacio-2);
+  margin-bottom: var(--espacio-4);
+}
+.selector-fecha input {
+  font: inherit;
+  font-size: var(--texto-s);
+  padding: var(--espacio-1) var(--espacio-2);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-m);
+  background: var(--color-superficie);
+  color: var(--color-texto);
+}
+.selector-fecha label { font-size: var(--texto-s); color: var(--color-texto-suave); }
+.selector-fecha-texto { font-size: var(--texto-s); color: var(--color-texto-suave); }
+.boton:disabled { opacity: 0.5; cursor: default; border-color: var(--color-borde); }
+
+/* ── Lista de totales por clase (resumen provisional de F2-08) ── */
+.lista-totales { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--espacio-2); }
+.lista-totales li { display: flex; justify-content: space-between; gap: var(--espacio-4); font-size: var(--texto-s); }
+.lista-totales .valor { font-family: var(--fuente-numeros); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.kpi + .lista-totales { margin-top: var(--espacio-4); }
+.nota-carga { font-size: var(--texto-xs); color: var(--color-texto-suave); margin-top: var(--espacio-3); }
+
 /* ── Contenedor de un gráfico de ECharts (necesita un alto fijo) ── */
 .grafico { width: 100%; height: 280px; }
 

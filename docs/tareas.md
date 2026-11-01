@@ -199,7 +199,7 @@ flowchart LR
 - [ ] **F2-07 · Más usados y sin clasificar**
   - Objetivo: apps y sitios más usados por clase, y lo más usado sin clasificar, con enlace al Asistente de categorización de AW. Los sitios se agrupan por dominio y cada dominio se despliega en sus URLs completas.
   - Hecho cuando: cada fila muestra app o sitio, tiempo y clase, y cada dominio muestra sus URLs con su tiempo.
-- [ ] **F2-08 · Selector de fecha y caché**
+- [x] **F2-08 · Selector de fecha y caché**
   - Objetivo: elegir día o rango; los días terminados se guardan en caché.
   - Hecho cuando: volver a un día ya visto es instantáneo y hoy siempre se refresca.
 
