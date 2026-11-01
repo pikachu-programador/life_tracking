@@ -104,7 +104,7 @@ flowchart LR
   - Objetivo: el árbol Clase > Subcategoría de §7, con reglas regex.
   - Hecho cuando: existen las 3 clases con sus subcategorías y lo "Sin clasificar" es menos del 15 % del tiempo activo de los últimos 3 días.
   - Notas: usar el Asistente de categorización (`#/category-builder`). Claude Code puede sugerir las regex.
-- [ ] **F0-05 · Servir `web/` desde AW**
+- [x] **F0-05 · Servir `web/` desde AW**
   - Hecho cuando: `http://localhost:5600/pages/rastreador/` muestra un `index.html` de prueba que importa un módulo `.js` y este se ejecuta.
   - Notas: configuración según §14; copiar la configuración antes de editarla y reiniciar AW después. Si el módulo no carga por el tipo MIME, ver §14.
 - [ ] **F0-06 · Preparar datos de ejemplo**
