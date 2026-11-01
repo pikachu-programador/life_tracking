@@ -1,7 +1,7 @@
 ---
 proyecto: Rastreador de tiempo + modo meta
 documento: Arquitectura
-version: 3
+version: 4
 estado: borrador por validar
 actualizado: 2026-11-01
 ---
@@ -183,7 +183,7 @@ Se guarda en el ajuste `rastreador-plan` de AW y se puede exportar e importar en
 | Campo | Descripción |
 |---|---|
 | id, nombre | Por ejemplo: ejercicio, inglés, despertar |
-| dias, inicio, fin | Ventana en la que se espera |
+| dias, inicio, fin | Ventana en la que se espera. `inicio` y `fin` son **opcionales**: sin ellos, la rutina cuenta en cualquier momento del día lógico (de despertar a dormir) |
 | medicion | `pc` (minutos de una categoría), `checkin` (sí o no) o `dia_logico` (despertar y dormir) |
 | categoria, minutos_meta | Solo si la medición es `pc` |
 | tolerancia_min | Margen antes de contar como tarde |
@@ -226,7 +226,7 @@ Se guarda en el ajuste `rastreador-plan` de AW y se puede exportar e importar en
 | Rutina `checkin` | "Hecho" | — | "No hecho" o sin check-in |
 | Despertar y dormir | Hora real ≤ objetivo + tolerancia | Hasta el doble de la tolerancia | Más tarde |
 
-- **Clases:** no cuentan para el %; son contexto. Si `usa_pc` = sí, se aplican avisos.
+- **Clases:** no cuentan para el %; son contexto. Si `usa_pc` = sí, se aplican avisos, y en clase el nivel se queda siempre en aviso: no escala (§11).
 - **Foco** = minutos de Estudio (cualquier área) dentro del bloque ÷ duración del bloque. Los minutos de IA no cuentan como foco.
 - **Horas por curso** = minutos de Estudio dentro de los bloques de ese curso (el bloque sabe su curso). Fuera de los bloques solo hay **horas por área**, porque dos cursos pueden compartir área. La meta semanal de cada curso se mide con sus bloques.
 - **Puntualidad** = minutos entre el inicio planificado y el primer minuto de Estudio.
@@ -253,7 +253,7 @@ Se guarda en el ajuste `rastreador-plan` de AW y se puede exportar e importar en
 - **Qué se bloquea:** en aviso y fricción, la clase Distracción y los patrones de URL extra; en total, además, lo Sin clasificar (configurable). La IA no se bloquea en ningún nivel.
 - **Nunca se bloquea:** el dashboard y las páginas de bloqueo (en `localhost:5600` y en `127.0.0.1:5600`), el agente, ActivityWatch, los procesos del sistema y la lista `nunca_bloquear`.
 - **Navegadores sin la extensión:** un navegador abierto cuyo latido (§6.4) no llegó en el último minuto cuenta como "sin extensión".
-- **Escalamiento:** 3 avisos en un mismo bloque lo suben a fricción.
+- **Escalamiento:** 3 avisos en un mismo bloque de estudio lo suben a fricción. En las clases no hay escalamiento: siempre aviso.
 - **Asimetría:** endurecer es inmediato; aflojar (bajar un nivel, quitar algo de una lista, sumar comodines) queda pendiente hasta el día lógico siguiente.
 - **Cambios pendientes:** cada cambio se guarda en `rastreador-niveles` con `aplica_desde` (fecha del día lógico en que entra en vigor). Nadie lo "activa": el motor calcula la configuración vigente a partir de "ahora" y del día lógico. Así el dashboard y el agente no se pisan escribiendo el mismo ajuste.
 - Los valores (5 min, 60 s, 10 min, 5 comodines) viven en el ajuste `rastreador-niveles`.
@@ -360,12 +360,12 @@ Las simulaciones no se guardan: se recalculan.
 
 ## 17. Por validar
 
-- [ ] ¿La PC es laptop y se usa en clase? Si es así: `usa_pc` = sí en esas clases, con nivel aviso.
-- [ ] ¿Dónde está hoy el horario de clases? Se carga a mano (F3-07) o se importa (F8-02).
-- [ ] ¿Qué rutinas seguir y cuáles son en la PC?
+- [x] ¿La PC es laptop y se usa en clase? Sí: los materiales de varias clases están en la laptop. Esas clases llevan `usa_pc` = sí, con nivel aviso.
+- [x] ¿Dónde está hoy el horario de clases? En Google Calendar. Se carga a mano (F3-07) o se importa de Calendar (F8-02).
+- [x] ¿Qué rutinas seguir y cuáles son en la PC? Las rutinas no son fijas. Por ahora, una sola: **Inglés diario**, practicado en la laptop (medición `pc`, categoría Estudio > Inglés), con meta de 15 min al día (se espera subir a 30). Sin franja horaria por ahora (idealmente de noche): cuenta en todo el día lógico. Los bloques de horario para cada cosa se definen después.
 - [x] ¿Qué navegadores? Chrome (principal) y Edge (solo PDFs; ver §16).
-- [ ] Paleta y tipografía del dashboard (F1-02).
-- [ ] ¿Sirven los umbrales y valores iniciales de §8 y §11?
+- [x] Paleta y tipografía del dashboard (F1-02): se deciden más adelante, cuando el dashboard muestre datos reales. Mientras tanto se usa la provisional.
+- [x] ¿Sirven los umbrales y valores iniciales de §8 y §11? Sí, se empieza con esos valores.
 
 ## 18. Glosario
 
@@ -391,3 +391,4 @@ Las simulaciones no se guardan: se recalculan.
 | 2026-11-01 | v1: primera versión, definida en el chat de ideación |
 | 2026-11-01 | v2 (revisión antes de construir, aceptada por Dremy): documentos movidos a `docs/` y notas de prueba a `docs/_por_borrar/` (ignorada); `package.json` en la raíz con `"type": "module"` (§15); riesgo del tipo MIME de `.js` en el servidor Python (§14, F0-05); las regex de AW se prueban contra todos los campos de texto, URL incluida, y el dashboard muestra las URLs completas (§6.4, §7, §13, F2-03, F2-07); bloques después de medianoche (§8); cambios de nivel pendientes con `aplica_desde` calculados por el motor (§11); latido de la extensión para detectar navegadores sin ella (§6.4, §11); orígenes `localhost` y `127.0.0.1` (§6.3, §6.4, §11); carpeta `datos-reales/` ignorada (§15) |
 | 2026-11-01 | v3 (decisiones de Dremy sobre categorías): Estudio se divide por **áreas** estables (Programación, Matemáticas, Inglés, Humanidades) y no por cursos; los cursos viven en el plan con su `area` (§7, §8); nueva clase **IA** (prioridad 30: gana siempre; no cuenta como foco y no se bloquea; §7, §9, §11); YouTube y Obsidian en Neutral, terminales en Programación (§7); horas por curso = Estudio dentro de los bloques del curso, y fuera de los bloques solo por área (§9, §13); reparto de horas despierto con IA (§10); confirmado que el servidor Python desempata igual que el de Rust (§7) |
+| 2026-11-01 | v4 (respuestas de F0-07): las rutinas pueden no tener franja horaria y entonces cuentan en todo el día lógico (§8); en las clases el nivel se queda siempre en aviso, sin escalamiento (§9, §11); laptop en clase, horario en Google Calendar (la clase de Inglés real es sáb y dom de 15:00 a 18:00), umbrales iniciales aceptados, paleta para más adelante y rutina Inglés diario de 15 min (§17) |

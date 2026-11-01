@@ -113,7 +113,7 @@ flowchart LR
   - Objetivo: 2 o 3 días exportados de AW (ventana, AFK y web), con una copia anonimizada para las pruebas.
   - Hecho cuando: `datos-ejemplo/` tiene la copia anonimizada y los datos reales quedan fuera del repo.
   - Notas: incluir un día con trasnoche y otro con huecos sin PC.
-- [ ] **F0-07 · Responder "Por validar"**
+- [x] **F0-07 · Responder "Por validar"**
   - Hecho cuando: cada punto de §17 tiene respuesta.
 
 ---
@@ -242,6 +242,7 @@ flowchart LR
   - Hecho cuando: el bloque actual cambia solo al llegar la hora.
 - [ ] **F3-07 · Cargar tu horario 2026-2**
   - Objetivo: clases, rutinas y bloques reales de la semana.
+  - Notas: cargar también la rutina **Inglés diario** (medición `pc`, Estudio > Inglés, 15 min, sin franja; §17). El horario está en Google Calendar, pero **la clase de Inglés está mal ahí**: la real es sábados y domingos de 15:00 a 18:00 (dato de Dremy, 2026-11-01). Corregirla al cargar.
   - Hecho cuando: la semana actual se ve completa en Hoy y en el planificador.
 - [ ] **F3-08 · Empezar bloque ahora**
   - Objetivo: botón en Hoy que crea un bloque único desde este momento (curso, duración, nivel, por qué), y "Terminar antes" con motivo.
