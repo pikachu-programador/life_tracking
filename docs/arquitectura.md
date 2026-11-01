@@ -1,7 +1,7 @@
 ---
 proyecto: Rastreador de tiempo + modo meta
 documento: Arquitectura
-version: 2
+version: 3
 estado: borrador por validar
 actualizado: 2026-11-01
 ---
@@ -101,7 +101,7 @@ Módulos puros: no usan DOM, red ni el reloj del sistema. "Ahora" y los datos en
 | Horario | Plan + fecha | Bloques concretos del día lógico |
 | Clasificador | Eventos de AW, o una actividad suelta (app + título) | Segmentos clasificados; huecos como AFK o Sin PC |
 | Día lógico | Segmentos + check-ins | Inicio y fin del día, horas despierto |
-| Cumplimiento | Bloques + segmentos + check-ins + umbrales | Estado por bloque, % del día y de la semana, horas por curso |
+| Cumplimiento | Bloques + segmentos + check-ins + umbrales | Estado por bloque, % del día y de la semana, horas por curso y por área |
 | Decisor | Actividad + bloque activo + nivel + pases + avisos acumulados | Acción: permitir, aviso, fricción o bloqueo |
 | Simulador | Segmentos de un día + plan + nivel | Intervenciones simuladas y minutos que se habrían cortado |
 
@@ -136,10 +136,16 @@ Ya instalado. Watchers: ventana, AFK y web (aw-watcher-web). Detalles técnicos 
 
 | Clase | Subcategorías (segundo nivel) |
 |---|---|
-| Estudio | Una por curso: BD I, DBP, Prog III, Estadística, EDO, PI2, Inglés |
+| Estudio | Una por **área**: Programación, Matemáticas, Inglés, Humanidades |
 | Distracción | Video, Redes, Juegos, Otros |
-| Neutral | Comunicación, Sistema, Otros |
+| Neutral | Comunicación, Sistema, Otros (aquí van YouTube, Spotify y Obsidian) |
+| IA | Sin subcategorías: asistentes y herramientas de IA (Claude, ChatGPT, Gemini, Antigravity…) |
 | Sin clasificar | Lo que ninguna regla reconoce (Uncategorized en AW) |
+
+- **Áreas, no cursos.** Los cursos cambian cada ciclo; las áreas no. Los cursos viven en el plan (§8) y cada uno apunta a un área. Así, cambiar de ciclo no obliga a tocar las categorías de AW.
+- **IA** es una clase aparte para medir el uso de IA. No cuenta como foco (§9) y no se bloquea en ningún nivel (§11). Su regla lleva prioridad 30, así que gana siempre, aunque el título tenga palabras de un área (por ejemplo, una conversación sobre integrales cuenta como IA).
+- **YouTube** está en Neutral porque se usa para todo (música, clases, inglés, ejercicios, distraerse). Si el título trae palabras de un área, gana Estudio: tiene el mismo rango (20) y va después en la lista.
+- Las terminales (Warp, Windows Terminal, PowerShell…) van en Estudio > Programación.
 
 **Estados** (no son categorías): **AFK** = PC encendida sin uso; **Sin PC** = no hay datos (apagada o suspendida).
 
@@ -149,7 +155,7 @@ Ya instalado. Watchers: ventana, AFK y web (aw-watcher-web). Detalles técnicos 
 
 - Se editan en ActivityWatch (Ajustes → Categorización) y se leen del ajuste `classes`.
 - Son regex que se prueban contra **todos los campos de texto** de `data` del evento: la app y el título en los eventos de ventana, y también la URL en los eventos del navegador (así lo hace `classify.rs` cuando la regla no trae `select_keys`). Por eso el clasificador en vivo del agente recibe app, título y, si es una web, la URL que le manda la extensión.
-- Si varias coinciden, gana la de mayor rango: su prioridad si la tiene; si no, profundidad × 10 (la más profunda).
+- Si varias coinciden, gana la de mayor rango: su prioridad si la tiene; si no, profundidad × 10 (la más profunda). En empate gana la que va **después** en la lista. El servidor Python (`aw-core/aw_transform/classify.py`) y el de Rust aplican el mismo criterio.
 - Para bloquear por ruta (por ejemplo `youtube.com/shorts`) hay patrones de URL extra en los niveles (§11).
 - **URLs visibles:** el dashboard muestra la URL completa de cada página web, en el detalle de la línea de tiempo y en los más usados (agrupados por dominio, con sus URLs), para ver exactamente en qué se estuvo. Es solo local: las URLs no salen de la PC (§3).
 
@@ -165,7 +171,7 @@ Se guarda en el ajuste `rastreador-plan` de AW y se puede exportar e importar en
 |---|---|---|
 | id | Identificador corto | bd1 |
 | nombre | Nombre visible | BD I |
-| categoria | Ruta en AW | Estudio > BD I |
+| area | Área de Estudio en AW a la que pertenece (§7) | Estudio > Programación |
 | color | Color del curso (de los tokens) | — |
 | meta_horas_semana | Horas de estudio propio por semana | 6 |
 | prioridad | Alta, media o baja | Media |
@@ -221,7 +227,8 @@ Se guarda en el ajuste `rastreador-plan` de AW y se puede exportar e importar en
 | Despertar y dormir | Hora real ≤ objetivo + tolerancia | Hasta el doble de la tolerancia | Más tarde |
 
 - **Clases:** no cuentan para el %; son contexto. Si `usa_pc` = sí, se aplican avisos.
-- **Foco** = minutos de Estudio dentro del bloque ÷ duración del bloque.
+- **Foco** = minutos de Estudio (cualquier área) dentro del bloque ÷ duración del bloque. Los minutos de IA no cuentan como foco.
+- **Horas por curso** = minutos de Estudio dentro de los bloques de ese curso (el bloque sabe su curso). Fuera de los bloques solo hay **horas por área**, porque dos cursos pueden compartir área. La meta semanal de cada curso se mide con sus bloques.
 - **Puntualidad** = minutos entre el inicio planificado y el primer minuto de Estudio.
 - **% del día** = Σ(peso × duración planificada) ÷ Σ(duración planificada), con peso 1 (cumplido), 0,5 (parcial) y 0 (fallido). Solo entran bloques y rutinas medibles.
 - **% de la semana** = la misma fórmula con todos sus días.
@@ -231,7 +238,7 @@ Se guarda en el ajuste `rastreador-plan` de AW y se puede exportar e importar en
 - **Inicio:** check-in de despertar. Si no hay, la primera actividad (no AFK) después del último hueco de 3 h o más. Si tampoco hay, el "inicio del día" de AW (ajuste `startOfDay`, 04:00 por defecto).
 - **Fin:** check-in de dormir. Si no hay, la última actividad antes del siguiente hueco de 3 h o más.
 - **Horas despierto** = ahora − inicio (hoy) o fin − inicio (días pasados).
-- **Reparto de las horas despierto:** estudio, distracción, neutral, sin clasificar, AFK y sin PC. Siempre suma las horas despierto.
+- **Reparto de las horas despierto:** estudio, distracción, neutral, IA, sin clasificar, AFK y sin PC. Siempre suma las horas despierto.
 - **Zona horaria:** America/Lima (UTC−5, sin horario de verano).
 - **Ejemplo:** la actividad de la 1:00 a. m. cuenta para el día lógico anterior.
 
@@ -243,7 +250,7 @@ Se guarda en el ajuste `rastreador-plan` de AW y se puede exportar e importar en
 | Fricción | Página con espera de 60 s y motivo obligatorio | Se minimiza o se cierra, y se abre la página de fricción | Pase de 10 min que gasta 1 comodín (5 por semana) | `friccion` y `pase`, con motivo |
 | Total | Página de bloqueo sin pase | Se cierra al abrirse; también los navegadores sin la extensión | Solo la salida de emergencia: espera de 10 min y una frase; el bloque queda fallido | `bloqueo` y `salida_emergencia` |
 
-- **Qué se bloquea:** en aviso y fricción, la clase Distracción y los patrones de URL extra; en total, además, lo Sin clasificar (configurable).
+- **Qué se bloquea:** en aviso y fricción, la clase Distracción y los patrones de URL extra; en total, además, lo Sin clasificar (configurable). La IA no se bloquea en ningún nivel.
 - **Nunca se bloquea:** el dashboard y las páginas de bloqueo (en `localhost:5600` y en `127.0.0.1:5600`), el agente, ActivityWatch, los procesos del sistema y la lista `nunca_bloquear`.
 - **Navegadores sin la extensión:** un navegador abierto cuyo latido (§6.4) no llegó en el último minuto cuenta como "sin extensión".
 - **Escalamiento:** 3 avisos en un mismo bloque lo suben a fricción.
@@ -273,10 +280,10 @@ Las simulaciones no se guardan: se recalculan.
 
 | Vista | Qué muestra | Fases |
 |---|---|---|
-| Hoy | Despierto desde y horas despierto; bloque actual con cuenta regresiva y el siguiente; botón "Empezar bloque ahora"; línea de tiempo de 24 h con carriles Plan, Real e Intervenciones (el detalle de cada segmento web muestra la URL completa); reparto de las horas despierto; totales por clase y por curso; cumplimiento del día; panel en vivo del agente | 1 a 6 |
+| Hoy | Despierto desde y horas despierto; bloque actual con cuenta regresiva y el siguiente; botón "Empezar bloque ahora"; línea de tiempo de 24 h con carriles Plan, Real e Intervenciones (el detalle de cada segmento web muestra la URL completa); reparto de las horas despierto; totales por clase, por área y por curso; cumplimiento del día; panel en vivo del agente | 1 a 6 |
 | Horas del día | Barras por hora (0 a 23) por clase; mapa de calor hora × día de la semana; reloj de 24 h | 2 |
 | Horario | Editor de ciclo, cursos, clases, rutinas, bloques y excepciones; planificador semanal | 3 |
-| Cumplimiento | Calendario de días cumplidos; puntualidad; % de foco por bloque; horas por curso contra la meta; rachas por rutina | 4 y 5 |
+| Cumplimiento | Calendario de días cumplidos; puntualidad; % de foco por bloque; horas por curso contra la meta y horas por área; rachas por rutina | 4 y 5 |
 | Simulador | Eliges día y nivel: intervenciones simuladas, minutos cortados y comparación de los 3 niveles | 4 |
 | Clasificación | Apps y sitios más usados por clase (los sitios agrupados por dominio, con sus URLs completas); lo más usado sin clasificar; qué bloquea cada nivel; reglas que no compilan | 2, 4 y 6 |
 | Diario | Check-ins e intervenciones con su motivo; revisión semanal | 5 y 8 |
@@ -365,6 +372,7 @@ Las simulaciones no se guardan: se recalculan.
 | Término | Significado |
 |---|---|
 | Bloque | Tramo planificado de estudio o examen, con curso, horario y nivel |
+| Área | Subcategoría estable de Estudio (Programación, Matemáticas, Inglés, Humanidades); cada curso del plan apunta a una |
 | Nivel | Cómo interviene el sistema en un bloque: aviso, fricción o total |
 | Intervención | Acción del sistema ante una distracción dentro de un bloque |
 | Fallo | Distracción dentro de un bloque; cada intervención cuenta como uno |
@@ -382,3 +390,4 @@ Las simulaciones no se guardan: se recalculan.
 |---|---|
 | 2026-11-01 | v1: primera versión, definida en el chat de ideación |
 | 2026-11-01 | v2 (revisión antes de construir, aceptada por Dremy): documentos movidos a `docs/` y notas de prueba a `docs/_por_borrar/` (ignorada); `package.json` en la raíz con `"type": "module"` (§15); riesgo del tipo MIME de `.js` en el servidor Python (§14, F0-05); las regex de AW se prueban contra todos los campos de texto, URL incluida, y el dashboard muestra las URLs completas (§6.4, §7, §13, F2-03, F2-07); bloques después de medianoche (§8); cambios de nivel pendientes con `aplica_desde` calculados por el motor (§11); latido de la extensión para detectar navegadores sin ella (§6.4, §11); orígenes `localhost` y `127.0.0.1` (§6.3, §6.4, §11); carpeta `datos-reales/` ignorada (§15) |
+| 2026-11-01 | v3 (decisiones de Dremy sobre categorías): Estudio se divide por **áreas** estables (Programación, Matemáticas, Inglés, Humanidades) y no por cursos; los cursos viven en el plan con su `area` (§7, §8); nueva clase **IA** (prioridad 30: gana siempre; no cuenta como foco y no se bloquea; §7, §9, §11); YouTube y Obsidian en Neutral, terminales en Programación (§7); horas por curso = Estudio dentro de los bloques del curso, y fuera de los bloques solo por área (§9, §13); reparto de horas despierto con IA (§10); confirmado que el servidor Python desempata igual que el de Rust (§7) |

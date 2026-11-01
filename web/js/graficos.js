@@ -15,6 +15,7 @@ const TOKENS_DE_COLOR = {
   distraccion: '--color-distraccion',
   neutral: '--color-neutral',
   sinClasificar: '--color-sin-clasificar',
+  ia: '--color-ia',
   afk: '--color-afk',
   sinPc: '--color-sin-pc',
   acento: '--color-acento',

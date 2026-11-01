@@ -1,7 +1,7 @@
 ---
 proyecto: Rastreador de tiempo + modo meta
 documento: Tareas
-version: 2
+version: 3
 actualizado: 2026-11-01
 ---
 
@@ -102,7 +102,7 @@ flowchart LR
   - Hecho cuando: en `/api/0/buckets/` aparece un `aw-watcher-web-<navegador>_<host>` por cada navegador que usas.
 - [ ] **F0-04 · Definir categorías en AW**
   - Objetivo: el árbol Clase > Subcategoría de §7, con reglas regex.
-  - Hecho cuando: existen las 3 clases con sus subcategorías y lo "Sin clasificar" es menos del 15 % del tiempo activo de los últimos 3 días.
+  - Hecho cuando: existen las clases Estudio (por áreas), Distracción, Neutral e IA, con sus subcategorías, y lo "Sin clasificar" es menos del 15 % del tiempo activo de los últimos 3 días.
   - Notas: usar el Asistente de categorización (`#/category-builder`). Claude Code puede sugerir las regex.
 - [x] **F0-05 · Servir `web/` desde AW**
   - Hecho cuando: `http://localhost:5600/pages/rastreador/` muestra un `index.html` de prueba que importa un módulo `.js` y este se ejecuta.
@@ -179,7 +179,7 @@ flowchart LR
   - Objetivo: inicio y fin del día según §10, todavía sin check-ins.
   - Hecho cuando: la actividad de la 1:00 a. m. cuenta para el día anterior, y hay pruebas con trasnoche y con días sin datos.
 - [ ] **F2-02 · Horas despierto y su reparto**
-  - Objetivo: "Despierto desde HH:MM · X h" y una barra con el reparto (estudio, distracción, neutral, sin clasificar, AFK, sin PC).
+  - Objetivo: "Despierto desde HH:MM · X h" y una barra con el reparto (estudio, distracción, neutral, IA, sin clasificar, AFK, sin PC).
   - Hecho cuando: el reparto suma exactamente las horas despierto.
 - [ ] **F2-03 · Línea de tiempo de 24 h (carril Real)**
   - Objetivo: segmentos coloreados por clase a lo largo del día lógico, con detalle al pasar el mouse (app, título, duración y, en las webs, la URL completa) y zoom.
@@ -270,7 +270,7 @@ flowchart LR
   - Hecho cuando: hay pruebas para cada tipo de bloque y de rutina.
   - Notas: el estudio en papel se completa en F5-03, porque necesita check-ins.
 - [ ] **F4-03 · Cumplimiento diario, semanal y por curso**
-  - Objetivo: % del día y de la semana con la fórmula de §9; horas por curso contra su meta.
+  - Objetivo: % del día y de la semana con la fórmula de §9; horas por curso contra su meta (Estudio dentro de los bloques del curso) y horas por área (§9).
   - Hecho cuando: un día armado a mano en las pruebas da el % esperado.
 - [ ] **F4-04 · Configuración de niveles**
   - Objetivo: ajuste `rastreador-niveles` y su sección en Ajustes, con la regla de asimetría de §11.

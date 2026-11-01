@@ -7,6 +7,7 @@
 [data-clase="distraccion"]    { --color-clase: var(--color-distraccion); }
 [data-clase="neutral"]        { --color-clase: var(--color-neutral); }
 [data-clase="sin-clasificar"] { --color-clase: var(--color-sin-clasificar); }
+[data-clase="ia"]             { --color-clase: var(--color-ia); }
 [data-clase="afk"]            { --color-clase: var(--color-afk); }
 [data-clase="sin-pc"]         { --color-clase: var(--color-sin-pc); }
 
