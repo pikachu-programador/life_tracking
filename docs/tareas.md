@@ -148,7 +148,7 @@ flowchart LR
 - [ ] **F1-05 · Segmentos (Clasificador)**
   - Objetivo: convertir eventos en segmentos (inicio, fin, clase, subcategoría, app, título) y rellenar los huecos como AFK o Sin PC.
   - Hecho cuando: un día queda cubierto sin solapes ni huecos (la suma da la duración del rango) y las pruebas pasan.
-- [ ] **F1-06 · Librería de gráficos**
+- [x] **F1-06 · Librería de gráficos**
   - Objetivo: ECharts en `web/lib/` con un tema propio que lee los tokens.
   - Hecho cuando: un gráfico de prueba usa los colores de `tokens.css` y cambia con el modo oscuro.
 - [ ] **F1-07 · Vista Hoy mínima**

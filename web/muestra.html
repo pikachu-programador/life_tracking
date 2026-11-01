@@ -89,13 +89,41 @@
       <span class="etiqueta">Sin color</span>
     </section>
 
+    <h2>Gráfico de prueba (ECharts, F1-06)</h2>
+    <section class="tarjeta">
+      <h3 class="tarjeta-titulo">Minutos por hora y clase (datos inventados)</h3>
+      <div id="grafico-prueba" class="grafico"></div>
+    </section>
+
     <h2>Aviso</h2>
     <p class="aviso">ActivityWatch no responde. Revisa que esté abierto (ícono en la bandeja).</p>
   </main>
 
   <script type="module">
     import { iniciarTema } from './js/tema.js';
+    import { crearGrafico, colorDeClase } from './js/graficos.js';
     iniciarTema(document.getElementById('boton-tema'));
+
+    // Gráfico de prueba: barras apiladas por hora. Los colores salen de tokens.css (vía graficos.js).
+    const horas = Array.from({ length: 18 }, (_, i) => `${i + 6}:00`); // 6:00 a 23:00
+    const minutos = {
+      estudio:          [0, 10, 40, 50, 45, 20, 0, 0, 30, 55, 50, 10, 0, 15, 40, 35, 10, 0],
+      distraccion:      [0, 5, 5, 0, 5, 20, 30, 10, 5, 0, 5, 20, 25, 15, 10, 15, 30, 20],
+      neutral:          [5, 15, 10, 5, 5, 10, 15, 20, 10, 5, 5, 15, 20, 10, 5, 5, 10, 5],
+      'sin-clasificar': [0, 5, 0, 5, 5, 5, 5, 5, 5, 0, 0, 5, 5, 5, 5, 0, 5, 5],
+    };
+    const nombres = { estudio: 'Estudio', distraccion: 'Distracción', neutral: 'Neutral', 'sin-clasificar': 'Sin clasificar' };
+    window.graficoPrueba = crearGrafico(document.getElementById('grafico-prueba'), (c) => ({
+      tooltip: { trigger: 'axis' },
+      legend: { top: 0 },
+      grid: { left: 40, right: 16, top: 40, bottom: 30 },
+      xAxis: { type: 'category', data: horas },
+      yAxis: { type: 'value', max: 60, name: 'min' },
+      series: Object.entries(minutos).map(([clase, datos]) => ({
+        name: nombres[clase], type: 'bar', stack: 'total', data: datos,
+        itemStyle: { color: colorDeClase(clase, c) },
+      })),
+    }));
   </script>
 </body>
 </html>

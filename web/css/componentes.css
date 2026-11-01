@@ -90,6 +90,9 @@
   background: var(--color-clase, var(--color-texto-suave));
 }
 
+/* ── Contenedor de un gráfico de ECharts (necesita un alto fijo) ── */
+.grafico { width: 100%; height: 280px; }
+
 /* ── Aviso (por ejemplo, "AW no responde") ── */
 .aviso {
   padding: var(--espacio-3) var(--espacio-4);
