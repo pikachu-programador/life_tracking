@@ -48,6 +48,8 @@ Cuatro capas: Interfaz (dashboard, páginas de bloqueo, notificaciones) → Ejec
 
 ## Notas sobre ActivityWatch
 
+- **Regex en consultas:** `JSON.stringify` duplica las barras invertidas, pero el lenguaje de consultas de AW espera una sola; usar `aTextoDeConsulta()` de `web/js/consultas.js` (igual que aw-webui). Sin eso, reglas como `warp\.exe$` nunca coinciden.
+- La consulta canónica (`web/js/consultas.js`) replica la vista Actividad de AW: ventana ∩ no AFK, pestañas con audio cuentan como actividad, buckets web del hostname (o "unknown" si no hay).
 - Heartbeats exigen `pulsetime`; AW v0.14 cachea consultas de días terminados (pedir día por día).
 - Hay dos servidores posibles (Python clásico o Rust/Tauri) con archivos de config distintos; `GET /info` indica cuál (versión terminada en "(rust)"). Reiniciar AW tras editar la config. Tabla completa en `docs/arquitectura.md` §14.
 - Con el servidor Python, el tipo MIME de `.js` sale del registro de Windows; si es `text/plain`, los módulos ES no cargan (§14).

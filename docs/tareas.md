@@ -104,6 +104,7 @@ flowchart LR
   - Objetivo: el árbol Clase > Subcategoría de §7, con reglas regex.
   - Hecho cuando: existen las clases Estudio (por áreas), Distracción, Neutral e IA, con sus subcategorías, y lo "Sin clasificar" es menos del 15 % del tiempo activo de los últimos 3 días.
   - Notas: usar el Asistente de categorización (`#/category-builder`). Claude Code puede sugerir las regex.
+  - Estado (2026-11-01): categorías v3 cargadas en AW (copia de las anteriores en `datos-reales/`). "Sin clasificar" = 18,8 % el 31-oct, casi todo páginas de Chrome. Medición final y ajuste de reglas hacia el 2026-11-05, con 3 días de datos web. Humanidades (libros, lecturas, cuestiones) se definirá después. Por comprobar (Dremy): ver las categorías en AW → Ajustes → Categorización.
 - [x] **F0-05 · Servir `web/` desde AW**
   - Hecho cuando: `http://localhost:5600/pages/rastreador/` muestra un `index.html` de prueba que importa un módulo `.js` y este se ejecuta.
   - Notas: configuración según §14; copiar la configuración antes de editarla y reiniciar AW después. Si el módulo no carga por el tipo MIME, ver §14.
@@ -141,7 +142,7 @@ flowchart LR
 - [x] **F1-03 · Cliente de AW**
   - Objetivo: un solo módulo para la API (§14): info, buckets, eventos, consultas, ajustes, crear bucket, insertar eventos y latido.
   - Hecho cuando: cada función funciona contra tu servidor; si AW no responde, el dashboard muestra un aviso en vez de romperse.
-- [ ] **F1-04 · Consulta canónica categorizada**
+- [x] **F1-04 · Consulta canónica categorizada**
   - Objetivo: para un día, eventos de ventana sin AFK, categorizados con `classes`, más los eventos del navegador.
   - Hecho cuando: los totales por categoría de un día coinciden con la vista Actividad de AW (±1 min).
   - Notas: partir de `canonicalEvents` y `classes_for_query` de aw-webui (§14); cuidado con el escape de las regex; pedir día por día.
