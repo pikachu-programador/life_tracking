@@ -131,7 +131,7 @@ flowchart LR
 | F1-07 | Vista Hoy mínima | Dashboard | F1-05, F1-06 | 2 | M | Esencial |
 | F1-08 | Base de pruebas del motor | Motor | F0-06 | 2 | S | Esencial |
 
-- [ ] **F1-01 · Esqueleto y navegación**
+- [x] **F1-01 · Esqueleto y navegación**
   - Objetivo: `index.html` con menú y rutas con `#`: hoy, horas, horario, cumplimiento, simulador, clasificacion, diario y ajustes. Cada vista en su propio archivo.
   - Hecho cuando: se navega sin recargar y, al recargar, se mantiene la vista.
 - [ ] **F1-02 · Sistema de estilo (tokens)**
