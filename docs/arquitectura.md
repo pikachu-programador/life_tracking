@@ -353,7 +353,7 @@ Las simulaciones no se guardan: se recalculan.
 | Servidor (Python o Rust) | Python (`/info` no termina en "(rust)") |
 | Archivo de configuración | `%LOCALAPPDATA%\activitywatch\activitywatch\aw-server\aw-server.toml` |
 | Hostname | `Dremy` |
-| Navegadores | Instalados: Chrome y Edge. Cuáles usa Dremy: por validar (§17) |
+| Navegadores | Chrome: navegador principal, con `aw-watcher-web` (bucket `aw-watcher-web-chrome_Dremy`). Edge: solo para PDFs; su extensión escribe en `aw-watcher-web-chrome` con hostname `unknown` y se deja así (decisión de Dremy): esos datos web no se usan, pero sus ventanas sí se cuentan |
 | Puerto del agente | 5650 (propuesto) |
 | Node.js | v24 |
 | Datos en AW | Desde 2026-10-31; buckets de ventana y AFK, todavía sin `aw-watcher-web` (F0-03) |
@@ -363,7 +363,7 @@ Las simulaciones no se guardan: se recalculan.
 - [ ] ¿La PC es laptop y se usa en clase? Si es así: `usa_pc` = sí en esas clases, con nivel aviso.
 - [ ] ¿Dónde está hoy el horario de clases? Se carga a mano (F3-07) o se importa (F8-02).
 - [ ] ¿Qué rutinas seguir y cuáles son en la PC?
-- [ ] ¿Qué navegadores? Cada uno necesita la extensión; Firefox requiere ajustes extra.
+- [x] ¿Qué navegadores? Chrome (principal) y Edge (solo PDFs; ver §16).
 - [ ] Paleta y tipografía del dashboard (F1-02).
 - [ ] ¿Sirven los umbrales y valores iniciales de §8 y §11?
 

@@ -98,8 +98,9 @@ flowchart LR
 - [x] **F0-02 · Revisar el entorno de AW**
   - Hecho cuando: la tabla "Entorno" (§16) está completa.
   - Notas: abrir `http://localhost:5600/api/0/info`; si la versión termina en "(rust)", el servidor es el de Rust.
-- [ ] **F0-03 · Instalar aw-watcher-web**
+- [x] **F0-03 · Instalar aw-watcher-web**
   - Hecho cuando: en `/api/0/buckets/` aparece un `aw-watcher-web-<navegador>_<host>` por cada navegador que usas.
+  - Resultado (2026-11-01): `aw-watcher-web-chrome_Dremy` recibe datos. Edge (solo PDFs) quedó escribiendo en `aw-watcher-web-chrome` con hostname `unknown`; Dremy decidió dejarlo así. Sus ventanas (títulos de los PDF) sí cuentan en la clasificación.
 - [ ] **F0-04 · Definir categorías en AW**
   - Objetivo: el árbol Clase > Subcategoría de §7, con reglas regex.
   - Hecho cuando: existen las clases Estudio (por áreas), Distracción, Neutral e IA, con sus subcategorías, y lo "Sin clasificar" es menos del 15 % del tiempo activo de los últimos 3 días.
