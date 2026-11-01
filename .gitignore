@@ -1,0 +1,20 @@
+# Datos reales de ActivityWatch: títulos de ventana y URLs son privados.
+datos-reales/
+*.aw-export.json
+
+# Notas de prueba que Dremy borrará a mano.
+docs/_por_borrar/
+
+# Estado personal de Obsidian (ventanas abiertas, pestañas).
+docs/.obsidian/workspace*.json
+
+# Secretos y tokens (por ejemplo, el de Notion en F8-04).
+.env
+.env.*
+*.key
+secretos/
+
+# Node y registros del agente (pueden contener títulos y URLs).
+node_modules/
+*.log
+agente/logs/

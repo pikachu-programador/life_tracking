@@ -1,0 +1,13 @@
+{
+  "name": "life-tracking",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Rastreador de tiempo + modo meta sobre ActivityWatch",
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
