@@ -50,5 +50,8 @@ a  { color: var(--color-acento); }
 }
 .boton:hover { border-color: var(--color-acento); }
 
+/* Aviso que ocupa todo el ancho, debajo de la cabecera (por ejemplo, "AW no responde"). */
+.aviso-global { margin: var(--espacio-4) var(--espacio-6) 0; }
+
 /* ── Zona de la vista ── */
 .vista { padding: var(--espacio-6); max-width: 1200px; margin: 0 auto; }

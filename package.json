@@ -5,7 +5,8 @@
   "description": "Rastreador de tiempo + modo meta sobre ActivityWatch",
   "type": "module",
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "test:aw": "node --test pruebas/integracion/*.integracion.js"
   },
   "engines": {
     "node": ">=22"

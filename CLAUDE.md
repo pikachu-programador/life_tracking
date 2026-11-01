@@ -8,7 +8,11 @@ Rastreador de tiempo para Windows sobre **ActivityWatch (AW)**: compara el horar
 
 - La especificación está en `docs/arquitectura.md` y el plan por fases (F0–F8, con dependencias y "Hecho cuando") en `docs/tareas.md`. `docs/` es un vault de Obsidian.
 - Repositorio: `https://github.com/pikachu-programador/life_tracking.git`, rama `master`.
-- **Comandos:** no hay build ni lint (el dashboard no tiene paso de build por diseño). Pruebas: test runner nativo de Node (ver sección "Pruebas" cuando exista).
+- **Comandos:** no hay build ni lint (el dashboard no tiene paso de build por diseño). Pruebas con el test runner nativo de Node:
+  - `npm test`: pruebas del motor (se completan en F1-08).
+  - `npm run test:aw`: integración del cliente de AW (`pruebas/integracion/*.integracion.js`) contra el AW real; necesita AW abierto. Crea y borra el bucket `rastreador-prueba_<host>` y escribe el ajuste `rastreador-prueba` (AW no permite borrar ajustes: responde 405).
+  - Una sola prueba: `node --test --test-name-pattern="<texto del nombre>" <archivo>`.
+  - `node --test` no acepta una carpeta como argumento: usa un patrón como `pruebas/integracion/*.integracion.js`.
 - **Entorno:** está en `docs/arquitectura.md` §16. No supongas lo que falte: consulta `GET /info` o pregunta. Las preguntas abiertas están en §17.
 
 ## Flujo de trabajo
