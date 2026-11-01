@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Rastreador</title>
   <link rel="icon" href="data:,">
+  <!-- Orden: primero los tokens (variables), después lo que los usa. -->
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/componentes.css">
 </head>
 <body>
   <header class="cabecera">
@@ -20,6 +24,7 @@
       <a href="#/diario">Diario</a>
       <a href="#/ajustes">Ajustes</a>
     </nav>
+    <button id="boton-tema" class="boton" type="button">Tema</button>
   </header>
 
   <!-- Aquí el router dibuja la vista actual. -->

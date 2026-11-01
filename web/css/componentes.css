@@ -1,0 +1,112 @@
+/* componentes.css — piezas reutilizables (tarjeta, KPI, barra de progreso, etiqueta).
+   Se ven todas en muestra.html. Solo usa variables de tokens.css. */
+
+/* ── Color por clase o estado ──
+   Cualquier componente con data-clase="..." recibe --color-clase, que luego usa como quiera. */
+[data-clase="estudio"]        { --color-clase: var(--color-estudio); }
+[data-clase="distraccion"]    { --color-clase: var(--color-distraccion); }
+[data-clase="neutral"]        { --color-clase: var(--color-neutral); }
+[data-clase="sin-clasificar"] { --color-clase: var(--color-sin-clasificar); }
+[data-clase="afk"]            { --color-clase: var(--color-afk); }
+[data-clase="sin-pc"]         { --color-clase: var(--color-sin-pc); }
+
+/* ── Tarjeta ── */
+.tarjeta {
+  background: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-l);
+  box-shadow: var(--sombra);
+  padding: var(--espacio-4) var(--espacio-6);
+}
+.tarjeta-titulo {
+  font-size: var(--texto-s);
+  font-weight: var(--peso-medio);
+  color: var(--color-texto-suave);
+  margin: 0 0 var(--espacio-3);
+}
+
+/* Rejilla de tarjetas que se acomoda al ancho disponible. */
+.rejilla {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--espacio-4);
+}
+
+/* ── KPI: un número grande con su etiqueta ── */
+.kpi { display: flex; flex-direction: column; gap: var(--espacio-1); }
+.kpi-valor {
+  font-family: var(--fuente-numeros);
+  font-size: var(--texto-xxl);
+  font-weight: var(--peso-fuerte);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;  /* todas las cifras miden lo mismo: los números no "bailan" al actualizarse */
+}
+.kpi-etiqueta { font-size: var(--texto-s); color: var(--color-texto-suave); }
+
+/* ── Barra de progreso ──
+   Uso: <div class="progreso" style="--valor: 70%"><div class="progreso-relleno"></div></div>
+   Con data-clase toma el color de la clase; si no, el acento. */
+.progreso {
+  height: var(--espacio-2);
+  border-radius: var(--radio-s);
+  background: var(--color-fondo);
+  border: 1px solid var(--color-borde);
+  overflow: hidden;
+}
+.progreso-relleno {
+  width: var(--valor, 0%);
+  height: 100%;
+  background: var(--color-clase, var(--color-acento));
+}
+
+/* ── Barra apilada: reparto por clase (cada tramo con su ancho en --valor) ── */
+.apilada {
+  display: flex;
+  height: var(--espacio-6);
+  border-radius: var(--radio-m);
+  overflow: hidden;
+  background: var(--color-sin-pc);
+}
+.apilada > [data-clase] { width: var(--valor, 0%); background: var(--color-clase); }
+
+/* ── Etiqueta: pastilla con el color de su clase ── */
+.etiqueta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espacio-1);
+  padding: var(--espacio-1) var(--espacio-2);
+  border-radius: var(--radio-s);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-medio);
+  background: var(--color-fondo);
+  border: 1px solid var(--color-borde);
+}
+/* Punto de color delante del texto. */
+.etiqueta::before {
+  content: "";
+  width: var(--espacio-2);
+  height: var(--espacio-2);
+  border-radius: 50%;
+  background: var(--color-clase, var(--color-texto-suave));
+}
+
+/* ── Aviso (por ejemplo, "AW no responde") ── */
+.aviso {
+  padding: var(--espacio-3) var(--espacio-4);
+  border-radius: var(--radio-m);
+  background: var(--color-aviso-fondo);
+  color: var(--color-aviso);
+  border: 1px solid var(--color-aviso);
+  font-size: var(--texto-s);
+}
+
+/* ── Muestra de un token de color (muestra.html) ── */
+.muestra-color { display: flex; align-items: center; gap: var(--espacio-2); font-size: var(--texto-s); }
+.muestra-color::before {
+  content: "";
+  width: var(--espacio-6);
+  height: var(--espacio-6);
+  border-radius: var(--radio-s);
+  border: 1px solid var(--color-borde);
+  background: var(--color-muestra);
+}

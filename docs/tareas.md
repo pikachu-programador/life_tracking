@@ -134,10 +134,10 @@ flowchart LR
 - [x] **F1-01 · Esqueleto y navegación**
   - Objetivo: `index.html` con menú y rutas con `#`: hoy, horas, horario, cumplimiento, simulador, clasificacion, diario y ajustes. Cada vista en su propio archivo.
   - Hecho cuando: se navega sin recargar y, al recargar, se mantiene la vista.
-- [ ] **F1-02 · Sistema de estilo (tokens)**
+- [x] **F1-02 · Sistema de estilo (tokens)**
   - Objetivo: variables CSS para cada clase y estado (estudio, distracción, neutral, sin clasificar, AFK, sin PC), acento, tipografía y espaciado; modo oscuro; componentes base (tarjeta, KPI, barra de progreso, etiqueta).
   - Hecho cuando: cambiar un color en `tokens.css` cambia todo el dashboard, y hay una página de muestra de componentes.
-  - Notas: la paleta y la tipografía las decides tú.
+  - Notas: la paleta y la tipografía las decides tú. Hoy hay una **provisional** en `tokens.css` (marcada así); la definitiva se cambia solo ahí.
 - [ ] **F1-03 · Cliente de AW**
   - Objetivo: un solo módulo para la API (§14): info, buckets, eventos, consultas, ajustes, crear bucket, insertar eventos y latido.
   - Hecho cuando: cada función funciona contra tu servidor; si AW no responde, el dashboard muestra un aviso en vez de romperse.

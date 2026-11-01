@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Muestra de componentes · Rastreador</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/componentes.css">
+</head>
+<body>
+  <!-- Página de muestra (F1-02): todos los tokens y componentes en un solo lugar.
+       Sirve para revisar la paleta: si cambias un color en css/tokens.css, cambia aquí y en todo el dashboard. -->
+  <header class="cabecera">
+    <span class="marca">Muestra de componentes</span>
+    <nav class="menu"><a href="./#/hoy">← Volver al dashboard</a></nav>
+    <button id="boton-tema" class="boton" type="button">Tema</button>
+  </header>
+
+  <main class="vista">
+    <p class="aviso">Paleta y tipografía provisionales (F1-02): las decide Dremy.</p>
+
+    <h2>Colores de clases y estados</h2>
+    <div class="rejilla">
+      <span class="muestra-color" style="--color-muestra: var(--color-estudio)">Estudio</span>
+      <span class="muestra-color" style="--color-muestra: var(--color-distraccion)">Distracción</span>
+      <span class="muestra-color" style="--color-muestra: var(--color-neutral)">Neutral</span>
+      <span class="muestra-color" style="--color-muestra: var(--color-sin-clasificar)">Sin clasificar</span>
+      <span class="muestra-color" style="--color-muestra: var(--color-afk)">AFK</span>
+      <span class="muestra-color" style="--color-muestra: var(--color-sin-pc)">Sin PC</span>
+    </div>
+
+    <h2>Colores de la interfaz</h2>
+    <div class="rejilla">
+      <span class="muestra-color" style="--color-muestra: var(--color-acento)">Acento</span>
+      <span class="muestra-color" style="--color-muestra: var(--color-fondo)">Fondo</span>
+      <span class="muestra-color" style="--color-muestra: var(--color-superficie)">Superficie</span>
+      <span class="muestra-color" style="--color-muestra: var(--color-borde)">Borde</span>
+      <span class="muestra-color" style="--color-muestra: var(--color-texto)">Texto</span>
+      <span class="muestra-color" style="--color-muestra: var(--color-texto-suave)">Texto suave</span>
+    </div>
+
+    <h2>Tarjetas con KPI</h2>
+    <div class="rejilla">
+      <section class="tarjeta">
+        <h3 class="tarjeta-titulo">Tiempo activo hoy</h3>
+        <div class="kpi"><span class="kpi-valor">6 h 12 min</span><span class="kpi-etiqueta">desde las 07:40</span></div>
+      </section>
+      <section class="tarjeta">
+        <h3 class="tarjeta-titulo">Cumplimiento del día</h3>
+        <div class="kpi"><span class="kpi-valor">72 %</span><span class="kpi-etiqueta">meta: 80 %</span></div>
+      </section>
+      <section class="tarjeta">
+        <h3 class="tarjeta-titulo">Foco del bloque</h3>
+        <div class="kpi"><span class="kpi-valor">45 %</span><span class="kpi-etiqueta">BD I · parcial</span></div>
+      </section>
+    </div>
+
+    <h2>Barras de progreso</h2>
+    <section class="tarjeta">
+      <p>Estudio 70 %</p>
+      <div class="progreso" data-clase="estudio" style="--valor: 70%"><div class="progreso-relleno"></div></div>
+      <p>Distracción 25 %</p>
+      <div class="progreso" data-clase="distraccion" style="--valor: 25%"><div class="progreso-relleno"></div></div>
+      <p>Sin clase (acento) 50 %</p>
+      <div class="progreso" style="--valor: 50%"><div class="progreso-relleno"></div></div>
+    </section>
+
+    <h2>Barra apilada por clase</h2>
+    <section class="tarjeta">
+      <div class="apilada">
+        <div data-clase="estudio" style="--valor: 40%" title="Estudio 40 %"></div>
+        <div data-clase="distraccion" style="--valor: 15%" title="Distracción 15 %"></div>
+        <div data-clase="neutral" style="--valor: 20%" title="Neutral 20 %"></div>
+        <div data-clase="sin-clasificar" style="--valor: 5%" title="Sin clasificar 5 %"></div>
+        <div data-clase="afk" style="--valor: 10%" title="AFK 10 %"></div>
+      </div>
+    </section>
+
+    <h2>Etiquetas</h2>
+    <section class="tarjeta">
+      <span class="etiqueta" data-clase="estudio">Estudio</span>
+      <span class="etiqueta" data-clase="distraccion">Distracción</span>
+      <span class="etiqueta" data-clase="neutral">Neutral</span>
+      <span class="etiqueta" data-clase="sin-clasificar">Sin clasificar</span>
+      <span class="etiqueta" data-clase="afk">AFK</span>
+      <span class="etiqueta" data-clase="sin-pc">Sin PC</span>
+      <span class="etiqueta">Sin color</span>
+    </section>
+
+    <h2>Aviso</h2>
+    <p class="aviso">ActivityWatch no responde. Revisa que esté abierto (ícono en la bandeja).</p>
+  </main>
+
+  <script type="module">
+    import { iniciarTema } from './js/tema.js';
+    iniciarTema(document.getElementById('boton-tema'));
+  </script>
+</body>
+</html>

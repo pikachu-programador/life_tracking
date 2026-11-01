@@ -1,0 +1,65 @@
+/*
+  tokens.css — ÚNICA fuente de colores, tipografía y espaciado del dashboard (arquitectura §6.1).
+  Ningún otro archivo escribe colores ni fuentes: todos usan estas variables con var(--nombre).
+
+  ⚠ PALETA Y TIPOGRAFÍA PROVISIONALES (F1-02). Las elige Dremy; mientras tanto se usan estos valores
+  para poder avanzar. Cambiar un valor aquí cambia todo el dashboard (y los gráficos, desde F1-06).
+
+  Modo oscuro: light-dark(claro, oscuro) elige el primer valor en modo claro y el segundo en oscuro.
+  El modo lo decide `color-scheme`: por defecto sigue al sistema; js/tema.js puede fijarlo con
+  data-tema="claro" o data-tema="oscuro" en <html>.
+*/
+
+:root {
+  color-scheme: light dark;
+
+  /* ── Clases y estados (arquitectura §7) ── */
+  --color-estudio:        light-dark(#2f9e6b, #4cc38a);
+  --color-distraccion:    light-dark(#d9434b, #ff6369);
+  --color-neutral:        light-dark(#6e7c91, #93a1b5);
+  --color-sin-clasificar: light-dark(#d39a1f, #f1b84a);
+  --color-afk:            light-dark(#c9ced6, #4a505a);
+  --color-sin-pc:         light-dark(#eceef1, #26292e);
+
+  /* ── Interfaz ── */
+  --color-acento:         light-dark(#4f5bd5, #8b94ff);
+  --color-acento-texto:   light-dark(#ffffff, #10122a);  /* texto sobre el acento */
+  --color-fondo:          light-dark(#f6f7f9, #121417);
+  --color-superficie:     light-dark(#ffffff, #1b1e23);  /* tarjetas */
+  --color-borde:          light-dark(#e1e4e8, #2c3037);
+  --color-texto:          light-dark(#1d2025, #e6e8eb);
+  --color-texto-suave:    light-dark(#5f6672, #9aa1ac);
+  --color-aviso:          light-dark(#b25e00, #ffb057);  /* mensajes, p. ej. "AW no responde" */
+  --color-aviso-fondo:    light-dark(#fff3e0, #3a2a12);
+
+  /* ── Tipografía ── */
+  --fuente-texto: system-ui, "Segoe UI", Roboto, sans-serif;
+  --fuente-numeros: system-ui, "Segoe UI", Roboto, sans-serif;  /* KPI y horas (con cifras de ancho fijo) */
+  --texto-xs: 0.75rem;
+  --texto-s: 0.875rem;
+  --texto-m: 1rem;
+  --texto-l: 1.25rem;
+  --texto-xl: 1.75rem;
+  --texto-xxl: 2.5rem;
+  --peso-normal: 400;
+  --peso-medio: 600;
+  --peso-fuerte: 700;
+
+  /* ── Espaciado (múltiplos de 4 px) ── */
+  --espacio-1: 0.25rem;
+  --espacio-2: 0.5rem;
+  --espacio-3: 0.75rem;
+  --espacio-4: 1rem;
+  --espacio-6: 1.5rem;
+  --espacio-8: 2rem;
+
+  /* ── Formas ── */
+  --radio-s: 4px;
+  --radio-m: 8px;
+  --radio-l: 12px;
+  --sombra: 0 1px 3px light-dark(rgb(0 0 0 / 0.08), rgb(0 0 0 / 0.4));
+}
+
+/* Modo fijado a mano desde js/tema.js (si no hay atributo, se sigue al sistema). */
+:root[data-tema="claro"]  { color-scheme: light; }
+:root[data-tema="oscuro"] { color-scheme: dark; }
