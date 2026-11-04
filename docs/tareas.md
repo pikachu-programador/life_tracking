@@ -439,7 +439,7 @@ flowchart LR
   - Objetivo: que al empezar un pomodoro, PomoRem pida un bloque a la API del agente, para que el dashboard y el bloqueo lo reconozcan.
 - [ ] **F8-06 · Sueño contra rendimiento**
   - Objetivo: horas dormidas contra el foco del día siguiente.
-  - Notas: en pausa. [visualizaciones.md](visualizaciones.md) §3 deja el sueño fuera de alcance hasta que los check-ins de dormir y despertar estén bien adoptados (propuesta en §19 de la arquitectura, 2026-11-04).
+  - Notas: en pausa. [visualizaciones.md](visualizaciones.md) §3 deja el sueño fuera de alcance hasta que los check-ins de dormir y despertar estén bien adoptados (arquitectura v5, §2).
 - [ ] **F8-07 · Dashboard dentro de AW**
   - Objetivo: mostrar Hoy como visualización personalizada en la vista Actividad de AW (recibe `hostname`, `start` y `end`).
 

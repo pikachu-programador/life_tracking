@@ -1,9 +1,9 @@
 ---
 proyecto: Rastreador de tiempo + modo meta
 documento: Arquitectura
-version: 4
+version: 5
 estado: borrador por validar
-actualizado: 2026-11-01
+actualizado: 2026-11-04
 ---
 
 # Arquitectura — Rastreador de tiempo + modo meta
@@ -27,6 +27,7 @@ Cumplir los horarios que Dremy se propone. Para eso el sistema:
 - Una PC con Windows. Cubre toda la PC: apps de escritorio y páginas web.
 - Todo local (localhost) y de uso personal.
 - Fuera de alcance: el celular (ya tiene su propio bloqueo), varias PCs, nube y cuentas.
+- **Sueño, fuera de alcance por ahora:** con los datos de la PC no se distingue dormir de estar lejos de la PC, así que no se muestra ninguna métrica de sueño hasta tener una fuente confiable, por ejemplo check-ins de dormir y despertar bien adoptados ([visualizaciones.md](visualizaciones.md) §3). F8-06 queda en pausa. El hueco de 3 h de §8 y §10 solo sirve para estimar el día lógico.
 
 ## 3. Principios
 
@@ -61,7 +62,7 @@ flowchart TB
   EX["Extensión del navegador"]
   AG["Agente de escritorio"]
   NT["Notificaciones de Windows"]
-  MO["Motor compartido<br/>Horario · Clasificador<br/>Día lógico · Cumplimiento<br/>Decisor · Simulador"]
+  MO["Motor compartido<br/>Horario · Clasificador<br/>Día lógico · Cumplimiento<br/>Resumen · Decisor · Simulador"]
   AW[("ActivityWatch :5600<br/>Actividad · Categorías<br/>Plan · Registros")]
   PB -->|pide pase o salida| AG
   EX -->|pregunta qué hacer| AG
@@ -77,7 +78,7 @@ flowchart TB
 |---|---|---|
 | Interfaz | Dashboard, páginas de bloqueo, notificaciones | Lo que Dremy ve y usa |
 | Ejecutores | Agente de escritorio, extensión del navegador | Actúan en vivo sobre apps y webs |
-| Motor | Horario, Clasificador, Día lógico, Cumplimiento, Decisor, Simulador | Solo calcula: sin pantalla, red ni reloj |
+| Motor | Horario, Clasificador, Día lógico, Cumplimiento, Resumen, Decisor, Simulador | Solo calcula: sin pantalla, red ni reloj |
 | Datos | ActivityWatch | Recolecta y guarda |
 
 Ningún componente necesita tocar la configuración CORS de ActivityWatch: el dashboard y las páginas de bloqueo se sirven desde el propio AW (mismo origen), el agente no es un navegador y la extensión solo habla con el agente.
@@ -91,6 +92,8 @@ Ningún componente necesita tocar la configuración CORS de ActivityWatch: el da
 - **Escribe:** plan y niveles (ajustes de AW) y check-ins (bucket propio).
 - **Tecnología:** HTML, CSS y JS con módulos ES; ECharts local; rutas con `#` (por ejemplo `#/hoy`), porque AW solo sirve archivos estáticos.
 - **Dirección:** `http://localhost:5600/pages/rastreador/`
+- **Caché:** en la memoria del navegador, los datos de los días terminados (F2-08) y sus resúmenes (§6.2); hoy siempre se recalcula. No se guarda en AW ni en disco: AW sigue siendo la única base de datos (§3).
+- **Estilo:** colores, tipografía y espaciado salen solo de las variables de `css/tokens.css`. Los temas (V-10) son archivos que redefinen **esas mismas variables**; el resto del CSS no cambia. La paleta y la tipografía finales las decide Dremy (§17).
 
 ### 6.2 Motor (lógica compartida)
 
@@ -102,6 +105,7 @@ Módulos puros: no usan DOM, red ni el reloj del sistema. "Ahora" y los datos en
 | Clasificador | Eventos de AW, o una actividad suelta (app + título) | Segmentos clasificados; huecos como AFK o Sin PC |
 | Día lógico | Segmentos + check-ins | Inicio y fin del día, horas despierto |
 | Cumplimiento | Bloques + segmentos + check-ins + umbrales | Estado por bloque, % del día y de la semana, horas por curso y por área |
+| Resumen | `resumirDia(segmentos, plan, checkins, dia)`; `agregarPeriodo(resumenes, desde, hasta)` | Todas las métricas de un día lógico; totales, promedios, mediana, desviación estándar, rachas y comparación de un período, sumando resúmenes diarios sin releer eventos ([visualizaciones.md](visualizaciones.md) §1 y §3) |
 | Decisor | Actividad + bloque activo + nivel + pases + avisos acumulados | Acción: permitir, aviso, fricción o bloqueo |
 | Simulador | Segmentos de un día + plan + nivel | Intervenciones simuladas y minutos que se habrían cortado |
 
@@ -288,6 +292,12 @@ Las simulaciones no se guardan: se recalculan.
 | Clasificación | Apps y sitios más usados por clase (los sitios agrupados por dominio, con sus URLs completas); lo más usado sin clasificar; qué bloquea cada nivel; reglas que no compilan | 2, 4 y 6 |
 | Diario | Check-ins e intervenciones con su motivo; revisión semanal | 5 y 8 |
 | Ajustes | Niveles, umbrales, exportar e importar, estado de AW y del agente | 3 y 4 |
+| Resumen del período | KPIs con comparación, barras apiladas por día con meta, estudio con media móvil de 7 días, horas por curso contra la meta, calendario mensual, día de la semana promedio | V |
+| Día típico | Franja de 24 h en tramos de 15 min con el estado más frecuente del período, y debajo la franja del plan | V |
+| Explorador de actividad | Una categoría, app, dominio o palabra: serie diaria, horas del día y URLs y títulos más frecuentes | V |
+| Comparar | Dos períodos lado a lado con sus diferencias | V |
+
+Todas las vistas usan un **selector de período** común (Día, Semana, Mes o Rango, con flechas), que amplía el selector de fecha de F2-08. Las métricas, los promedios y los gráficos de cada vista se detallan en [visualizaciones.md](visualizaciones.md).
 
 ## 14. Referencia técnica de ActivityWatch
 
@@ -332,7 +342,7 @@ Las simulaciones no se guardan: se recalculan.
 
 - `web/` — servido por AW en `/pages/rastreador/`
   - `index.html` — dashboard
-  - `css/` — `tokens.css` (colores, tipografía, espaciado) y estilos
+  - `css/` — `tokens.css` (colores, tipografía, espaciado), los temas que redefinen sus variables (V-10) y estilos
   - `js/` — vistas, componentes, cliente de AW y cliente del agente
   - `motor/` — lógica compartida por el dashboard y el agente
   - `bloqueo/` — páginas de aviso, fricción, total y salida de emergencia
@@ -343,7 +353,7 @@ Las simulaciones no se guardan: se recalculan.
 - `pruebas/` — pruebas del motor (test runner de Node)
 - `datos-ejemplo/` — eventos anonimizados para las pruebas
 - `datos-reales/` — exportaciones reales de AW; ignorada en `.gitignore`, nunca se sube
-- `docs/` — vault de Obsidian: este archivo, `tareas.md` y `bitacora/`; `docs/_por_borrar/` (ignorada) guarda notas de prueba antiguas
+- `docs/` — vault de Obsidian: este archivo, `tareas.md`, `visualizaciones.md` (métricas y vistas de períodos) y `bitacora/`; `docs/_por_borrar/` (ignorada) guarda notas de prueba antiguas
 
 ## 16. Entorno (revisado en F0-02, 2026-11-01)
 
@@ -392,4 +402,4 @@ Las simulaciones no se guardan: se recalculan.
 | 2026-11-01 | v2 (revisión antes de construir, aceptada por Dremy): documentos movidos a `docs/` y notas de prueba a `docs/_por_borrar/` (ignorada); `package.json` en la raíz con `"type": "module"` (§15); riesgo del tipo MIME de `.js` en el servidor Python (§14, F0-05); las regex de AW se prueban contra todos los campos de texto, URL incluida, y el dashboard muestra las URLs completas (§6.4, §7, §13, F2-03, F2-07); bloques después de medianoche (§8); cambios de nivel pendientes con `aplica_desde` calculados por el motor (§11); latido de la extensión para detectar navegadores sin ella (§6.4, §11); orígenes `localhost` y `127.0.0.1` (§6.3, §6.4, §11); carpeta `datos-reales/` ignorada (§15) |
 | 2026-11-01 | v3 (decisiones de Dremy sobre categorías): Estudio se divide por **áreas** estables (Programación, Matemáticas, Inglés, Humanidades) y no por cursos; los cursos viven en el plan con su `area` (§7, §8); nueva clase **IA** (prioridad 30: gana siempre; no cuenta como foco y no se bloquea; §7, §9, §11); YouTube y Obsidian en Neutral, terminales en Programación (§7); horas por curso = Estudio dentro de los bloques del curso, y fuera de los bloques solo por área (§9, §13); reparto de horas despierto con IA (§10); confirmado que el servidor Python desempata igual que el de Rust (§7) |
 | 2026-11-01 | v4 (respuestas de F0-07): las rutinas pueden no tener franja horaria y entonces cuentan en todo el día lógico (§8); en las clases el nivel se queda siempre en aviso, sin escalamiento (§9, §11); laptop en clase, horario en Google Calendar (la clase de Inglés real es sáb y dom de 15:00 a 18:00), umbrales iniciales aceptados, paleta para más adelante y rutina Inglés diario de 15 min (§17) |
-| 2026-11-04 | **Propuesta, pendiente del OK de Dremy** (al sumar `visualizaciones.md` y las tareas V-01 a V-10): (1) §6.2: el motor suma `resumirDia` y `agregarPeriodo`; la caché de resúmenes vive en la memoria del navegador, como la de días de F2-08, y no en AW, que sigue siendo la única base de datos (§3). (2) §13: vistas nuevas Resumen del período, Día típico, Explorador de actividad y Comparar, con un selector de período común que amplía el de F2-08. (3) V-10, tres temas: cada tema es un archivo que redefine las mismas variables de `tokens.css`, el resto del CSS sigue leyendo solo esas variables y ninguno es la paleta final (§17). (4) Sueño: `visualizaciones.md` §3 lo deja fuera de alcance, así que F8-06 queda en pausa. (5) §15: `docs/` incluye `visualizaciones.md` |
+| 2026-11-04 | v5 (visualizaciones, aceptada por Dremy): nuevo módulo Resumen del motor con `resumirDia` y `agregarPeriodo` (§5, §6.2); caché de días y de resúmenes solo en la memoria del navegador, nunca en AW (§6.1); temas como archivos que redefinen las variables de `tokens.css` (§6.1, §15); vistas Resumen del período, Día típico, Explorador de actividad y Comparar, con selector de período común (§13); sueño fuera de alcance y F8-06 en pausa (§2); `docs/visualizaciones.md` (§15) |
