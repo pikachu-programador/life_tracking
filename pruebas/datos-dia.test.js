@@ -74,3 +74,12 @@ test('vaciar() borra la caché', async () => {
   assert.equal((await almacen.dia('2026-10-31')).desdeCache, false);
   assert.equal(aw.pedidos.length, 2);
 });
+
+test('el reloj puede ser un número en ms (reloj de prueba, H-02)', async () => {
+  const aw = awFalso();
+  const almacen = crearAlmacenDias({ pedirPeriodos: aw.pedirPeriodos, ahora: () => Date.parse('2026-11-01T17:00:00Z') });
+  await almacen.dia('2026-10-31');
+  assert.ok(almacen.enCache('2026-10-31'));
+  await almacen.dia('2026-11-01');
+  assert.ok(!almacen.enCache('2026-11-01'));
+});
