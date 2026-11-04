@@ -224,9 +224,10 @@ Cambios en las tareas: F5-02 se hace dentro de F2-01 y F5-03 dentro de F4-02, po
 - [x] **F2-08 · Selector de fecha y caché**
   - Objetivo: elegir día o rango; los días terminados se guardan en caché.
   - Hecho cuando: volver a un día ya visto es instantáneo y hoy siempre se refresca.
-- [ ] **F2-09 · Servicio de datos del dashboard**
+- [x] **F2-09 · Servicio de datos del dashboard**
   - Objetivo: `web/js/datos.js`, lo único que usan las vistas (§6.7): día completo (día lógico, segmentos con contexto, plan del día y resumen), resúmenes de un rango con caché, plan, niveles, check-ins y reglas.
   - Hecho cuando: con el AW falso, `datos.dia()` de cada día de ejemplo da el resumen del motor; un día terminado sale de la caché; guardar el plan o un check-in vacía la caché.
+  - Resultado (2026-11-04): `web/js/datos.js` (`crearServicioDatos` + `datos`): día completo, resúmenes y segmentos de un rango sin días futuros, plan validado, niveles, check-ins, intervenciones, reglas y estado de AW; caché de días terminados y cerrados. 7 pruebas contra el AW falso con reloj fijo (`pruebas/datos.test.js`).
 
 ---
 
