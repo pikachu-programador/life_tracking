@@ -26,6 +26,14 @@ Rastreador de tiempo para Windows sobre **ActivityWatch (AW)**: compara el horar
 - **Privacidad:** no subir al repo datos reales de AW (van en `datos-reales/`, ignorada), tokens ni claves. Tampoco mostrar en la conversación títulos de ventana ni URLs reales: al inspeccionar datos reales, imprimir solo conteos, horas, duraciones o nombres de app. Las pruebas usan `datos-ejemplo/` anonimizado.
 - **Config de AW:** copiar el archivo antes de editarlo; si tras reiniciar AW no vuelve a registrar, restaurar la copia.
 
+## Skills
+
+En `.claude/skills/` (copiadas de vercel-labs/agent-browser y emilkowalski/skills, con su `LICENSE`):
+
+- **agent-browser**: verificar el dashboard en el navegador (capturas, clics, consola). Si no se instala (`npm i -g agent-browser && agent-browser install`), usar Playwright.
+- **break-ui** y **emil-design-eng**: revisar la UI (datos extremos, detalles y movimiento). Las correcciones usan solo variables de `css/tokens.css`: no agregar colores ni fuentes fuera de ahí, y la paleta y la tipografía finales las decide Dremy.
+- **prototype**: solo si Dremy lo pide (no se activa sola).
+
 ## Arquitectura (resumen; detalle en `docs/arquitectura.md`)
 
 Cuatro capas: Interfaz (dashboard, páginas de bloqueo, notificaciones) → Ejecutores (agente Node.js, extensión MV3) → **Motor compartido** → Datos (AW en `:5600`).

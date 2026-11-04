@@ -494,3 +494,18 @@ No hay V-07: [visualizaciones.md](visualizaciones.md) salta de V-06 a V-08.
   - Objetivo: tres propuestas de estilo intercambiables, mostradas en la página de muestra con datos de ejemplo, para que Dremy elija una o las mezcle (visualizaciones §5).
   - Hecho cuando: cambiar de tema en la página de muestra cambia todo el dashboard, en modo claro y oscuro, sin tocar otro CSS.
   - Notas: cada tema es un archivo que redefine **las mismas** variables de `tokens.css`; el resto del CSS sigue leyendo solo esas variables. Ninguno es la paleta final: la decide Dremy (§17 de la arquitectura).
+
+---
+
+## Herramientas (H)
+
+**Resultado:** el dashboard se puede probar sin ActivityWatch (por ejemplo, en las sesiones de Claude Code en la nube, donde no hay `localhost:5600`).
+
+| ID | Tarea | Dónde | Depende de | Dif. | Tamaño | Prioridad |
+|---|---|---|---|---|---|---|
+| H-01 | AW falso | Repo | F1-03, F1-04 | 4 | L | Importante |
+
+- [ ] **H-01 · AW falso**
+  - Objetivo: un servidor Node sin dependencias (`node:http`) que responde las rutas de `/api/0` que usa el dashboard (`GET /info`, `GET /buckets/`, `GET /buckets/<id>/events`, `POST /query/`, `GET /settings`, `GET` y `POST /settings/<clave>`) con los datos de `datos-ejemplo/`, y que sirve `web/` en `/pages/rastreador/` para que el dashboard siga en el mismo origen.
+  - Hecho cuando: con AW cerrado, `node herramientas/aw-falso.js` arranca y el dashboard muestra Hoy y Horas del día para los días de ejemplo (por ejemplo `#/hoy?fecha=2026-10-05`) sin avisos de error; los totales por clase de cada día coinciden (±1 min) con los de un AW real que tenga los mismos datos importados; hay pruebas de cada ruta.
+  - Notas: `/query/` no interpreta el lenguaje de consultas de AW: reconoce la consulta canónica de `web/js/consultas.js` y calcula su resultado en JS (`flood`, intersección con no AFK, pestañas con audio y `categorize` con el criterio de §7). Si llega otra consulta, responde un error claro. Hace falta un `classes` de ejemplo en `datos-ejemplo/` (las reglas reales están en `datos-reales/` y no se suben). Los `POST` a ajustes se guardan solo en memoria. Puerto 5600 por defecto, configurable. No está en la arquitectura: al implementarla, registrarla en §15 y §19.
