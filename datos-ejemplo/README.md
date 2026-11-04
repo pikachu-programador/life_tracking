@@ -14,6 +14,7 @@ Imitan el ritmo de una exportación real (madrugadas, cambios de ventana cada po
 | `aw-bucket-export-aw-watcher-web-chrome_ejemplo.json` | Pestañas de Chrome: `url`, `title`, `audible`, `incognito`, `tabCount` |
 | `aw-bucket-export-aw-watcher-afk_ejemplo.json` | `afk` / `not-afk` |
 | `rastreador-checkins_ejemplo.json` | Check-ins de ejemplo (formato §12) |
+| `clases-ejemplo.json` | Reglas de categorías de ejemplo (formato del ajuste `classes` de AW, taxonomía v3); las usa el AW falso (H-01) |
 | `plan-ejemplo.json` | Plan de clases, rutinas, bloques y excepciones que coincide con estos días (campos §8) |
 | `verdad.json` | La "respuesta correcta" de cada día: segmentos, casos y minutos por intención real |
 | `generar.mjs` | El generador |

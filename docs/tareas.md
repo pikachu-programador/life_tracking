@@ -548,7 +548,7 @@ No hay V-07: [visualizaciones.md](visualizaciones.md) salta de V-06 a V-08.
 | H-02 | Reloj de prueba | Dashboard | F2-08 | 1 | S | Importante |
 | H-03 | Capturas automáticas | Repo | H-01, H-02 | 2 | S | Importante |
 
-- [ ] **H-01 · AW falso**
+- [x] **H-01 · AW falso**
   - Objetivo: un servidor Node sin dependencias (`node:http`) que responde las rutas de `/api/0` que usa el dashboard (`GET /info`, `GET /buckets/`, `GET /buckets/<id>/events`, `POST /query/`, `GET /settings`, `GET` y `POST /settings/<clave>`) con los datos de `datos-ejemplo/`, y que sirve `web/` en `/pages/rastreador/` para que el dashboard siga en el mismo origen.
   - Pasos, en orden:
     1. **Reglas de ejemplo.** Crear `datos-ejemplo/clases-ejemplo.json` con el formato del ajuste `classes` de AW y la taxonomía v3 (§7): clases Estudio (áreas Programación, Matemáticas, Inglés y Humanidades), Distracción, Neutral e IA (prioridad 30), con regex que reconozcan las apps, los títulos y las URLs inventados de `generar.mjs`. No copiar reglas de `datos-reales/`.
@@ -558,6 +558,7 @@ No hay V-07: [visualizaciones.md](visualizaciones.md) salta de V-06 a V-08.
     5. **Servidor.** Rutas de `/api/0`, `classes` servido desde `clases-ejemplo.json`, `startOfDay` = 04:00, `POST` de ajustes solo en memoria y `web/` en `/pages/rastreador/`. Puerto 5600 por defecto, configurable.
   - Hecho cuando: la prueba del paso 3 da al menos 95 % del tiempo con teclado de cada día en la clase correcta, y cada diferencia que quede está explicada en la prueba (por ejemplo, un tutorial con título que no nombra un área); con AW cerrado, `node herramientas/aw-falso.js` arranca y el dashboard muestra Hoy y Horas del día para los días de ejemplo (por ejemplo `#/hoy?fecha=2026-10-05`) sin avisos de error; hay pruebas de cada ruta; por comprobar con Dremy: los totales por clase coinciden (±1 min) con un AW real que tenga los mismos datos y reglas importados.
   - Notas: `verdad.json` registra la intención (un tutorial de YouTube cuenta como estudio), así que no se le exige una coincidencia exacta: la prueba mide qué tan bien clasifican las reglas. La herramienta no está en la arquitectura: al implementarla, registrarla en §15 y §19.
+  - Resultado (2026-11-04): clasificador (`web/motor/clasificador.js`), reglas `datos-ejemplo/clases-ejemplo.json` y AW falso (`node herramientas/aw-falso.js`). Precisión contra `verdad.json`: 99,7–100 % por día descontando lo explicado (YouTube de entretenimiento en Neutral por la decisión v3; un título raro del 10-15). Un día responde en ~15 ms. Por comprobar con Dremy: totales ±1 min contra un AW real con los mismos datos y reglas. Revisión: la hizo el coordinador (presupuesto).
 - [x] **H-02 · Reloj de prueba**
   - Objetivo: con `?ahora=AAAA-MM-DDTHH:MM` en la dirección (antes del `#`), el dashboard arranca en esa hora de Lima y el reloj sigue corriendo (arquitectura §6.8), para ver los días de ejemplo como si fueran hoy.
   - Hecho cuando: con `?ahora=2026-10-14T16:20` el reloj del dashboard arranca el 14-oct a las 16:20 y avanza, y el almacén de días lo usa para saber qué días terminaron; sin el parámetro, todo sigue con la hora real; hay pruebas.

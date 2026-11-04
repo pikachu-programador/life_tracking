@@ -1,0 +1,20 @@
+[
+  { "id": 0, "name": ["Distracción"], "rule": { "type": "none" }, "data": {} },
+  { "id": 1, "name": ["Distracción", "Video"], "rule": { "type": "regex", "regex": "Netflix|Twitch|Prime Video|Disney\\+|Crunchyroll|HBO Max", "ignore_case": true }, "data": {} },
+  { "id": 2, "name": ["Distracción", "Redes"], "rule": { "type": "regex", "regex": "Instagram|TikTok|Reddit|Facebook|Twitter|Pinterest", "ignore_case": true }, "data": {} },
+  { "id": 3, "name": ["Distracción", "Juegos"], "rule": { "type": "regex", "regex": "Skullgirls|LDPlayer|dnplayer\\.exe|steam\\.exe|Minecraft|Roblox|League of Legends|Epic Games", "ignore_case": true }, "data": {} },
+  { "id": 4, "name": ["Distracción", "Otros"], "rule": { "type": "regex", "regex": "9GAG|Tumblr|Wattpad|AliExpress", "ignore_case": true }, "data": {} },
+
+  { "id": 5, "name": ["Neutral"], "rule": { "type": "none" }, "data": {} },
+  { "id": 6, "name": ["Neutral", "Comunicación"], "rule": { "type": "regex", "regex": "WhatsApp|Telegram|Discord|Webex|CiscoCollabHost|Zoom Meeting|Microsoft Teams|Gmail|Outlook", "ignore_case": true }, "data": {} },
+  { "id": 7, "name": ["Neutral", "Sistema"], "rule": { "type": "regex", "regex": "^(explorer|SearchHost|LockApp|ShellExperienceHost|StartMenuExperienceHost|SystemSettings|Taskmgr|ApplicationFrameHost)\\.exe$", "ignore_case": true }, "data": {} },
+  { "id": 8, "name": ["Neutral", "Otros"], "rule": { "type": "regex", "regex": "YouTube|Spotify|Obsidian", "ignore_case": true }, "data": {} },
+
+  { "id": 9, "name": ["Estudio"], "rule": { "type": "none" }, "data": {} },
+  { "id": 10, "name": ["Estudio", "Programación"], "rule": { "type": "regex", "regex": "Code\\.exe|Visual Studio|clion64\\.exe|idea64\\.exe|pycharm64\\.exe|warp\\.exe|WindowsTerminal\\.exe|powershell|cmd\\.exe|GitHub|Stack Overflow|\\bSQL\\b|\\.sql\\b|Spring|JWT|C\\+\\+|punteros|Programación|\\bBD ?I\\b|base de datos|turnos[- ]app|Arduino|Autodesk Fusion|Fusion360\\.exe|\\bPI2\\b", "ignore_case": true }, "data": {} },
+  { "id": 11, "name": ["Estudio", "Matemáticas"], "rule": { "type": "regex", "regex": "Matemática|Álgebra|Estadística|Ecuaciones|\\bEDO\\b|_edo_|integral|resolución|métodos|autovalores|Prueba t de Student|RStudio|\\.qmd\\b|GeoGebra|Wolfram|Desmos", "ignore_case": true }, "data": {} },
+  { "id": 12, "name": ["Estudio", "Inglés"], "rule": { "type": "regex", "regex": "inglés|English|grammar|vocabulary|\\blisten(ing)?\\b|\\bspeak(ing)?\\b|pronunciation|present perfect|past simple|Duolingo", "ignore_case": true }, "data": {} },
+  { "id": 13, "name": ["Estudio", "Humanidades"], "rule": { "type": "regex", "regex": "Filosofía|Historia del|Literatura|\\bÉtica\\b|Redacción|Ensayo|Psicología", "ignore_case": true }, "data": {} },
+
+  { "id": 14, "name": ["IA"], "rule": { "type": "regex", "regex": "Claude|ChatGPT|Gemini|Copilot|Perplexity|Antigravity|DeepSeek|NotebookLM", "ignore_case": true, "priority": 30 }, "data": {} }
+]
