@@ -291,9 +291,10 @@ Cambios en las tareas: F5-02 se hace dentro de F2-01 y F5-03 dentro de F4-02, po
 | F4-08 | Vista Cumplimiento | Dashboard | F4-03, F1-06 | 3 | L | Esencial |
 | F4-09 | Niveles y umbrales en Ajustes | Dashboard | F4-04, F3-02 | 2 | M | Esencial |
 
-- [ ] **F4-01 · Contexto de cada segmento**
+- [x] **F4-01 · Contexto de cada segmento**
   - Objetivo: marcar cada segmento como en bloque, en clase, en rutina o libre.
   - Hecho cuando: la distracción en tiempo libre no cuenta como fallo, y hay pruebas en los bordes de los bloques.
+  - Resultado (2026-11-04): `web/motor/contexto.js` (asignarContexto: parte los segmentos en los bordes; bloque > clase > rutina > libre). Revisión: aprobado (comparado con una referencia de fuerza bruta en 400 días aleatorios; 0,7 ms con 3000 segmentos).
 - [ ] **F4-02 · Cumplimiento por bloque**
   - Objetivo: estado cumplido, parcial, fallido o no medible según §9, con los umbrales del plan.
   - Hecho cuando: hay pruebas para cada tipo de bloque y de rutina, incluidos el estudio en papel y las rutinas con check-in (lo de F5-03).
