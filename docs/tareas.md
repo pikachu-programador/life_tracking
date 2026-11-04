@@ -159,9 +159,10 @@ flowchart LR
 - [ ] **F1-07 · Vista Hoy mínima**
   - Objetivo: tiempo activo de hoy y barra apilada por clase.
   - Hecho cuando: coincide con AW y se actualiza cada minuto sin recargar.
-- [ ] **F1-08 · Base de pruebas del motor**
+- [x] **F1-08 · Base de pruebas del motor**
   - Objetivo: carpeta `pruebas/` con el test runner de Node y los datos de `datos-ejemplo/`.
   - Hecho cuando: un solo comando corre todas las pruebas.
+  - Resultado (2026-11-04): `npm test` corre todo `pruebas/**/*.test.js`; `pruebas/ayudantes/ejemplo.js` lee los buckets, el plan y `verdad.json` de `datos-ejemplo/` (siempre como copias).
 
 ---
 
