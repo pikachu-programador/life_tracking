@@ -570,7 +570,8 @@ No hay V-07: [visualizaciones.md](visualizaciones.md) salta de V-06 a V-08.
   - Hecho cuando: con `?ahora=2026-10-14T16:20` el reloj del dashboard arranca el 14-oct a las 16:20 y avanza, y el almacén de días lo usa para saber qué días terminaron; sin el parámetro, todo sigue con la hora real; hay pruebas.
   - Notas: que Hoy muestre ese día con su bloque actual se comprueba en F3-06.
   - Resultado (2026-11-04): commits `52ff93e` y el de la revisión (Hoy y Horas usan el reloj; acepta segundos; un `?ahora=` inválido o en el futuro se ignora con aviso en el pie y en la consola).
-- [ ] **H-03 · Capturas automáticas**
+- [x] **H-03 · Capturas automáticas**
   - Objetivo: `herramientas/capturas.mjs` arranca el AW falso y toma capturas de cada vista en claro y oscuro, a 1366×768 y a 1920×1080 (arquitectura §6.8).
   - Hecho cuando: un solo comando deja las capturas de todas las vistas en una carpeta.
   - Notas: usa Playwright si está instalado; no es una dependencia del proyecto.
+  - Resultado (2026-11-04): `node herramientas/capturas.mjs` arranca el AW falso y deja en una carpeta las capturas de las vistas (y de páginas sueltas como muestra.html) por tema de estilo, modo y tamaño, con los errores de consola en `informe.json`. Las del PR están en `capturas/`.
