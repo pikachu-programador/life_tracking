@@ -515,10 +515,11 @@ No hay V-07: [visualizaciones.md](visualizaciones.md) salta de V-06 a V-08.
   - Objetivo: tiempo en clases de un día según el plan, menos las excepciones; si hay check-in de asistencia, solo cuentan las clases marcadas.
   - Hecho cuando: hay pruebas con feriado, con asistencia marcada y sin check-ins, usando `plan-ejemplo.json`.
   - Resultado (2026-11-04): `tiempoEnClases` en `web/motor/resumen.js` (clases del día menos excepciones; asistencia clase por clase). Probado con plan-ejemplo: lunes, feriado y asistencia.
-- [ ] **V-04 · Selector de período compartido**
+- [x] **V-04 · Selector de período compartido**
   - Objetivo: Día · Semana (lunes a domingo) · Mes · Rango, con flechas de anterior y siguiente, que usan todas las vistas.
   - Hecho cuando: cambiar el período en una vista lo mantiene al pasar a otra y al recargar.
   - Notas: amplía el selector de fecha de F2-08 en lugar de crear otro.
+  - Resultado (2026-11-04): `web/js/periodo.js` (período en la dirección y en localStorage, compartido entre vistas) y `web/js/componentes/selector-periodo.js` (Día · Semana · Mes · Rango, ‹ › Hoy, atajos ← →); el selector de F2-08 pasa a usarlo. Además, componentes para las vistas: `linea-tiempo.js` (carriles Plan, Real, Intervenciones y Cortes; detalle con la URL completa; zoom) y ayudantes de `graficos.js` (estados vacío y cargando, tokens nuevos). Revisión: la hizo el coordinador (presupuesto); comprobado en el navegador con el AW falso.
 - [ ] **V-05 · Vista Resumen del período**
   - Objetivo: fila de KPIs con comparación; barras apiladas por día (clase, área o curso) con línea de meta; línea de estudio con media móvil de 7 días; horas por curso contra su meta; calendario mensual; día de la semana promedio (visualizaciones §4.2).
   - Hecho cuando: con la semana de ejemplo, los KPIs y las barras coinciden con `verdad.json`, y la vista dice si los promedios incluyen los días sin datos.
