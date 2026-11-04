@@ -507,7 +507,7 @@ export const CLAVES_METRICAS = ['estudio', 'estudioTotal', 'papel', 'clases', 'i
 
 /**
  * @typedef {Object} EstadoIntervencion
- * @property {Array<{objetivo: string, hasta: number, tipo: ('permiso'|'pase')}>} pases
+ * @property {Array<{objetivo: string, hasta: number, tipo: ('permiso'|'pase'), itemId: (string|null)}>} pases   un pase vale solo en su bloque o clase
  * @property {Object<string, number>} avisos       id del BloqueDia (o ClaseDia) → avisos dados
  * @property {Object<string, boolean>} escalados   id del BloqueDia → ya subió a fricción
  * @property {number} comodines                    los que quedan esta semana

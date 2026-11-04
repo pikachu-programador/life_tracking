@@ -303,10 +303,11 @@ Cambios en las tareas: F5-02 se hace dentro de F2-01 y F5-03 dentro de F4-02, po
   - Hecho cuando: hay pruebas de que endurecer aplica hoy y aflojar desde el día lógico siguiente, y de la configuración vigente en cada fecha.
   - Notas: cada cambio pendiente se guarda con `aplica_desde`; la configuración vigente la calcula el motor (§11). La interfaz pasó a F4-09.
   - Resultado (2026-11-04): `web/motor/niveles.js` (configuración vigente por fecha, asimetría endurecer hoy / aflojar mañana, cambios pendientes, nivel de cada bloque). Revisión cruzada: aprobado con cambios menores (anotados en la bitácora).
-- [ ] **F4-05 · Decisor**
+- [x] **F4-05 · Decisor**
   - Objetivo: actividad + bloque activo + nivel + pases + avisos acumulados → permitir, aviso, fricción o bloqueo, con escalamiento.
   - Hecho cuando: hay pruebas para cada nivel, para el escalamiento tras 3 avisos, para `nunca_bloquear` y para lo sin clasificar en total.
   - Notas: no conoce el reloj ni la red; así sirve igual para el simulador y para el agente.
+  - Resultado (2026-11-04): `web/motor/decisor.js` (decidir, registrarDecision, concederPase; protegidos, IA, nunca_bloquear, escalamiento solo en bloques, sin_extension en total). Revisión: requería cambios; corregidos (nunca_bloquear solo con app y URL; un pase vale solo en su bloque o clase).
 - [ ] **F4-06 · Simulador**
   - Objetivo: correr el Decisor sobre los segmentos de un día con un nivel elegido → intervenciones simuladas y minutos que se habrían cortado.
   - Hecho cuando: el mismo día con el mismo nivel siempre da el mismo resultado, y se pueden comparar los 3 niveles.

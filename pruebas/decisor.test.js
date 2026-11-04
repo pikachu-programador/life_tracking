@@ -163,11 +163,13 @@ test('la IA nunca se bloquea, aunque su URL coincida con un patrón', () => {
   }
 });
 
-test('nunca_bloquear se prueba contra app, título y URL (sin distinguir mayúsculas)', () => {
+test('nunca_bloquear se prueba contra app y URL, no contra el título (sin distinguir mayúsculas)', () => {
   const cfg = config({ nunca_bloquear: ['^obsidian\\.exe$', 'clase grabada', 'youtube\\.com/watch\\?v=abc'] });
   const obsidian = { app: 'Obsidian.exe', titulo: 'Notas', url: null, categoria: ['Distracción', 'Otros'] };
+  // El título lo decide cada web: "Clase Grabada…" en el título NO alcanza para no bloquear (revisión de F4-05).
   const porTitulo = { ...YOUTUBE, url: 'https://www.youtube.com/watch?v=otro', titulo: 'Clase Grabada de DBP - YouTube' };
-  for (const actividad of [obsidian, porTitulo, YOUTUBE]) {
+  assert.equal(decidirEn('total', porTitulo, { config: cfg }).accion, 'bloqueo');
+  for (const actividad of [obsidian, YOUTUBE]) {
     const d = decidirEn('total', actividad, { config: cfg });
     assert.equal(d.motivo, 'nunca_bloquear', JSON.stringify(actividad));
   }
@@ -411,7 +413,7 @@ test('permiso tras un aviso: no gasta comodín ni se registra; al vencer vuelve 
   assert.deepEqual(p.intervenciones, []);
   assert.equal(p.estado.comodines, 5);
   assert.equal(p.estado.ultima, null);
-  assert.deepEqual(paseVigente(p.estado, 'web:youtube.com', AHORA), { objetivo: 'web:youtube.com', hasta: AHORA + 5 * MIN, tipo: 'permiso' });
+  assert.deepEqual(paseVigente(p.estado, 'web:youtube.com', AHORA), { objetivo: 'web:youtube.com', hasta: AHORA + 5 * MIN, tipo: 'permiso', itemId: `b-dbp-mar@${FECHA}` });
   // Durante el permiso: permitir.
   const r2 = paso(p.estado, YOUTUBE, AHORA + 4 * MIN);
   assert.equal(r2.decision.motivo, 'pase_vigente');
@@ -478,4 +480,14 @@ test('pedidos que no sirven no conceden nada', () => {
     assert.equal(r.concedido, false, JSON.stringify(pedido));
     assert.equal(r.estado, estado);
   }
+});
+
+test('un pase vale solo en el bloque o la clase donde se dio (revisión de F4-05)', () => {
+  const c = clase(true);
+  const b = bloque('friccion');
+  let { estado } = concederPase(crearEstadoIntervencion({ comodines: 5 }), { objetivo: 'web:youtube.com', tipo: 'permiso', minutos: 5, ahora: AHORA, clase: c });
+  // Dentro de la clase, el permiso vale…
+  assert.equal(decidir({ actividad: YOUTUBE, clase: c, config: CONFIG, estado, ahora: AHORA + 60_000 }).motivo, 'pase_vigente');
+  // …pero en el bloque siguiente no: hay fricción aunque el permiso no haya vencido.
+  assert.equal(decidir({ actividad: YOUTUBE, bloque: b, config: CONFIG, estado, ahora: AHORA + 60_000 }).accion, 'friccion');
 });

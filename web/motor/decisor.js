@@ -178,9 +178,12 @@ function coincideAlguno(patrones, textos) {
  * @param {import('./tipos.js').EstadoIntervencion|null} estado
  * @returns {{objetivo: string, hasta: number, tipo: ('permiso'|'pase')}|null}
  */
-export function paseVigente(estado, objetivo, ahora) {
+export function paseVigente(estado, objetivo, ahora, itemId) {
   const pases = Array.isArray(estado?.pases) ? estado.pases : [];
-  return pases.find((pase) => pase.objetivo === objetivo && pase.hasta > ahora) ?? null;
+  // (Revisión de F4-05) Un pase vale solo en el bloque o la clase donde se dio: si no, un permiso de una clase
+  // que termina a las 17:00 dejaría pasar sin fricción al bloque que empieza a las 17:00.
+  return pases.find((pase) => pase.objetivo === objetivo && pase.hasta > ahora
+    && (itemId === undefined || pase.itemId === undefined || pase.itemId === itemId)) ?? null;
 }
 
 /** Acción de cada nivel cuando algo se tiene que intervenir. */
@@ -223,7 +226,8 @@ export function decidir({ actividad = null, bloque = null, clase = null, config 
   if (esProtegido(actividad)) return permitir(nivel, 'protegido');
   const clasificacion = claseDe(actividad?.categoria);
   if (clasificacion === 'ia') return permitir(nivel, 'ia');
-  const textos = [actividad?.app, actividad?.titulo, actividad?.url];
+  // (Revisión de F4-05) Solo app y URL: el título lo decide cada web ("Curso de VS Code - YouTube" no es VS Code).
+  const textos = [actividad?.app, actividad?.url];
   if (coincideAlguno(cfg.nunca_bloquear, textos)) return permitir(nivel, 'nunca_bloquear');
 
   // 6. ¿Es algo que este nivel bloquea?
@@ -238,7 +242,7 @@ export function decidir({ actividad = null, bloque = null, clase = null, config 
   if (!motivo) return permitir(nivel, 'no_bloqueable');
 
   // 7. Permiso (tras un aviso) o pase (fricción) que todavía no vence.
-  if (nivel !== 'total' && paseVigente(estado, objetivo, ahora)) return permitir(nivel, 'pase_vigente');
+  if (nivel !== 'total' && paseVigente(estado, objetivo, ahora, itemQueManda(bloque, clase).itemId)) return permitir(nivel, 'pase_vigente');
 
   // 8. Intervenir.
   return { accion: ACCION_DE_NIVEL[nivel], nivel, objetivo, motivo };
@@ -364,7 +368,9 @@ export function concederPase(estado, { objetivo, tipo, minutos, ahora, bloque = 
 
   const nuevo = copiarEstado(estado, ahora);
   nuevo.pases = nuevo.pases.filter((pase) => pase.objetivo !== objetivo);
-  nuevo.pases.push({ objetivo, hasta: ahora + minutos * MS_MIN, tipo });
+  // Sin bloque ni clase, el pase vale en cualquier ítem (itemId undefined).
+  const { itemId } = itemQueManda(bloque, clase);
+  nuevo.pases.push({ objetivo, hasta: ahora + minutos * MS_MIN, tipo, ...(itemId ? { itemId } : {}) });
   nuevo.ultima = null;
 
   const intervenciones = [];
