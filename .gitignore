@@ -19,3 +19,6 @@ secretos/
 node_modules/
 *.log
 agente/logs/
+
+# Worktrees de los subagentes de Claude Code (cada uno trabaja en su propia copia).
+.claude/worktrees/
