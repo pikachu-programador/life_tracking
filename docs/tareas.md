@@ -198,9 +198,10 @@ Cambios en las tareas: F5-02 se hace dentro de F2-01 y F5-03 dentro de F4-02, po
 | F2-08 | Selector de fecha y caché | Dashboard | F1-04 | 3 | M | Esencial |
 | F2-09 | Servicio de datos del dashboard | Dashboard | F2-08, F2-01, F3-03, V-01 | 3 | M | Esencial |
 
-- [ ] **F2-01 · Día lógico estimado**
+- [x] **F2-01 · Día lógico estimado**
   - Objetivo: inicio y fin del día según §10 (algoritmo en §6.7), con los check-ins de despertar y dormir (lo de F5-02).
   - Hecho cuando: la actividad de la 1:00 a. m. cuenta para el día anterior, y hay pruebas con trasnoche, con días sin datos y con check-ins (el de despertar manda sobre la estimación).
+  - Resultado (2026-11-04): `web/motor/checkins.js` y `web/motor/dia-logico.js` (con lo de F5-02): en los 14 días de ejemplo, inicio y fin coinciden al milisegundo con `verdad.json`; 10-13 sin datos; trasnoches hasta las 03:10, 02:30 y 04:30 del 19; los check-ins de despertar mandan. Pruebas aleatorias: 24 000 días sin solaparse. Revisión: la hizo el coordinador (presupuesto).
 - [ ] **F2-02 · Horas despierto y su reparto**
   - Objetivo: "Despierto desde HH:MM · X h" y una barra con el reparto (estudio, distracción, neutral, IA, sin clasificar, AFK, sin PC).
   - Hecho cuando: el reparto suma exactamente las horas despierto.
@@ -345,7 +346,7 @@ Cambios en las tareas: F5-02 se hace dentro de F2-01 y F5-03 dentro de F4-02, po
 - [ ] **F5-01 · Registro de check-ins**
   - Objetivo: crear `rastreador-checkins_<host>` y registrar despertar, dormir, rutina hecha, estudio en papel y asistencia desde el dashboard.
   - Hecho cuando: cada check-in aparece en el Timeline de AW y en la vista Diario.
-- [ ] **F5-02 · Día lógico con check-ins**
+- [x] **F5-02 · Día lógico con check-ins**
   - Objetivo: usar los check-ins de despertar y dormir en el cálculo del día lógico.
   - Hecho cuando: el check-in de despertar manda sobre la estimación y se puede corregir un día pasado.
   - Notas: el motor se hace dentro de F2-01; corregir un día pasado llega con la vista Diario (F5-04).
