@@ -1,8 +1,8 @@
 ---
 proyecto: Rastreador de tiempo + modo meta
 documento: Tareas
-version: 3
-actualizado: 2026-11-01
+version: 4
+actualizado: 2026-11-04
 ---
 
 # Tareas — Rastreador de tiempo + modo meta
@@ -65,6 +65,8 @@ flowchart LR
   F6 --> F7["F7 Bloqueo real"]
   F4 --> F8["F8 Extras"]
   F6 --> F8
+  F2 --> V["V Visualizaciones"]
+  F3 --> V
 ```
 
 **Ruta crítica del Hito 1** (la cadena con más horas estimadas): F0-01 → F0-05 → F1-03 → F1-04 → F1-05 → F4-01 → F4-05 → F4-06 → F4-07.
@@ -436,5 +438,59 @@ flowchart LR
   - Objetivo: que al empezar un pomodoro, PomoRem pida un bloque a la API del agente, para que el dashboard y el bloqueo lo reconozcan.
 - [ ] **F8-06 · Sueño contra rendimiento**
   - Objetivo: horas dormidas contra el foco del día siguiente.
+  - Notas: en pausa. [visualizaciones.md](visualizaciones.md) §3 deja el sueño fuera de alcance hasta que los check-ins de dormir y despertar estén bien adoptados (propuesta en §19 de la arquitectura, 2026-11-04).
 - [ ] **F8-07 · Dashboard dentro de AW**
   - Objetivo: mostrar Hoy como visualización personalizada en la vista Actividad de AW (recibe `hostname`, `start` y `end`).
+
+---
+
+## Visualizaciones (V)
+
+**Resultado:** semanas, meses y rangos con comparaciones, día típico y explorador de actividad. **Aprendes:** agregación de datos, estadística básica y diseño de gráficos. Especificación en [visualizaciones.md](visualizaciones.md).
+
+| ID | Tarea | Dónde | Depende de | Dif. | Tamaño | Prioridad |
+|---|---|---|---|---|---|---|
+| V-01 | Resumen diario (`resumirDia`) y su caché | Motor | F1-05, F2-01, F3-03 | 4 | L | Importante |
+| V-02 | Agregado por período (`agregarPeriodo`) | Motor | V-01 | 3 | M | Importante |
+| V-03 | Tiempo en clases | Motor | V-01 | 2 | S | Importante |
+| V-04 | Selector de período compartido | Dashboard | F1-01, F2-08 | 2 | S | Importante |
+| V-05 | Vista Resumen del período | Dashboard | V-02, V-03, V-04, F1-06 | 3 | L | Importante |
+| V-06 | Vista Día típico | Dashboard | V-02 | 3 | M | Importante |
+| V-08 | Explorador de actividad | Dashboard | V-02, F1-06 | 3 | L | Importante |
+| V-09 | Vista Comparar | Dashboard | V-05 | 2 | M | Importante |
+| V-10 | Tres temas de estilo y página de muestra | Dashboard | F1-02 | 2 | M | Importante |
+
+No hay V-07: [visualizaciones.md](visualizaciones.md) salta de V-06 a V-08.
+
+**Para todas:** las cifras de cada vista coinciden con `datos-ejemplo/verdad.json` cuando aplica (`minutos_por_clase_y_area`); las funciones del motor tienen pruebas; las vistas tienen capturas con los datos de ejemplo en modo claro y oscuro, con estado vacío, de carga y detalle al pasar el mouse, y se ven bien a 1366×768 y a 1920×1080 (visualizaciones §5).
+
+- [ ] **V-01 · Resumen diario y su caché**
+  - Objetivo: `resumirDia(segmentos, plan, checkins, dia)` → un objeto con todas las métricas de un día lógico (visualizaciones §3); los resúmenes de días terminados quedan en caché y hoy siempre se recalcula.
+  - Hecho cuando: con los datos de ejemplo, los minutos por clase y área de cada día coinciden con `minutos_por_clase_y_area` de `verdad.json`; las pruebas cubren trasnoche, día sin datos (10-13) y feriado (10-08).
+  - Notas: función pura del motor. La caché vive en la memoria del navegador, como la de días de F2-08; no se guarda en AW. Cumplimiento, puntualidad y racha se suman al resumen cuando existan F4-03; estudio en papel y asistencia, cuando existan los check-ins (F5-01, F5-03).
+- [ ] **V-02 · Agregado por período**
+  - Objetivo: `agregarPeriodo(resumenes, desde, hasta)` → totales, promedio por día (con datos o incluyendo los días vacíos), mediana, máximo y mínimo con su fecha, desviación estándar, rachas, día de la semana promedio y comparación con el período anterior del mismo largo.
+  - Hecho cuando: una semana y un rango armados a mano en las pruebas dan los valores esperados, con y sin días vacíos.
+- [ ] **V-03 · Tiempo en clases**
+  - Objetivo: tiempo en clases de un día según el plan, menos las excepciones; si hay check-in de asistencia, solo cuentan las clases marcadas.
+  - Hecho cuando: hay pruebas con feriado, con asistencia marcada y sin check-ins, usando `plan-ejemplo.json`.
+- [ ] **V-04 · Selector de período compartido**
+  - Objetivo: Día · Semana (lunes a domingo) · Mes · Rango, con flechas de anterior y siguiente, que usan todas las vistas.
+  - Hecho cuando: cambiar el período en una vista lo mantiene al pasar a otra y al recargar.
+  - Notas: amplía el selector de fecha de F2-08 en lugar de crear otro.
+- [ ] **V-05 · Vista Resumen del período**
+  - Objetivo: fila de KPIs con comparación; barras apiladas por día (clase, área o curso) con línea de meta; línea de estudio con media móvil de 7 días; horas por curso contra su meta; calendario mensual; día de la semana promedio (visualizaciones §4.2).
+  - Hecho cuando: con la semana de ejemplo, los KPIs y las barras coinciden con `verdad.json`, y la vista dice si los promedios incluyen los días sin datos.
+- [ ] **V-06 · Vista Día típico**
+  - Objetivo: franja de 24 h en tramos de 15 min con el estado más frecuente del período y, debajo, la franja del plan (visualizaciones §4.3).
+  - Hecho cuando: con los datos de ejemplo cada tramo muestra el estado más frecuente y ningún tramo se etiqueta como "dormido".
+- [ ] **V-08 · Explorador de actividad**
+  - Objetivo: elegir una categoría, app, dominio o palabra y ver su serie diaria, sus horas del día (0 a 23) y sus URLs y títulos más frecuentes con su tiempo (visualizaciones §4.4).
+  - Hecho cuando: buscar `youtube.com` en los datos de ejemplo da el mismo total en la serie diaria, en las barras por hora y en la lista de URLs.
+- [ ] **V-09 · Vista Comparar**
+  - Objetivo: dos períodos lado a lado con las mismas métricas y sus diferencias (visualizaciones §4.5).
+  - Hecho cuando: comparar dos semanas de ejemplo da diferencias que coinciden con restar sus resúmenes.
+- [ ] **V-10 · Tres temas de estilo y página de muestra**
+  - Objetivo: tres propuestas de estilo intercambiables, mostradas en la página de muestra con datos de ejemplo, para que Dremy elija una o las mezcle (visualizaciones §5).
+  - Hecho cuando: cambiar de tema en la página de muestra cambia todo el dashboard, en modo claro y oscuro, sin tocar otro CSS.
+  - Notas: cada tema es un archivo que redefine **las mismas** variables de `tokens.css`; el resto del CSS sigue leyendo solo esas variables. Ninguno es la paleta final: la decide Dremy (§17 de la arquitectura).
