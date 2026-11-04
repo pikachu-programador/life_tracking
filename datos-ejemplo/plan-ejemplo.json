@@ -1,0 +1,398 @@
+{
+  "nota": "Plan inventado para las pruebas. Coincide con los días de verdad.json (5 al 18 de octubre de 2026). Sigue los campos de §8 de docs/arquitectura.md.",
+  "ciclo": {
+    "nombre": "2026-2 (ejemplo)",
+    "inicio": "2026-08-24",
+    "fin": "2026-12-12"
+  },
+  "cursos": [
+    {
+      "id": "bd1",
+      "nombre": "BD I",
+      "meta_horas_semana": 6,
+      "prioridad": "media",
+      "area": [
+        "Estudio",
+        "Programación"
+      ]
+    },
+    {
+      "id": "dbp",
+      "nombre": "DBP",
+      "meta_horas_semana": 8,
+      "prioridad": "alta",
+      "area": [
+        "Estudio",
+        "Programación"
+      ]
+    },
+    {
+      "id": "p3",
+      "nombre": "Prog III",
+      "meta_horas_semana": 6,
+      "prioridad": "alta",
+      "area": [
+        "Estudio",
+        "Programación"
+      ]
+    },
+    {
+      "id": "est",
+      "nombre": "Estadística",
+      "meta_horas_semana": 6,
+      "prioridad": "alta",
+      "area": [
+        "Estudio",
+        "Matemáticas"
+      ]
+    },
+    {
+      "id": "edo",
+      "nombre": "EDO",
+      "meta_horas_semana": 5,
+      "prioridad": "media",
+      "area": [
+        "Estudio",
+        "Matemáticas"
+      ]
+    },
+    {
+      "id": "pi2",
+      "nombre": "PI2",
+      "meta_horas_semana": 2,
+      "prioridad": "baja",
+      "area": [
+        "Estudio",
+        "Programación"
+      ]
+    },
+    {
+      "id": "ing",
+      "nombre": "Inglés",
+      "meta_horas_semana": 3,
+      "prioridad": "media",
+      "area": [
+        "Estudio",
+        "Inglés"
+      ]
+    }
+  ],
+  "clases": [
+    {
+      "curso": "bd1",
+      "tipo": "teoria",
+      "dias": [
+        "lun"
+      ],
+      "inicio": "08:00",
+      "fin": "10:00",
+      "lugar": "UTEC",
+      "usa_pc": false
+    },
+    {
+      "curso": "edo",
+      "tipo": "teoria",
+      "dias": [
+        "lun"
+      ],
+      "inicio": "10:00",
+      "fin": "12:00",
+      "lugar": "UTEC",
+      "usa_pc": false
+    },
+    {
+      "curso": "dbp",
+      "tipo": "laboratorio",
+      "dias": [
+        "mar"
+      ],
+      "inicio": "14:00",
+      "fin": "16:00",
+      "lugar": "UTEC",
+      "usa_pc": false
+    },
+    {
+      "curso": "est",
+      "tipo": "teoria",
+      "dias": [
+        "mie"
+      ],
+      "inicio": "08:00",
+      "fin": "10:00",
+      "lugar": "UTEC",
+      "usa_pc": false
+    },
+    {
+      "curso": "p3",
+      "tipo": "teoria",
+      "dias": [
+        "jue"
+      ],
+      "inicio": "08:00",
+      "fin": "10:00",
+      "lugar": "UTEC",
+      "usa_pc": false
+    },
+    {
+      "curso": "pi2",
+      "tipo": "laboratorio",
+      "dias": [
+        "jue"
+      ],
+      "inicio": "10:00",
+      "fin": "12:00",
+      "lugar": "UTEC",
+      "usa_pc": false
+    },
+    {
+      "curso": "ing",
+      "tipo": "teoria",
+      "dias": [
+        "vie"
+      ],
+      "inicio": "10:00",
+      "fin": "12:00",
+      "lugar": "UTEC",
+      "usa_pc": false
+    }
+  ],
+  "rutinas": [
+    {
+      "id": "despertar",
+      "nombre": "Despertar",
+      "dias": [
+        "lun",
+        "mar",
+        "mie",
+        "jue",
+        "vie"
+      ],
+      "inicio": "07:00",
+      "fin": "07:00",
+      "medicion": "dia_logico",
+      "tolerancia_min": 30
+    },
+    {
+      "id": "despertar-finde",
+      "nombre": "Despertar (fin de semana)",
+      "dias": [
+        "sab",
+        "dom"
+      ],
+      "inicio": "09:30",
+      "fin": "09:30",
+      "medicion": "dia_logico",
+      "tolerancia_min": 30
+    },
+    {
+      "id": "dormir",
+      "nombre": "Dormir",
+      "dias": [
+        "lun",
+        "mar",
+        "mie",
+        "jue",
+        "vie",
+        "sab",
+        "dom"
+      ],
+      "inicio": "01:00",
+      "fin": "01:00",
+      "medicion": "dia_logico",
+      "tolerancia_min": 30
+    },
+    {
+      "id": "ingles-pc",
+      "nombre": "Inglés en la PC",
+      "dias": [
+        "lun",
+        "mar",
+        "mie",
+        "jue",
+        "vie"
+      ],
+      "inicio": "21:00",
+      "fin": "22:00",
+      "medicion": "pc",
+      "categoria": [
+        "Estudio",
+        "Inglés"
+      ],
+      "minutos_meta": 30,
+      "tolerancia_min": 10
+    },
+    {
+      "id": "ejercicio",
+      "nombre": "Ejercicio",
+      "dias": [
+        "mar",
+        "jue"
+      ],
+      "inicio": "19:30",
+      "fin": "20:30",
+      "medicion": "checkin",
+      "tolerancia_min": 15
+    }
+  ],
+  "bloques": [
+    {
+      "id": "b-bd1-lun",
+      "tipo": "estudio_pc",
+      "curso": "bd1",
+      "repeticion": {
+        "tipo": "semanal",
+        "dias": [
+          "lun"
+        ]
+      },
+      "inicio": "15:00",
+      "fin": "17:00",
+      "nivel": "friccion",
+      "objetivo": "Ejercicios de normalización y SQL",
+      "por_que": "Quiero llegar al final de BD I sin depender del examen."
+    },
+    {
+      "id": "b-dbp-mar",
+      "tipo": "estudio_pc",
+      "curso": "dbp",
+      "repeticion": {
+        "tipo": "semanal",
+        "dias": [
+          "mar"
+        ]
+      },
+      "inicio": "17:00",
+      "fin": "19:00",
+      "nivel": "friccion",
+      "objetivo": "Avanzar el frontend del proyecto",
+      "por_que": "DBP es prioridad alta este ciclo."
+    },
+    {
+      "id": "b-p3-mar-noche",
+      "tipo": "estudio_pc",
+      "curso": "p3",
+      "repeticion": {
+        "tipo": "semanal",
+        "dias": [
+          "mar"
+        ]
+      },
+      "inicio": "23:30",
+      "fin": "00:30",
+      "nivel": "aviso",
+      "objetivo": "Repasar el trie de sufijos",
+      "por_que": "Retomar programación con constancia."
+    },
+    {
+      "id": "b-est-mie",
+      "tipo": "estudio_pc",
+      "curso": "est",
+      "repeticion": {
+        "tipo": "semanal",
+        "dias": [
+          "mie"
+        ]
+      },
+      "inicio": "15:00",
+      "fin": "17:00",
+      "nivel": "friccion",
+      "objetivo": "Avance del proyecto en R",
+      "por_que": "Aprender R de verdad."
+    },
+    {
+      "id": "b-edo-mie",
+      "tipo": "estudio_papel",
+      "curso": "edo",
+      "repeticion": {
+        "tipo": "semanal",
+        "dias": [
+          "mie"
+        ]
+      },
+      "inicio": "20:00",
+      "fin": "21:30",
+      "nivel": "aviso",
+      "objetivo": "Problemas de la guía a mano",
+      "por_que": "Los ejercicios se entregan a mano."
+    },
+    {
+      "id": "b-pi2-jue",
+      "tipo": "estudio_pc",
+      "curso": "pi2",
+      "repeticion": {
+        "tipo": "semanal",
+        "dias": [
+          "jue"
+        ]
+      },
+      "inicio": "15:00",
+      "fin": "17:00",
+      "nivel": "aviso",
+      "objetivo": "Calibrar el sensor",
+      "por_que": "Entrega del prototipo."
+    },
+    {
+      "id": "b-edo-vie",
+      "tipo": "estudio_papel",
+      "curso": "edo",
+      "repeticion": {
+        "tipo": "semanal",
+        "dias": [
+          "vie"
+        ]
+      },
+      "inicio": "16:00",
+      "fin": "17:30",
+      "nivel": "aviso",
+      "objetivo": "Problemas de la guía a mano",
+      "por_que": "Los ejercicios se entregan a mano."
+    },
+    {
+      "id": "b-dbp-sab",
+      "tipo": "estudio_pc",
+      "curso": "dbp",
+      "repeticion": {
+        "tipo": "semanal",
+        "dias": [
+          "sab"
+        ]
+      },
+      "inicio": "10:00",
+      "fin": "12:00",
+      "nivel": "friccion",
+      "objetivo": "Tutoriales y práctica de Spring",
+      "por_que": "DBP es prioridad alta este ciclo."
+    },
+    {
+      "id": "b-examen-bd1",
+      "tipo": "examen",
+      "curso": "bd1",
+      "repeticion": {
+        "tipo": "unica",
+        "fecha": "2026-10-17"
+      },
+      "inicio": "14:00",
+      "fin": "17:00",
+      "nivel": "total",
+      "objetivo": "Simulacro del examen de BD I",
+      "por_que": "Es el examen que más pesa."
+    }
+  ],
+  "excepciones": [
+    {
+      "desde": "2026-10-08",
+      "hasta": "2026-10-08",
+      "tipo": "feriado",
+      "efecto": "cancelar_clases_y_bloques",
+      "nota": "Combate de Angamos"
+    }
+  ],
+  "umbrales": {
+    "tolerancia_inicio_min": 10,
+    "foco_cumplido": 0.7,
+    "foco_parcial": 0.4,
+    "dia_cumplido": 0.8,
+    "hueco_sueno_h": 3,
+    "peso_despertar_dormir_min": 30
+  }
+}

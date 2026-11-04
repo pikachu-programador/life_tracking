@@ -1,0 +1,582 @@
+{
+ "buckets": {
+  "aw-watcher-afk_ejemplo": {
+   "id": "aw-watcher-afk_ejemplo",
+   "created": "2026-10-04T12:00:00.000000+00:00",
+   "name": null,
+   "type": "afkstatus",
+   "client": "aw-watcher-afk",
+   "hostname": "ejemplo",
+   "data": {},
+   "events": [
+    {
+     "timestamp": "2026-10-19T00:00:00.000000+00:00",
+     "duration": 34200,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-18T21:00:00.000000+00:00",
+     "duration": 7200,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-18T16:00:00.000000+00:00",
+     "duration": 14400,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-18T15:30:00.000000+00:00",
+     "duration": 1800,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-17T23:00:00.000000+00:00",
+     "duration": 22200,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-17T19:00:00.000000+00:00",
+     "duration": 10800,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-17T17:00:00.000000+00:00",
+     "duration": 6600,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-17T15:00:00.000000+00:00",
+     "duration": 7200,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-17T14:20:00.000000+00:00",
+     "duration": 2400,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-17T02:30:00.000000+00:00",
+     "duration": 12600,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-17T02:00:00.000000+00:00",
+     "duration": 1800,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-17T00:00:00.000000+00:00",
+     "duration": 7200,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-16T21:55:00.000000+00:00",
+     "duration": 2100,
+     "data": {
+      "status": "afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-16T21:35:00.000000+00:00",
+     "duration": 1200,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-16T21:00:00.000000+00:00",
+     "duration": 2100,
+     "data": {
+      "status": "afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-16T17:30:00.000000+00:00",
+     "duration": 12000,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-16T12:15:00.000000+00:00",
+     "duration": 1800,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-16T02:30:00.000000+00:00",
+     "duration": 9000,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-16T02:00:00.000000+00:00",
+     "duration": 1800,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-16T00:30:00.000000+00:00",
+     "duration": 5400,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-15T22:00:00.000000+00:00",
+     "duration": 5400,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-15T20:00:00.000000+00:00",
+     "duration": 7200,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-15T17:30:00.000000+00:00",
+     "duration": 8400,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-15T12:20:00.000000+00:00",
+     "duration": 1800,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-15T03:05:00.000000+00:00",
+     "duration": 8100,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-15T02:30:00.000000+00:00",
+     "duration": 2100,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-15T01:00:00.000000+00:00",
+     "duration": 5400,
+     "data": {
+      "status": "afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-14T22:00:00.000000+00:00",
+     "duration": 10800,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-14T19:58:00.000000+00:00",
+     "duration": 7320,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-14T15:30:00.000000+00:00",
+     "duration": 14400,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-14T12:00:00.000000+00:00",
+     "duration": 2400,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-13T02:40:00.000000+00:00",
+     "duration": 6600,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-13T02:00:00.000000+00:00",
+     "duration": 2400,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-13T00:00:00.000000+00:00",
+     "duration": 7200,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-12T20:20:00.000000+00:00",
+     "duration": 6000,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-12T17:30:00.000000+00:00",
+     "duration": 10200,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-12T12:05:00.000000+00:00",
+     "duration": 1800,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-12T00:00:00.000000+00:00",
+     "duration": 19800,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-11T21:00:00.000000+00:00",
+     "duration": 3600,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-11T16:25:00.000000+00:00",
+     "duration": 12900,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-11T16:10:00.000000+00:00",
+     "duration": 900,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-11T15:40:00.000000+00:00",
+     "duration": 1800,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-11T02:00:00.000000+00:00",
+     "duration": 15600,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-10T23:00:00.000000+00:00",
+     "duration": 10800,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-10T21:00:00.000000+00:00",
+     "duration": 5400,
+     "data": {
+      "status": "afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-10T19:00:00.000000+00:00",
+     "duration": 7200,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-10T15:00:00.000000+00:00",
+     "duration": 7200,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-10T14:30:00.000000+00:00",
+     "duration": 1800,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-10T02:35:00.000000+00:00",
+     "duration": 8100,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-10T02:00:00.000000+00:00",
+     "duration": 2100,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-10T01:00:00.000000+00:00",
+     "duration": 3600,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-09T22:30:00.000000+00:00",
+     "duration": 1200,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-09T21:00:00.000000+00:00",
+     "duration": 5400,
+     "data": {
+      "status": "afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-09T20:40:00.000000+00:00",
+     "duration": 1200,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-09T17:30:00.000000+00:00",
+     "duration": 1800,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-09T12:10:00.000000+00:00",
+     "duration": 1800,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-09T02:30:00.000000+00:00",
+     "duration": 12000,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-09T02:00:00.000000+00:00",
+     "duration": 1800,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-08T21:00:00.000000+00:00",
+     "duration": 14400,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-08T16:30:00.000000+00:00",
+     "duration": 12600,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-08T16:00:00.000000+00:00",
+     "duration": 1800,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-08T03:00:00.000000+00:00",
+     "duration": 16200,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-08T02:30:00.000000+00:00",
+     "duration": 1800,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-08T01:00:00.000000+00:00",
+     "duration": 5400,
+     "data": {
+      "status": "afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-08T00:30:00.000000+00:00",
+     "duration": 1800,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-07T22:00:00.000000+00:00",
+     "duration": 9000,
+     "data": {
+      "status": "afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-07T20:00:00.000000+00:00",
+     "duration": 7200,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-07T16:00:00.000000+00:00",
+     "duration": 12600,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-07T14:10:00.000000+00:00",
+     "duration": 3000,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-07T05:30:00.000000+00:00",
+     "duration": 9600,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-07T04:30:00.000000+00:00",
+     "duration": 3600,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-07T00:00:00.000000+00:00",
+     "duration": 15600,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-06T22:40:00.000000+00:00",
+     "duration": 4800,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-06T21:30:00.000000+00:00",
+     "duration": 4200,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-06T15:30:00.000000+00:00",
+     "duration": 10800,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-06T02:40:00.000000+00:00",
+     "duration": 10800,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-06T02:00:00.000000+00:00",
+     "duration": 2400,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-06T00:00:00.000000+00:00",
+     "duration": 5400,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-05T19:55:00.000000+00:00",
+     "duration": 7800,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-05T17:40:00.000000+00:00",
+     "duration": 6600,
+     "data": {
+      "status": "not-afk"
+     }
+    },
+    {
+     "timestamp": "2026-10-05T11:55:00.000000+00:00",
+     "duration": 2100,
+     "data": {
+      "status": "not-afk"
+     }
+    }
+   ]
+  }
+ }
+}

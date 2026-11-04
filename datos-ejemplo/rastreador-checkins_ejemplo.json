@@ -1,0 +1,95 @@
+{
+ "buckets": {
+  "rastreador-checkins_ejemplo": {
+   "id": "rastreador-checkins_ejemplo",
+   "created": "2026-10-04T12:00:00.000000+00:00",
+   "name": null,
+   "type": "rastreador.checkin",
+   "client": "rastreador",
+   "hostname": "ejemplo",
+   "data": {},
+   "events": [
+    {
+     "timestamp": "2026-10-17T14:20:00.000000+00:00",
+     "duration": 0,
+     "data": {
+      "tipo": "despertar",
+      "ref_id": "despertar",
+      "valor": "09:05",
+      "nota": ""
+     }
+    },
+    {
+     "timestamp": "2026-10-16T22:31:00.000000+00:00",
+     "duration": 0,
+     "data": {
+      "tipo": "papel",
+      "ref_id": "b-edo-vie",
+      "valor": "hecho",
+      "nota": ""
+     }
+    },
+    {
+     "timestamp": "2026-10-15T02:31:00.000000+00:00",
+     "duration": 0,
+     "data": {
+      "tipo": "papel",
+      "ref_id": "b-edo-mie",
+      "valor": "hecho",
+      "nota": ""
+     }
+    },
+    {
+     "timestamp": "2026-10-14T01:00:00.000000+00:00",
+     "duration": 0,
+     "data": {
+      "tipo": "rutina",
+      "ref_id": "ejercicio",
+      "valor": "hecho",
+      "nota": ""
+     }
+    },
+    {
+     "timestamp": "2026-10-09T22:31:00.000000+00:00",
+     "duration": 0,
+     "data": {
+      "tipo": "papel",
+      "ref_id": "b-edo-vie",
+      "valor": "hecho",
+      "nota": ""
+     }
+    },
+    {
+     "timestamp": "2026-10-08T02:31:00.000000+00:00",
+     "duration": 0,
+     "data": {
+      "tipo": "papel",
+      "ref_id": "b-edo-mie",
+      "valor": "hecho",
+      "nota": ""
+     }
+    },
+    {
+     "timestamp": "2026-10-06T15:30:00.000000+00:00",
+     "duration": 0,
+     "data": {
+      "tipo": "despertar",
+      "ref_id": "despertar",
+      "valor": "10:20",
+      "nota": ""
+     }
+    },
+    {
+     "timestamp": "2026-10-05T11:50:00.000000+00:00",
+     "duration": 0,
+     "data": {
+      "tipo": "despertar",
+      "ref_id": "despertar",
+      "valor": "06:45",
+      "nota": ""
+     }
+    }
+   ]
+  }
+ }
+}

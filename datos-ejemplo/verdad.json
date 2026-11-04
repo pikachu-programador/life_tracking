@@ -1,0 +1,1413 @@
+{
+ "semilla": 20261104,
+ "zona": "America/Lima",
+ "dias": [
+  {
+   "fecha": "2026-10-05",
+   "casos": [
+    "dia_casi_perfecto"
+   ],
+   "descripcion": "Despierta a tiempo, bloque de BD I puntual y con foco alto, inglés cumplido.",
+   "primera_actividad": "2026-10-05T11:55:00.000000+00:00",
+   "ultima_actividad": "2026-10-06T05:40:00.000000+00:00",
+   "segmentos": [
+    {
+     "de": "06:55",
+     "a": "07:30",
+     "modo": "act",
+     "intenciones": [
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Distracción/Redes",
+      "Sin clasificar"
+     ]
+    },
+    {
+     "de": "12:40",
+     "a": "14:30",
+     "modo": "act",
+     "intenciones": [
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Neutral/Otros",
+      "Sin clasificar"
+     ]
+    },
+    {
+     "de": "14:55",
+     "a": "17:05",
+     "modo": "act",
+     "intenciones": [
+      "Estudio/BD I",
+      "IA",
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema"
+     ]
+    },
+    {
+     "de": "19:00",
+     "a": "20:30",
+     "modo": "act",
+     "intenciones": [
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Neutral/Otros",
+      "Sin clasificar"
+     ]
+    },
+    {
+     "de": "21:00",
+     "a": "21:40",
+     "modo": "act",
+     "intenciones": [
+      "Estudio/Inglés",
+      "IA",
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema"
+     ]
+    },
+    {
+     "de": "21:40",
+     "a": "24:40",
+     "modo": "act",
+     "intenciones": [
+      "Estudio/DBP",
+      "IA",
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Neutral/Otros"
+     ]
+    }
+   ],
+   "minutos_por_intencion": {
+    "Distracción/Redes": 64,
+    "Distracción/Video": 55,
+    "Estudio/BD I": 109,
+    "Estudio/DBP": 112,
+    "Estudio/Inglés": 32,
+    "IA": 14,
+    "Neutral/Comunicación": 78,
+    "Neutral/Otros": 19,
+    "Neutral/Sistema": 69,
+    "Sin clasificar": 34
+   },
+   "minutos_por_clase_y_area": {
+    "Distracción/Redes": 64,
+    "Distracción/Video": 55,
+    "Estudio/Programación": 221,
+    "Estudio/Inglés": 32,
+    "IA": 14,
+    "Neutral/Comunicación": 78,
+    "Neutral/Otros": 19,
+    "Neutral/Sistema": 69,
+    "Sin clasificar": 34
+   }
+  },
+  {
+   "fecha": "2026-10-06",
+   "casos": [
+    "dia_malo",
+    "bloque_cruza_medianoche"
+   ],
+   "descripcion": "Despierta tarde, el bloque de DBP empieza tarde y casi todo es distracción; el bloque de Prog III de 23:30 a 00:30 queda a medias; trasnoche hasta las 3.",
+   "primera_actividad": "2026-10-06T15:30:00.000000+00:00",
+   "ultima_actividad": "2026-10-07T08:10:00.000000+00:00",
+   "segmentos": [
+    {
+     "de": "10:30",
+     "a": "13:30",
+     "modo": "act",
+     "intenciones": [
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Neutral/Otros",
+      "Sin clasificar"
+     ]
+    },
+    {
+     "de": "16:30",
+     "a": "17:40",
+     "modo": "act",
+     "intenciones": [
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación"
+     ]
+    },
+    {
+     "de": "17:40",
+     "a": "19:00",
+     "modo": "act",
+     "intenciones": [
+      "Estudio/DBP",
+      "IA",
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema"
+     ]
+    },
+    {
+     "de": "19:00",
+     "a": "23:20",
+     "modo": "act",
+     "intenciones": [
+      "Distracción/Juegos",
+      "Distracción/Video",
+      "Neutral/Comunicación"
+     ]
+    },
+    {
+     "de": "23:30",
+     "a": "24:30",
+     "modo": "act",
+     "intenciones": [
+      "Estudio/Prog III",
+      "IA",
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema"
+     ]
+    },
+    {
+     "de": "24:30",
+     "a": "27:10",
+     "modo": "act",
+     "intenciones": [
+      "Distracción/Video",
+      "Distracción/Redes"
+     ]
+    }
+   ],
+   "minutos_por_intencion": {
+    "Distracción/Juegos": 83,
+    "Distracción/Redes": 140,
+    "Distracción/Video": 337,
+    "Estudio/DBP": 55,
+    "Estudio/Prog III": 27,
+    "IA": 3,
+    "Neutral/Comunicación": 86,
+    "Neutral/Otros": 5,
+    "Neutral/Sistema": 53,
+    "Sin clasificar": 20
+   },
+   "minutos_por_clase_y_area": {
+    "Distracción/Juegos": 83,
+    "Distracción/Redes": 140,
+    "Distracción/Video": 337,
+    "Estudio/Programación": 82,
+    "IA": 3,
+    "Neutral/Comunicación": 86,
+    "Neutral/Otros": 5,
+    "Neutral/Sistema": 53,
+    "Sin clasificar": 20
+   }
+  },
+  {
+   "fecha": "2026-10-07",
+   "casos": [
+    "trasnoche",
+    "estudio_en_papel_cumplido"
+   ],
+   "descripcion": "Estadística puntual; EDO en papel con la PC en AFK; actividad hasta las 2:30, que pertenece a este día lógico.",
+   "primera_actividad": "2026-10-07T14:10:00.000000+00:00",
+   "ultima_actividad": "2026-10-08T07:30:00.000000+00:00",
+   "segmentos": [
+    {
+     "de": "09:10",
+     "a": "10:00",
+     "modo": "act",
+     "intenciones": [
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Distracción/Redes",
+      "Sin clasificar"
+     ]
+    },
+    {
+     "de": "11:00",
+     "a": "14:30",
+     "modo": "act",
+     "intenciones": [
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Neutral/Otros",
+      "Sin clasificar"
+     ]
+    },
+    {
+     "de": "15:00",
+     "a": "17:00",
+     "modo": "act",
+     "intenciones": [
+      "Estudio/Estadística",
+      "IA",
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema"
+     ]
+    },
+    {
+     "de": "17:00",
+     "a": "19:30",
+     "modo": "afk",
+     "ventana": "Neutral/Otros"
+    },
+    {
+     "de": "19:30",
+     "a": "20:00",
+     "modo": "act",
+     "intenciones": [
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Neutral/Otros",
+      "Sin clasificar"
+     ]
+    },
+    {
+     "de": "20:00",
+     "a": "21:30",
+     "modo": "papel",
+     "ventana": "Estudio/EDO"
+    },
+    {
+     "de": "21:30",
+     "a": "22:00",
+     "modo": "act",
+     "intenciones": [
+      "Estudio/Inglés",
+      "IA",
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema"
+     ]
+    },
+    {
+     "de": "22:00",
+     "a": "26:30",
+     "modo": "act",
+     "intenciones": [
+      "Estudio/DBP",
+      "IA",
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema"
+     ]
+    }
+   ],
+   "minutos_por_intencion": {
+    "(afk)": 150,
+    "(papel)": 90,
+    "Distracción/Redes": 102,
+    "Distracción/Video": 136,
+    "Estudio/DBP": 125,
+    "Estudio/Estadística": 97,
+    "Estudio/Inglés": 24,
+    "IA": 15,
+    "Neutral/Comunicación": 95,
+    "Neutral/Otros": 1,
+    "Neutral/Sistema": 59,
+    "Sin clasificar": 57
+   },
+   "minutos_por_clase_y_area": {
+    "(afk)": 150,
+    "Estudio (sin teclado)": 90,
+    "Distracción/Redes": 102,
+    "Distracción/Video": 136,
+    "Estudio/Programación": 125,
+    "Estudio/Matemáticas": 97,
+    "Estudio/Inglés": 24,
+    "IA": 15,
+    "Neutral/Comunicación": 95,
+    "Neutral/Otros": 1,
+    "Neutral/Sistema": 59,
+    "Sin clasificar": 57
+   }
+  },
+  {
+   "fecha": "2026-10-08",
+   "casos": [
+    "feriado",
+    "distraccion_en_tiempo_libre"
+   ],
+   "descripcion": "Feriado: no hay clases ni bloques. Muchas horas de juegos y video que NO son fallos.",
+   "primera_actividad": "2026-10-08T16:00:00.000000+00:00",
+   "ultima_actividad": "2026-10-09T05:50:00.000000+00:00",
+   "segmentos": [
+    {
+     "de": "11:00",
+     "a": "11:30",
+     "modo": "act",
+     "intenciones": [
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Distracción/Redes",
+      "Sin clasificar"
+     ]
+    },
+    {
+     "de": "11:30",
+     "a": "15:00",
+     "modo": "act",
+     "intenciones": [
+      "Distracción/Juegos",
+      "Neutral/Comunicación"
+     ]
+    },
+    {
+     "de": "16:00",
+     "a": "20:00",
+     "modo": "act",
+     "intenciones": [
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Otros"
+     ]
+    },
+    {
+     "de": "21:00",
+     "a": "21:30",
+     "modo": "act",
+     "intenciones": [
+      "Estudio/Inglés",
+      "IA",
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema"
+     ]
+    },
+    {
+     "de": "21:30",
+     "a": "24:50",
+     "modo": "act",
+     "intenciones": [
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Neutral/Otros",
+      "Sin clasificar"
+     ]
+    }
+   ],
+   "minutos_por_intencion": {
+    "Distracción/Juegos": 172,
+    "Distracción/Redes": 132,
+    "Distracción/Video": 149,
+    "Estudio/Inglés": 9,
+    "IA": 2,
+    "Neutral/Comunicación": 127,
+    "Neutral/Otros": 53,
+    "Neutral/Sistema": 45,
+    "Sin clasificar": 22
+   },
+   "minutos_por_clase_y_area": {
+    "Distracción/Juegos": 172,
+    "Distracción/Redes": 132,
+    "Distracción/Video": 149,
+    "Estudio/Inglés": 9,
+    "IA": 2,
+    "Neutral/Comunicación": 127,
+    "Neutral/Otros": 53,
+    "Neutral/Sistema": 45,
+    "Sin clasificar": 22
+   }
+  },
+  {
+   "fecha": "2026-10-09",
+   "casos": [
+    "huecos_sin_pc",
+    "estudio_en_papel_cumplido"
+   ],
+   "descripcion": "Varios huecos sin PC (clase presencial y salidas); EDO en papel de 16:00 a 17:30 sin tocar la PC.",
+   "primera_actividad": "2026-10-09T12:10:00.000000+00:00",
+   "ultima_actividad": "2026-10-10T04:50:00.000000+00:00",
+   "segmentos": [
+    {
+     "de": "07:10",
+     "a": "07:40",
+     "modo": "act",
+     "intenciones": [
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Distracción/Redes",
+      "Sin clasificar"
+     ]
+    },
+    {
+     "de": "12:30",
+     "a": "13:00",
+     "modo": "act",
+     "intenciones": [
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Neutral/Otros",
+      "Sin clasificar"
+     ]
+    },
+    {
+     "de": "15:40",
+     "a": "16:00",
+     "modo": "act",
+     "intenciones": [
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Distracción/Redes",
+      "Sin clasificar"
+     ]
+    },
+    {
+     "de": "16:00",
+     "a": "17:30",
+     "modo": "papel",
+     "ventana": "Estudio/EDO"
+    },
+    {
+     "de": "17:30",
+     "a": "17:50",
+     "modo": "act",
+     "intenciones": [
+      "Neutral/Comunicación",
+      "Neutral/Sistema"
+     ]
+    },
+    {
+     "de": "20:00",
+     "a": "21:00",
+     "modo": "act",
+     "intenciones": [
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Neutral/Otros",
+      "Sin clasificar"
+     ]
+    },
+    {
+     "de": "21:00",
+     "a": "21:35",
+     "modo": "act",
+     "intenciones": [
+      "Estudio/Inglés",
+      "IA",
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema"
+     ]
+    },
+    {
+     "de": "21:35",
+     "a": "23:50",
+     "modo": "act",
+     "intenciones": [
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Neutral/Otros",
+      "Sin clasificar"
+     ]
+    }
+   ],
+   "minutos_por_intencion": {
+    "(papel)": 90,
+    "Distracción/Redes": 72,
+    "Distracción/Video": 54,
+    "Estudio/Inglés": 24,
+    "Neutral/Comunicación": 34,
+    "Neutral/Otros": 50,
+    "Neutral/Sistema": 81,
+    "Sin clasificar": 14
+   },
+   "minutos_por_clase_y_area": {
+    "Estudio (sin teclado)": 90,
+    "Distracción/Redes": 72,
+    "Distracción/Video": 54,
+    "Estudio/Inglés": 24,
+    "Neutral/Comunicación": 34,
+    "Neutral/Otros": 50,
+    "Neutral/Sistema": 81,
+    "Sin clasificar": 14
+   }
+  },
+  {
+   "fecha": "2026-10-10",
+   "casos": [
+    "youtube_estudio_vs_entretenimiento",
+    "video_sin_teclado"
+   ],
+   "descripcion": "Bloque de DBP con tutoriales de YouTube; tarde de inglés y EDO en YouTube; clase grabada de 90 min sonando sin tocar el teclado (AFK pero audible); noche de YouTube de entretenimiento.",
+   "primera_actividad": "2026-10-10T14:30:00.000000+00:00",
+   "ultima_actividad": "2026-10-11T06:20:00.000000+00:00",
+   "segmentos": [
+    {
+     "de": "09:30",
+     "a": "10:00",
+     "modo": "act",
+     "intenciones": [
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Distracción/Redes",
+      "Sin clasificar"
+     ]
+    },
+    {
+     "de": "10:00",
+     "a": "12:00",
+     "modo": "act",
+     "intenciones": [
+      "Estudio/DBP",
+      "IA",
+      "Distracción/Video",
+      "Neutral/Comunicación"
+     ]
+    },
+    {
+     "de": "14:00",
+     "a": "16:00",
+     "modo": "act",
+     "intenciones": [
+      "Estudio/Inglés",
+      "Estudio/EDO",
+      "Distracción/Video"
+     ]
+    },
+    {
+     "de": "16:00",
+     "a": "17:30",
+     "modo": "video",
+     "ventana": "Estudio/EDO"
+    },
+    {
+     "de": "18:00",
+     "a": "21:00",
+     "modo": "act",
+     "intenciones": [
+      "Distracción/Video",
+      "Distracción/Redes"
+     ]
+    },
+    {
+     "de": "21:00",
+     "a": "25:20",
+     "modo": "act",
+     "intenciones": [
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Neutral/Otros",
+      "Sin clasificar"
+     ]
+    }
+   ],
+   "minutos_por_intencion": {
+    "(video)": 90,
+    "Distracción/Redes": 121,
+    "Distracción/Video": 224,
+    "Estudio/DBP": 103,
+    "Estudio/EDO": 19,
+    "Estudio/Inglés": 96,
+    "IA": 0,
+    "Neutral/Comunicación": 48,
+    "Neutral/Otros": 19,
+    "Neutral/Sistema": 34,
+    "Sin clasificar": 47
+   },
+   "minutos_por_clase_y_area": {
+    "Estudio (sin teclado)": 90,
+    "Distracción/Redes": 121,
+    "Distracción/Video": 224,
+    "Estudio/Programación": 103,
+    "Estudio/Matemáticas": 19,
+    "Estudio/Inglés": 96,
+    "IA": 0,
+    "Neutral/Comunicación": 48,
+    "Neutral/Otros": 19,
+    "Neutral/Sistema": 34,
+    "Sin clasificar": 47
+   }
+  },
+  {
+   "fecha": "2026-10-11",
+   "casos": [
+    "domingo_sin_bloques",
+    "incognito",
+    "estudio_fuera_de_bloque"
+   ],
+   "descripcion": "Domingo sin bloques. PI2 con Arduino fuera de horario (suma horas al curso, no a un bloque). Unos minutos en incógnito.",
+   "primera_actividad": "2026-10-11T15:40:00.000000+00:00",
+   "ultima_actividad": "2026-10-12T05:30:00.000000+00:00",
+   "segmentos": [
+    {
+     "de": "10:40",
+     "a": "11:10",
+     "modo": "act",
+     "intenciones": [
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Distracción/Redes",
+      "Sin clasificar"
+     ]
+    },
+    {
+     "de": "11:10",
+     "a": "11:25",
+     "modo": "act",
+     "incognito": true,
+     "intenciones": [
+      "Sin clasificar"
+     ]
+    },
+    {
+     "de": "11:25",
+     "a": "15:00",
+     "modo": "act",
+     "intenciones": [
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Neutral/Otros",
+      "Sin clasificar"
+     ]
+    },
+    {
+     "de": "16:00",
+     "a": "17:00",
+     "modo": "act",
+     "intenciones": [
+      "Estudio/PI2",
+      "IA",
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema"
+     ]
+    },
+    {
+     "de": "19:00",
+     "a": "24:30",
+     "modo": "act",
+     "intenciones": [
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Neutral/Otros",
+      "Sin clasificar",
+      "Distracción/Juegos"
+     ]
+    }
+   ],
+   "minutos_por_intencion": {
+    "Distracción/Juegos": 95,
+    "Distracción/Redes": 81,
+    "Distracción/Video": 138,
+    "Estudio/PI2": 29,
+    "IA": 25,
+    "Neutral/Comunicación": 88,
+    "Neutral/Otros": 40,
+    "Neutral/Sistema": 95,
+    "Sin clasificar": 59
+   },
+   "minutos_por_clase_y_area": {
+    "Distracción/Juegos": 95,
+    "Distracción/Redes": 81,
+    "Distracción/Video": 138,
+    "Estudio/Programación": 29,
+    "IA": 25,
+    "Neutral/Comunicación": 88,
+    "Neutral/Otros": 40,
+    "Neutral/Sistema": 95,
+    "Sin clasificar": 59
+   }
+  },
+  {
+   "fecha": "2026-10-12",
+   "casos": [
+    "inicio_tarde_buen_foco"
+   ],
+   "descripcion": "El bloque de BD I empieza 20 min tarde (fuera de tolerancia) aunque luego el foco es alto.",
+   "primera_actividad": "2026-10-12T12:05:00.000000+00:00",
+   "ultima_actividad": "2026-10-13T04:30:00.000000+00:00",
+   "segmentos": [
+    {
+     "de": "07:05",
+     "a": "07:35",
+     "modo": "act",
+     "intenciones": [
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Distracción/Redes",
+      "Sin clasificar"
+     ]
+    },
+    {
+     "de": "12:30",
+     "a": "15:20",
+     "modo": "act",
+     "intenciones": [
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Neutral/Otros",
+      "Sin clasificar"
+     ]
+    },
+    {
+     "de": "15:20",
+     "a": "17:00",
+     "modo": "act",
+     "intenciones": [
+      "Estudio/BD I",
+      "IA",
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema"
+     ]
+    },
+    {
+     "de": "19:00",
+     "a": "21:00",
+     "modo": "act",
+     "intenciones": [
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Neutral/Otros",
+      "Sin clasificar"
+     ]
+    },
+    {
+     "de": "21:00",
+     "a": "21:40",
+     "modo": "act",
+     "intenciones": [
+      "Estudio/Inglés",
+      "IA",
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema"
+     ]
+    },
+    {
+     "de": "21:40",
+     "a": "23:30",
+     "modo": "act",
+     "intenciones": [
+      "Estudio/DBP",
+      "IA",
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema"
+     ]
+    }
+   ],
+   "minutos_por_intencion": {
+    "Distracción/Redes": 84,
+    "Distracción/Video": 85,
+    "Estudio/BD I": 96,
+    "Estudio/DBP": 70,
+    "Estudio/Inglés": 30,
+    "IA": 6,
+    "Neutral/Comunicación": 72,
+    "Neutral/Otros": 24,
+    "Neutral/Sistema": 43,
+    "Sin clasificar": 60
+   },
+   "minutos_por_clase_y_area": {
+    "Distracción/Redes": 84,
+    "Distracción/Video": 85,
+    "Estudio/Programación": 166,
+    "Estudio/Inglés": 30,
+    "IA": 6,
+    "Neutral/Comunicación": 72,
+    "Neutral/Otros": 24,
+    "Neutral/Sistema": 43,
+    "Sin clasificar": 60
+   }
+  },
+  {
+   "fecha": "2026-10-13",
+   "casos": [
+    "sin_datos"
+   ],
+   "descripcion": "No usó la PC en todo el día: no hay ni un evento. El día lógico debe caer al inicio de día de AW.",
+   "primera_actividad": null,
+   "ultima_actividad": null,
+   "segmentos": [],
+   "minutos_por_intencion": {},
+   "minutos_por_clase_y_area": {}
+  },
+  {
+   "fecha": "2026-10-14",
+   "casos": [
+    "dia_bueno"
+   ],
+   "descripcion": "Estadística puntual con buen foco y EDO en papel cumplido.",
+   "primera_actividad": "2026-10-14T12:00:00.000000+00:00",
+   "ultima_actividad": "2026-10-15T05:20:00.000000+00:00",
+   "segmentos": [
+    {
+     "de": "07:00",
+     "a": "07:40",
+     "modo": "act",
+     "intenciones": [
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Distracción/Redes",
+      "Sin clasificar"
+     ]
+    },
+    {
+     "de": "10:30",
+     "a": "14:30",
+     "modo": "act",
+     "intenciones": [
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Neutral/Otros",
+      "Sin clasificar",
+      "Estudio/DBP"
+     ]
+    },
+    {
+     "de": "14:58",
+     "a": "17:00",
+     "modo": "act",
+     "intenciones": [
+      "Estudio/Estadística",
+      "IA",
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema"
+     ]
+    },
+    {
+     "de": "17:00",
+     "a": "20:00",
+     "modo": "act",
+     "intenciones": [
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Neutral/Otros",
+      "Sin clasificar"
+     ]
+    },
+    {
+     "de": "20:00",
+     "a": "21:30",
+     "modo": "papel",
+     "ventana": "Estudio/EDO"
+    },
+    {
+     "de": "21:30",
+     "a": "22:05",
+     "modo": "act",
+     "intenciones": [
+      "Estudio/Inglés",
+      "IA",
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema"
+     ]
+    },
+    {
+     "de": "22:05",
+     "a": "24:20",
+     "modo": "act",
+     "intenciones": [
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Neutral/Otros",
+      "Sin clasificar"
+     ]
+    }
+   ],
+   "minutos_por_intencion": {
+    "(papel)": 90,
+    "Distracción/Redes": 147,
+    "Distracción/Video": 169,
+    "Estudio/DBP": 77,
+    "Estudio/Estadística": 91,
+    "Estudio/Inglés": 30,
+    "IA": 18,
+    "Neutral/Comunicación": 97,
+    "Neutral/Otros": 69,
+    "Neutral/Sistema": 41,
+    "Sin clasificar": 14
+   },
+   "minutos_por_clase_y_area": {
+    "Estudio (sin teclado)": 90,
+    "Distracción/Redes": 147,
+    "Distracción/Video": 169,
+    "Estudio/Programación": 77,
+    "Estudio/Matemáticas": 91,
+    "Estudio/Inglés": 30,
+    "IA": 18,
+    "Neutral/Comunicación": 97,
+    "Neutral/Otros": 69,
+    "Neutral/Sistema": 41,
+    "Sin clasificar": 14
+   }
+  },
+  {
+   "fecha": "2026-10-15",
+   "casos": [
+    "eventos_raros",
+    "titulos_con_simbolos"
+   ],
+   "descripcion": "Bloque de PI2 cumplido. Incluye eventos de duración 0, marcas de tiempo repetidas y títulos con símbolos de regex.",
+   "primera_actividad": "2026-10-15T12:20:00.000000+00:00",
+   "ultima_actividad": "2026-10-16T05:00:00.000000+00:00",
+   "segmentos": [
+    {
+     "de": "07:20",
+     "a": "07:50",
+     "modo": "act",
+     "intenciones": [
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Distracción/Redes",
+      "Sin clasificar"
+     ]
+    },
+    {
+     "de": "12:30",
+     "a": "14:50",
+     "modo": "act",
+     "intenciones": [
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Neutral/Otros",
+      "Sin clasificar"
+     ]
+    },
+    {
+     "de": "15:00",
+     "a": "17:00",
+     "modo": "act",
+     "intenciones": [
+      "Estudio/PI2",
+      "IA",
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema"
+     ]
+    },
+    {
+     "de": "17:00",
+     "a": "18:30",
+     "modo": "act",
+     "intenciones": [
+      "Estudio/Prog III",
+      "IA",
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema"
+     ]
+    },
+    {
+     "de": "19:30",
+     "a": "21:00",
+     "modo": "act",
+     "intenciones": [
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Neutral/Otros",
+      "Sin clasificar"
+     ]
+    },
+    {
+     "de": "21:00",
+     "a": "21:30",
+     "modo": "act",
+     "intenciones": [
+      "Estudio/Inglés",
+      "IA",
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema"
+     ]
+    },
+    {
+     "de": "21:30",
+     "a": "24:00",
+     "modo": "act",
+     "intenciones": [
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Neutral/Otros",
+      "Sin clasificar"
+     ]
+    }
+   ],
+   "minutos_por_intencion": {
+    "Distracción/Redes": 90,
+    "Distracción/Video": 115,
+    "Estudio/EDO": 30,
+    "Estudio/Inglés": 26,
+    "Estudio/PI2": 45,
+    "Estudio/Prog III": 69,
+    "IA": 8,
+    "Neutral/Comunicación": 103,
+    "Neutral/Otros": 27,
+    "Neutral/Sistema": 31,
+    "Sin clasificar": 106
+   },
+   "minutos_por_clase_y_area": {
+    "Distracción/Redes": 90,
+    "Distracción/Video": 115,
+    "Estudio/Matemáticas": 30,
+    "Estudio/Inglés": 26,
+    "Estudio/Programación": 114,
+    "IA": 8,
+    "Neutral/Comunicación": 103,
+    "Neutral/Otros": 27,
+    "Neutral/Sistema": 31,
+    "Sin clasificar": 106
+   }
+  },
+  {
+   "fecha": "2026-10-16",
+   "casos": [
+    "papel_con_distraccion"
+   ],
+   "descripcion": "EDO en papel de 16:00 a 17:30, pero a mitad del bloque pasa 20 min en redes en la PC.",
+   "primera_actividad": "2026-10-16T12:15:00.000000+00:00",
+   "ultima_actividad": "2026-10-17T06:00:00.000000+00:00",
+   "segmentos": [
+    {
+     "de": "07:15",
+     "a": "07:45",
+     "modo": "act",
+     "intenciones": [
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Distracción/Redes",
+      "Sin clasificar"
+     ]
+    },
+    {
+     "de": "12:30",
+     "a": "15:50",
+     "modo": "act",
+     "intenciones": [
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Neutral/Otros",
+      "Sin clasificar"
+     ]
+    },
+    {
+     "de": "16:00",
+     "a": "16:35",
+     "modo": "papel",
+     "ventana": "Estudio/EDO"
+    },
+    {
+     "de": "16:35",
+     "a": "16:55",
+     "modo": "act",
+     "intenciones": [
+      "Distracción/Redes",
+      "Distracción/Video"
+     ]
+    },
+    {
+     "de": "16:55",
+     "a": "17:30",
+     "modo": "papel",
+     "ventana": "Estudio/EDO"
+    },
+    {
+     "de": "19:00",
+     "a": "21:00",
+     "modo": "act",
+     "intenciones": [
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Neutral/Otros",
+      "Sin clasificar"
+     ]
+    },
+    {
+     "de": "21:00",
+     "a": "21:30",
+     "modo": "act",
+     "intenciones": [
+      "Estudio/Inglés",
+      "IA",
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema"
+     ]
+    },
+    {
+     "de": "21:30",
+     "a": "25:00",
+     "modo": "act",
+     "intenciones": [
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Neutral/Otros",
+      "Sin clasificar"
+     ]
+    }
+   ],
+   "minutos_por_intencion": {
+    "(papel)": 70,
+    "Distracción/Redes": 141,
+    "Distracción/Video": 170,
+    "Estudio/Inglés": 30,
+    "Neutral/Comunicación": 125,
+    "Neutral/Otros": 48,
+    "Neutral/Sistema": 73,
+    "Sin clasificar": 25
+   },
+   "minutos_por_clase_y_area": {
+    "Estudio (sin teclado)": 70,
+    "Distracción/Redes": 141,
+    "Distracción/Video": 170,
+    "Estudio/Inglés": 30,
+    "Neutral/Comunicación": 125,
+    "Neutral/Otros": 48,
+    "Neutral/Sistema": 73,
+    "Sin clasificar": 25
+   }
+  },
+  {
+   "fecha": "2026-10-17",
+   "casos": [
+    "examen_total"
+   ],
+   "descripcion": "Bloque de DBP en la mañana y bloque de examen de BD I (nivel total) de 14:00 a 17:00 con foco muy alto.",
+   "primera_actividad": "2026-10-17T14:20:00.000000+00:00",
+   "ultima_actividad": "2026-10-18T05:10:00.000000+00:00",
+   "segmentos": [
+    {
+     "de": "09:20",
+     "a": "10:00",
+     "modo": "act",
+     "intenciones": [
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Distracción/Redes",
+      "Sin clasificar"
+     ]
+    },
+    {
+     "de": "10:00",
+     "a": "12:00",
+     "modo": "act",
+     "intenciones": [
+      "Estudio/DBP",
+      "IA",
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema"
+     ]
+    },
+    {
+     "de": "12:00",
+     "a": "13:50",
+     "modo": "act",
+     "intenciones": [
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Neutral/Otros",
+      "Sin clasificar"
+     ]
+    },
+    {
+     "de": "14:00",
+     "a": "17:00",
+     "modo": "act",
+     "intenciones": [
+      "Estudio/BD I",
+      "IA",
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema"
+     ]
+    },
+    {
+     "de": "18:00",
+     "a": "24:10",
+     "modo": "act",
+     "intenciones": [
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Neutral/Otros",
+      "Sin clasificar"
+     ]
+    }
+   ],
+   "minutos_por_intencion": {
+    "Distracción/Redes": 69,
+    "Distracción/Video": 179,
+    "Estudio/BD I": 142,
+    "Estudio/DBP": 88,
+    "IA": 27,
+    "Neutral/Comunicación": 150,
+    "Neutral/Otros": 28,
+    "Neutral/Sistema": 52,
+    "Sin clasificar": 86
+   },
+   "minutos_por_clase_y_area": {
+    "Distracción/Redes": 69,
+    "Distracción/Video": 179,
+    "Estudio/Programación": 230,
+    "IA": 27,
+    "Neutral/Comunicación": 150,
+    "Neutral/Otros": 28,
+    "Neutral/Sistema": 52,
+    "Sin clasificar": 86
+   }
+  },
+  {
+   "fecha": "2026-10-18",
+   "casos": [
+    "trasnoche_pasa_inicio_de_dia"
+   ],
+   "descripcion": "Domingo largo: sigue activo hasta las 4:30, después del inicio de día de AW (04:00). Sin hueco de 3 h, todo pertenece al domingo.",
+   "primera_actividad": "2026-10-18T15:30:00.000000+00:00",
+   "ultima_actividad": "2026-10-19T09:30:00.000000+00:00",
+   "segmentos": [
+    {
+     "de": "10:30",
+     "a": "11:00",
+     "modo": "act",
+     "intenciones": [
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Distracción/Redes",
+      "Sin clasificar"
+     ]
+    },
+    {
+     "de": "11:00",
+     "a": "15:00",
+     "modo": "act",
+     "intenciones": [
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Neutral/Otros",
+      "Sin clasificar"
+     ]
+    },
+    {
+     "de": "16:00",
+     "a": "18:00",
+     "modo": "act",
+     "intenciones": [
+      "Estudio/Prog III",
+      "IA",
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema"
+     ]
+    },
+    {
+     "de": "19:00",
+     "a": "28:30",
+     "modo": "act",
+     "intenciones": [
+      "Distracción/Video",
+      "Distracción/Redes",
+      "Neutral/Comunicación",
+      "Neutral/Sistema",
+      "Neutral/Otros",
+      "Sin clasificar",
+      "Estudio/DBP"
+     ]
+    }
+   ],
+   "minutos_por_intencion": {
+    "Distracción/Redes": 125,
+    "Distracción/Video": 221,
+    "Estudio/DBP": 161,
+    "Estudio/Prog III": 75,
+    "IA": 23,
+    "Neutral/Comunicación": 99,
+    "Neutral/Otros": 69,
+    "Neutral/Sistema": 74,
+    "Sin clasificar": 114
+   },
+   "minutos_por_clase_y_area": {
+    "Distracción/Redes": 125,
+    "Distracción/Video": 221,
+    "Estudio/Programación": 236,
+    "IA": 23,
+    "Neutral/Comunicación": 99,
+    "Neutral/Otros": 69,
+    "Neutral/Sistema": 74,
+    "Sin clasificar": 114
+   }
+  }
+ ]
+}
