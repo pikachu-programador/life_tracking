@@ -308,9 +308,10 @@ Cambios en las tareas: F5-02 se hace dentro de F2-01 y F5-03 dentro de F4-02, po
   - Hecho cuando: hay pruebas para cada nivel, para el escalamiento tras 3 avisos, para `nunca_bloquear` y para lo sin clasificar en total.
   - Notas: no conoce el reloj ni la red; así sirve igual para el simulador y para el agente.
   - Resultado (2026-11-04): `web/motor/decisor.js` (decidir, registrarDecision, concederPase; protegidos, IA, nunca_bloquear, escalamiento solo en bloques, sin_extension en total). Revisión: requería cambios; corregidos (nunca_bloquear solo con app y URL; un pase vale solo en su bloque o clase).
-- [ ] **F4-06 · Simulador**
+- [x] **F4-06 · Simulador**
   - Objetivo: correr el Decisor sobre los segmentos de un día con un nivel elegido → intervenciones simuladas y minutos que se habrían cortado.
   - Hecho cuando: el mismo día con el mismo nivel siempre da el mismo resultado, y se pueden comparar los 3 niveles.
+  - Resultado (2026-11-04): `web/motor/simulador.js` (simular con la misma máquina de estados que el agente; compararNiveles). Revisión: aprobado con cambios menores; determinista e independiente de cómo se cortan los segmentos.
 - [ ] **F4-07 · Vista Simulador**
   - Objetivo: carril Intervenciones en la línea de tiempo, lista de intervenciones y resumen por nivel.
   - Hecho cuando: cambiar de día o de nivel actualiza todo en menos de 1 s.
