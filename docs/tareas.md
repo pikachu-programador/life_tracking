@@ -547,10 +547,11 @@ No hay V-07: [visualizaciones.md](visualizaciones.md) salta de V-06 a V-08.
     5. **Servidor.** Rutas de `/api/0`, `classes` servido desde `clases-ejemplo.json`, `startOfDay` = 04:00, `POST` de ajustes solo en memoria y `web/` en `/pages/rastreador/`. Puerto 5600 por defecto, configurable.
   - Hecho cuando: la prueba del paso 3 da al menos 95 % del tiempo con teclado de cada día en la clase correcta, y cada diferencia que quede está explicada en la prueba (por ejemplo, un tutorial con título que no nombra un área); con AW cerrado, `node herramientas/aw-falso.js` arranca y el dashboard muestra Hoy y Horas del día para los días de ejemplo (por ejemplo `#/hoy?fecha=2026-10-05`) sin avisos de error; hay pruebas de cada ruta; por comprobar con Dremy: los totales por clase coinciden (±1 min) con un AW real que tenga los mismos datos y reglas importados.
   - Notas: `verdad.json` registra la intención (un tutorial de YouTube cuenta como estudio), así que no se le exige una coincidencia exacta: la prueba mide qué tan bien clasifican las reglas. La herramienta no está en la arquitectura: al implementarla, registrarla en §15 y §19.
-- [ ] **H-02 · Reloj de prueba**
+- [x] **H-02 · Reloj de prueba**
   - Objetivo: con `?ahora=AAAA-MM-DDTHH:MM` en la dirección (antes del `#`), el dashboard arranca en esa hora de Lima y el reloj sigue corriendo (arquitectura §6.8), para ver los días de ejemplo como si fueran hoy.
   - Hecho cuando: con `?ahora=2026-10-14T16:20` el reloj del dashboard arranca el 14-oct a las 16:20 y avanza, y el almacén de días lo usa para saber qué días terminaron; sin el parámetro, todo sigue con la hora real; hay pruebas.
   - Notas: que Hoy muestre ese día con su bloque actual se comprueba en F3-06.
+  - Resultado (2026-11-04): commits `52ff93e` y el de la revisión (Hoy y Horas usan el reloj; acepta segundos; un `?ahora=` inválido o en el futuro se ignora con aviso en el pie y en la consola).
 - [ ] **H-03 · Capturas automáticas**
   - Objetivo: `herramientas/capturas.mjs` arranca el AW falso y toma capturas de cada vista en claro y oscuro, a 1366×768 y a 1920×1080 (arquitectura §6.8).
   - Hecho cuando: un solo comando deja las capturas de todas las vistas en una carpeta.

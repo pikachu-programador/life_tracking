@@ -2,6 +2,7 @@
 // Por ahora (F2-08): selector de rango y un resumen provisional por clase y por día. Se completa en la fase 2.
 
 import { almacen } from '../almacen.js';
+import { reloj } from '../reloj.js';
 import { diaDe, esFechaValida, sumarDias, fechaCorta } from '../fechas.js';
 import { irAParametros } from '../router.js';
 import { el, crearSelectorRango } from '../componentes/selector-fecha.js';
@@ -18,7 +19,7 @@ export function render(contenedor, parametros) {
   contenedor.append(el('h1', {}, titulo), zonaSelector, zonaDatos);
 
   (async () => {
-    const hoy = diaDe(new Date(), await almacen.inicioDia());
+    const hoy = diaDe(reloj.ahora(), await almacen.inicioDia()) // reloj de prueba (H-02) o la hora real;
     let hasta = esFechaValida(parametros.get('hasta')) ? parametros.get('hasta') : hoy;
     let desde = esFechaValida(parametros.get('desde')) ? parametros.get('desde') : sumarDias(hasta, -6);
     if (hasta > hoy) hasta = hoy;
