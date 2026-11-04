@@ -42,7 +42,12 @@ export function iniciarRouter(rutas, contenedor, rutaInicial) {
     }
   }
 
-  window.addEventListener('hashchange', mostrar);
+  // (V-11) Al cambiar de vista con el menú, el foco pasa al contenido: así el teclado y los lectores
+  // de pantalla siguen a la vista nueva. En la primera carga no se mueve el foco.
+  window.addEventListener('hashchange', () => {
+    mostrar();
+    contenedor.focus({ preventScroll: true });
+  });
   mostrar(); // primera vista: al abrir o al recargar, se respeta el "#" actual
 }
 

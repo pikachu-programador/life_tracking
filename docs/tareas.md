@@ -521,9 +521,10 @@ No hay V-07: [visualizaciones.md](visualizaciones.md) salta de V-06 a V-08.
   - Objetivo: tres propuestas de estilo intercambiables, mostradas en la página de muestra con datos de ejemplo, para que Dremy elija una o las mezcle (visualizaciones §5).
   - Hecho cuando: cambiar de tema en la página de muestra cambia todo el dashboard, en modo claro y oscuro, sin tocar otro CSS.
   - Notas: cada tema es un archivo que redefine **las mismas** variables de `tokens.css`; el resto del CSS sigue leyendo solo esas variables. Ninguno es la paleta final: la decide Dremy (§17 de la arquitectura).
-- [ ] **V-11 · Navegación y diseño general**
+- [x] **V-11 · Navegación y diseño general**
   - Objetivo: con 12 vistas, el menú de arriba no entra a 1366 px: menú lateral agrupado (Día, Períodos, Plan, Datos), cabecera de cada vista con su selector de período, y estados comunes de carga, vacío y error.
   - Hecho cuando: todas las vistas se alcanzan desde el menú a 1366×768 y a 1920×1080, en claro y oscuro, y el menú marca la vista actual.
+  - Resultado (2026-11-04): commits `cd1b2ce` y el de la revisión; cabecera común en `web/js/componentes/vista.js`; los estados de carga, vacío y error vienen de `ui.js` (V-10).
 
 ---
 

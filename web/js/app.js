@@ -54,6 +54,12 @@ setInterval(revisarAW, 30_000);
 
 // ── Reloj de prueba (H-02) ──
 // Con ?ahora= en la dirección, el pie del menú lo recuerda: los datos no son de la hora real.
+if (reloj.error) {
+  // ?ahora= mal escrito o en el futuro: se usa la hora real, pero se avisa (reloj.js también escribe en la consola).
+  const etiqueta = document.getElementById('reloj-prueba');
+  etiqueta.textContent = reloj.error === 'futuro' ? 'Reloj de prueba en el futuro: se usa la hora real' : 'Reloj de prueba inválido: se usa la hora real';
+  etiqueta.hidden = false;
+}
 if (reloj.dePrueba) {
   const etiqueta = document.getElementById('reloj-prueba');
   const mostrar = () => {

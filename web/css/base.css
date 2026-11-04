@@ -22,9 +22,24 @@ a  { color: var(--color-acento); }
 :focus-visible { outline: 2px solid var(--color-foco); outline-offset: 2px; border-radius: var(--radio-s); }
 
 /* Quien pide "reducir movimiento" en Windows no ve transiciones ni animaciones. */
+/* (Revisión de V-11) Se apagan los movimientos y animaciones; los cambios de color siguen, porque ayudan a entender. */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
+  .boton:active:not(:disabled) { transform: none; }
 }
+
+/* Enlace "Saltar al contenido": invisible hasta que llega el foco con el teclado. */
+.saltar {
+  position: absolute;
+  left: var(--espacio-3);
+  top: -100px;
+  z-index: var(--z-emergente);
+  padding: var(--espacio-2) var(--espacio-3);
+  border-radius: var(--radio-m);
+  background: var(--color-acento);
+  color: var(--color-acento-texto);
+}
+.saltar:focus { top: var(--espacio-3); }
 
 /* ── Marco (V-11): menú lateral fijo + contenido ── */
 .marco {
@@ -79,14 +94,18 @@ a  { color: var(--color-acento); }
   color: var(--color-texto-suave);
   text-decoration: none;
   font-size: var(--texto-s);
-  transition: background-color var(--duracion-rapida) var(--curva-salida), color var(--duracion-rapida) var(--curva-salida);
+  transition: background-color var(--duracion-rapida) ease, color var(--duracion-rapida) ease;
 }
 .menu a svg { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-.menu a:hover { color: var(--color-texto); background: var(--color-superficie-2); }
+/* :hover solo con mouse (en pantallas táctiles quedaría "pegado"). */
+@media (hover: hover) and (pointer: fine) {
+  .menu a:hover { color: var(--color-texto); background: var(--color-superficie-2); }
+}
 /* El router marca el enlace de la vista actual con aria-current="page". */
 .menu a[aria-current="page"] { color: var(--color-acento); background: var(--color-acento-suave); font-weight: var(--peso-medio); }
 
-.lateral-pie { display: flex; flex-direction: column; gap: var(--espacio-2); padding: 0 var(--espacio-2); }
+.lateral-pie { display: flex; flex-direction: column; gap: var(--espacio-2); }
+.lateral-pie > * { margin-left: 0; margin-right: 0; padding-left: var(--espacio-3); padding-right: var(--espacio-3); }
 
 /* Estado de AW: punto de color + texto (el color nunca va solo). */
 .estado-aw { display: flex; align-items: center; gap: var(--espacio-2); margin: 0; font-size: var(--texto-xs); color: var(--color-texto-suave); }
@@ -100,7 +119,7 @@ a  { color: var(--color-acento); }
   padding: var(--espacio-2);
   border-radius: var(--radio-m);
   font-size: var(--texto-xs);
-  color: var(--color-aviso);
+  color: var(--color-texto);  /* el texto en --color-aviso no llegaba al contraste AA en modo claro */
   background: var(--color-aviso-fondo);
   border: 1px dashed var(--color-aviso);
 }
@@ -128,16 +147,24 @@ a  { color: var(--color-acento); }
   cursor: pointer;
   transition: border-color var(--duracion-rapida) var(--curva-salida), background-color var(--duracion-rapida) var(--curva-salida), transform var(--duracion-rapida) var(--curva-salida);
 }
-.boton:hover { border-color: var(--color-acento); }
+@media (hover: hover) and (pointer: fine) {
+  .boton:hover { border-color: var(--color-acento); }
+}
 .boton:active:not(:disabled) { transform: scale(0.97); }
 .boton-fantasma { border-color: transparent; background: transparent; color: var(--color-texto-suave); text-align: left; }
-.boton-fantasma:hover { color: var(--color-texto); background: var(--color-superficie-2); border-color: transparent; }
+@media (hover: hover) and (pointer: fine) {
+  .boton-fantasma:hover { color: var(--color-texto); background: var(--color-superficie-2); border-color: transparent; }
+}
 
 /* ── Contenido ── */
 .contenido { min-width: 0; }
 
-/* Aviso que ocupa todo el ancho, arriba del contenido (por ejemplo, "AW no responde"). */
-.aviso-global { margin: var(--espacio-4) var(--espacio-8) 0; }
+/* Aviso arriba del contenido (por ejemplo, "AW no responde"), alineado con la vista centrada. */
+.aviso-global {
+  max-width: calc(var(--ancho-contenido) - 2 * var(--espacio-8));
+  margin: var(--espacio-4) auto 0;
+  margin-inline: max(var(--espacio-8), (100% - var(--ancho-contenido)) / 2 + var(--espacio-8));
+}
 
 /* ── Zona de la vista ── */
 .vista { padding: var(--espacio-6) var(--espacio-8) var(--espacio-12); max-width: var(--ancho-contenido); margin: 0 auto; }
@@ -159,12 +186,12 @@ a  { color: var(--color-acento); }
 /* Pantallas angostas: el menú pasa arriba y se desplaza de costado. */
 @media (max-width: 900px) {
   .marco { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr; }
-  .lateral { position: static; height: auto; flex-direction: row; align-items: center; gap: var(--espacio-2); padding: var(--espacio-2) var(--espacio-3); overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--color-borde); }
-  .lateral > * { flex: none; }
-  .menu { flex-direction: row; }
+  .lateral { position: static; height: auto; flex-direction: row; flex-wrap: wrap; align-items: center; gap: var(--espacio-2); padding: var(--espacio-2) var(--espacio-3); border-right: 0; border-bottom: 1px solid var(--color-borde); }
+  /* El menú se reparte en varias filas: así siempre se ven todos los enlaces y la vista actual. */
+  .menu { flex-direction: row; flex-wrap: wrap; flex-basis: 100%; order: 2; }
   .menu a { white-space: nowrap; }
   .menu-grupo { display: none; }
-  .lateral-pie { flex-direction: row; align-items: center; white-space: nowrap; }
+  .lateral-pie { flex-direction: row; align-items: center; white-space: nowrap; margin-left: auto; }
   .vista { padding: var(--espacio-4); }
   .aviso-global { margin: var(--espacio-4) var(--espacio-4) 0; }
 }
