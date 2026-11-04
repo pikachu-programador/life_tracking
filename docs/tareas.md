@@ -510,9 +510,10 @@ No hay V-07: [visualizaciones.md](visualizaciones.md) salta de V-06 a V-08.
   - Objetivo: `agregarPeriodo(resumenes, desde, hasta)` → totales, promedio por día (con datos o incluyendo los días vacíos), mediana, máximo y mínimo con su fecha, desviación estándar, rachas, día de la semana promedio y comparación con el período anterior del mismo largo.
   - Hecho cuando: una semana y un rango armados a mano en las pruebas dan los valores esperados, con y sin días vacíos.
   - Resultado (2026-11-04): `agregarPeriodo` y `compararPeriodos` en `web/motor/resumen.js`: totales, promedio (con y sin días vacíos), mediana, máximo y mínimo con fecha, desviación, día de la semana, rachas y comparación; probado con una semana y rangos armados a mano.
-- [ ] **V-03 · Tiempo en clases**
+- [x] **V-03 · Tiempo en clases**
   - Objetivo: tiempo en clases de un día según el plan, menos las excepciones; si hay check-in de asistencia, solo cuentan las clases marcadas.
   - Hecho cuando: hay pruebas con feriado, con asistencia marcada y sin check-ins, usando `plan-ejemplo.json`.
+  - Resultado (2026-11-04): `tiempoEnClases` en `web/motor/resumen.js` (clases del día menos excepciones; asistencia clase por clase). Probado con plan-ejemplo: lunes, feriado y asistencia.
 - [ ] **V-04 · Selector de período compartido**
   - Objetivo: Día · Semana (lunes a domingo) · Mes · Rango, con flechas de anterior y siguiente, que usan todas las vistas.
   - Hecho cuando: cambiar el período en una vista lo mantiene al pasar a otra y al recargar.
