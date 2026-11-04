@@ -501,10 +501,11 @@ No hay V-07: [visualizaciones.md](visualizaciones.md) salta de V-06 a V-08.
 
 **Para todas:** las cifras de cada vista coinciden con `datos-ejemplo/verdad.json` cuando aplica (`minutos_por_clase_y_area`); las funciones del motor tienen pruebas; las vistas tienen capturas con los datos de ejemplo en modo claro y oscuro, con estado vacío, de carga y detalle al pasar el mouse, y se ven bien a 1366×768 y a 1920×1080 (visualizaciones §5).
 
-- [ ] **V-01 · Resumen diario y su caché**
+- [x] **V-01 · Resumen diario y su caché**
   - Objetivo: `resumirDia(segmentos, plan, checkins, dia)` → un objeto con todas las métricas de un día lógico (visualizaciones §3); los resúmenes de días terminados quedan en caché y hoy siempre se recalcula.
   - Hecho cuando: con los datos de ejemplo, los minutos por clase y área de cada día coinciden con `minutos_por_clase_y_area` de `verdad.json` dentro de la tolerancia de H-01 (sin contar `(afk)` ni `Estudio (sin teclado)`; las diferencias explicadas de H-01 valen aquí); las pruebas cubren trasnoche, día sin datos (10-13) y feriado (10-08).
   - Notas: función pura del motor. La caché vive en la memoria del navegador, como la de días de F2-08; no se guarda en AW. Cumplimiento, puntualidad y racha se suman al resumen cuando existan F4-03; estudio en papel y asistencia, cuando existan los check-ins (F5-01, F5-03).
+  - Resultado (2026-11-04): `web/motor/resumen.js` (`resumirDia` compone horario, contexto, cumplimiento y porcentajes; porHora, tramos, foco más largo, cambios de app…) y `web/motor/agrupar.js`. Con los 14 días de ejemplo, Estudio por área, IA y papel coinciden con `verdad.json` (±2 min) salvo lo explicado (video con audio del 10-10, título raro del 10-15). La caché vive en `web/js/datos.js` (F2-09). Revisión: la hizo el coordinador (presupuesto).
 - [ ] **V-02 · Agregado por período**
   - Objetivo: `agregarPeriodo(resumenes, desde, hasta)` → totales, promedio por día (con datos o incluyendo los días vacíos), mediana, máximo y mínimo con su fecha, desviación estándar, rachas, día de la semana promedio y comparación con el período anterior del mismo largo.
   - Hecho cuando: una semana y un rango armados a mano en las pruebas dan los valores esperados, con y sin días vacíos.
