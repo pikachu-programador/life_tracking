@@ -1,6 +1,7 @@
 // Punto de entrada del dashboard: registra las vistas y arranca el router.
 import { iniciarRouter } from './router.js';
 import { iniciarTema } from './tema.js';
+import { iniciarTemasEstilo } from './temas.js';
 import { aw } from './aw.js';
 import * as hoy from './vistas/hoy.js';
 import * as horas from './vistas/horas.js';
@@ -24,6 +25,7 @@ const rutas = {
 };
 
 iniciarTema(document.getElementById('boton-tema'));
+iniciarTemasEstilo(); // tema de estilo elegido en muestra.html (V-10)
 iniciarRouter(rutas, document.getElementById('vista'), 'hoy');
 
 // ── Estado de ActivityWatch ──

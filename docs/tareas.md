@@ -532,10 +532,11 @@ No hay V-07: [visualizaciones.md](visualizaciones.md) salta de V-06 a V-08.
 - [ ] **V-09 · Vista Comparar**
   - Objetivo: dos períodos lado a lado con las mismas métricas y sus diferencias (visualizaciones §4.5).
   - Hecho cuando: comparar dos semanas de ejemplo da diferencias que coinciden con restar sus resúmenes.
-- [ ] **V-10 · Tres temas de estilo y página de muestra**
+- [x] **V-10 · Tres temas de estilo y página de muestra**
   - Objetivo: tres propuestas de estilo intercambiables, mostradas en la página de muestra con datos de ejemplo, para que Dremy elija una o las mezcle (visualizaciones §5).
   - Hecho cuando: cambiar de tema en la página de muestra cambia todo el dashboard, en modo claro y oscuro, sin tocar otro CSS.
   - Notas: cada tema es un archivo que redefine **las mismas** variables de `tokens.css`; el resto del CSS sigue leyendo solo esas variables. Ninguno es la paleta final: la decide Dremy (§17 de la arquitectura).
+  - Resultado (2026-11-04): tres temas (`web/css/temas/sereno.css`, `cuaderno.css`, `tablero.css`) que solo redefinen variables de tokens.css, en claro y oscuro, con contraste AA y colores de clase y curso distinguibles (también con daltonismo); `web/js/temas.js` (elegir y recordar el tema; app.js lo aplica); `muestra.html` con selector de tema y modo, una vista de ejemplo y todos los componentes; componentes base en `componentes.css` y `web/js/componentes/ui.js`. Ninguno es la paleta final. Revisión: la hizo el coordinador (presupuesto); comprobado en el navegador sin errores de consola.
 - [x] **V-11 · Navegación y diseño general**
   - Objetivo: con 12 vistas, el menú de arriba no entra a 1366 px: menú lateral agrupado (Día, Períodos, Plan, Datos), cabecera de cada vista con su selector de período, y estados comunes de carga, vacío y error.
   - Hecho cuando: todas las vistas se alcanzan desde el menú a 1366×768 y a 1920×1080, en claro y oscuro, y el menú marca la vista actual.

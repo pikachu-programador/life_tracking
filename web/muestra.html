@@ -5,127 +5,534 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Muestra de componentes · Rastreador</title>
   <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="css/tokens.css">
+  <!-- Mismo orden que index.html: tokens → (tema de estilo, lo pone js/temas.js aquí) → lo que usa las variables. -->
+  <link rel="stylesheet" href="css/tokens.css" id="tokens">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/componentes.css">
+  <style>
+    /* Estilos propios de esta página (solo variables de tokens.css). */
+    .m-cabecera { position: sticky; top: 0; z-index: var(--z-menu); flex-wrap: wrap; gap: var(--espacio-3) var(--espacio-6); }
+    .m-cabecera .marca { padding-left: 0; }
+    .m-controles { display: flex; flex-wrap: wrap; align-items: center; gap: var(--espacio-2) var(--espacio-4); margin-left: auto; }
+    .m-control { display: flex; align-items: center; gap: var(--espacio-2); font-size: var(--texto-xs); color: var(--color-texto-suave); }
+    .m-intro { display: grid; gap: var(--espacio-3); margin-bottom: var(--espacio-8); }
+    .m-intro p { margin: 0; max-width: 72ch; color: var(--color-texto-suave); font-size: var(--texto-s); }
+    .m-indice { display: flex; flex-wrap: wrap; gap: var(--espacio-1) var(--espacio-3); font-size: var(--texto-s); }
+    .m-seccion { margin-top: var(--espacio-12); scroll-margin-top: 5rem; }
+    .m-seccion > h2 { margin: 0 0 var(--espacio-1); }
+    .m-seccion > .m-nota { margin: 0 0 var(--espacio-4); font-size: var(--texto-s); color: var(--color-texto-suave); max-width: 80ch; }
+    .m-subtitulo { margin: var(--espacio-6) 0 var(--espacio-3); font-size: var(--texto-s); font-weight: var(--peso-medio); color: var(--color-texto-suave); }
+    .m-muestras { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: var(--espacio-3); }
+    .m-muestra { display: grid; grid-template-columns: 2.5rem minmax(0, 1fr); align-items: center; gap: 0 var(--espacio-3); padding: var(--espacio-2); border: 1px solid var(--color-borde); border-radius: var(--radio-m); background: var(--color-superficie); }
+    .m-muestra-color { grid-row: span 3; width: 2.5rem; height: 2.5rem; border-radius: var(--radio-s); background: var(--relleno-clase, var(--color-muestra)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-texto) 14%, transparent); }
+    .m-muestra b { font-size: var(--texto-s); font-weight: var(--peso-medio); }
+    .m-muestra code, .m-muestra span { font-size: var(--texto-xs); color: var(--color-texto-suave); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .m-tipo { display: grid; grid-template-columns: 8rem minmax(0, 1fr); align-items: baseline; gap: var(--espacio-2) var(--espacio-4); }
+    .m-tipo code { font-size: var(--texto-xs); color: var(--color-texto-suave); }
+    .m-espacios { display: grid; gap: var(--espacio-2); }
+    .m-espacio { display: grid; grid-template-columns: 7rem auto; align-items: center; gap: var(--espacio-3); font-size: var(--texto-xs); color: var(--color-texto-suave); }
+    .m-espacio i { display: block; height: var(--espacio-3); width: var(--ancho); background: var(--color-acento-suave); border: 1px solid var(--color-acento); border-radius: 2px; }
+    .m-formas { display: flex; flex-wrap: wrap; gap: var(--espacio-4); }
+    .m-forma { display: grid; place-items: center; width: 8.5rem; height: 5.5rem; padding: var(--espacio-2); text-align: center; font-size: var(--texto-xs); color: var(--color-texto-suave); background: var(--color-superficie); border: 1px solid var(--color-borde); }
+    .m-fila { display: flex; flex-wrap: wrap; align-items: center; gap: var(--espacio-2) var(--espacio-3); }
+    .m-fila + .m-fila { margin-top: var(--espacio-3); }
+    .m-fila-titulo { width: 6.5rem; font-size: var(--texto-xs); color: var(--color-texto-suave); }
+    .m-caja { padding: var(--espacio-3); text-align: center; font-size: var(--texto-xs); color: var(--color-texto); background: var(--color-acento-suave); border: 1px dashed var(--color-acento); border-radius: var(--radio-m); }
+    .m-resultado { margin: var(--espacio-3) 0 0; font-size: var(--texto-s); color: var(--color-texto-suave); }
+    .m-pila { display: grid; gap: var(--espacio-3); }
+    .m-curso { display: inline-flex; align-items: center; gap: var(--espacio-2); }
+  </style>
 </head>
 <body>
-  <!-- Página de muestra (F1-02): todos los tokens y componentes en un solo lugar.
-       Sirve para revisar la paleta: si cambias un color en css/tokens.css, cambia aquí y en todo el dashboard. -->
-  <header class="cabecera">
+  <!-- Página de muestra (F1-02, V-10): todos los tokens y componentes en un solo lugar, con datos de ejemplo.
+       El tema de estilo que se elige aquí queda elegido para todo el dashboard (se guarda en el navegador). -->
+  <header class="cabecera m-cabecera">
     <span class="marca">Muestra de componentes</span>
-    <nav class="menu"><a href="./#/hoy">← Volver al dashboard</a></nav>
-    <button id="boton-tema" class="boton" type="button">Tema</button>
+    <nav class="menu" aria-label="Volver"><a href="./#/hoy">← Volver al dashboard</a></nav>
+    <div class="m-controles">
+      <div class="m-control" id="control-estilo"><span id="etiqueta-estilo">Estilo</span></div>
+      <div class="m-control" id="control-modo"><span id="etiqueta-modo">Modo</span></div>
+    </div>
   </header>
 
   <main class="vista">
-    <p class="aviso">Paleta y tipografía provisionales (F1-02): las decide Dremy.</p>
-
-    <h2>Colores de clases y estados</h2>
-    <div class="rejilla">
-      <span class="muestra-color" style="--color-muestra: var(--color-estudio)">Estudio</span>
-      <span class="muestra-color" style="--color-muestra: var(--color-distraccion)">Distracción</span>
-      <span class="muestra-color" style="--color-muestra: var(--color-neutral)">Neutral</span>
-      <span class="muestra-color" style="--color-muestra: var(--color-sin-clasificar)">Sin clasificar</span>
-      <span class="muestra-color" style="--color-muestra: var(--color-ia)">IA</span>
-      <span class="muestra-color" style="--color-muestra: var(--color-afk)">AFK</span>
-      <span class="muestra-color" style="--color-muestra: var(--color-sin-pc)">Sin PC</span>
+    <div class="m-intro">
+      <div class="vista-cabecera" style="margin-bottom: 0">
+        <div>
+          <h1>Temas y componentes</h1>
+          <p class="vista-subtitulo" id="descripcion-tema"></p>
+        </div>
+      </div>
+      <p class="aviso">Las tres propuestas (Sereno, Cuaderno, Tablero) son para elegir: la paleta y la tipografía finales las decide Dremy (F1-02).
+        Se pueden mezclar copiando variables de un archivo de <code>css/temas/</code> a otro.</p>
+      <nav class="m-indice" aria-label="Secciones">
+        <a href="#ejemplo">Vista de ejemplo</a><a href="#colores">Colores</a><a href="#tipografia">Tipografía</a>
+        <a href="#formas">Espacios y formas</a><a href="#chips">Chips y etiquetas</a><a href="#tablas">Tabla y listas</a>
+        <a href="#botones">Botones</a><a href="#formularios">Formularios</a><a href="#controles">Controles</a>
+        <a href="#alertas">Alertas</a><a href="#estados">Estados</a><a href="#dialogo">Diálogo</a><a href="#grilla">Grilla</a>
+      </nav>
     </div>
 
-    <h2>Colores de la interfaz</h2>
-    <div class="rejilla">
-      <span class="muestra-color" style="--color-muestra: var(--color-acento)">Acento</span>
-      <span class="muestra-color" style="--color-muestra: var(--color-fondo)">Fondo</span>
-      <span class="muestra-color" style="--color-muestra: var(--color-superficie)">Superficie</span>
-      <span class="muestra-color" style="--color-muestra: var(--color-borde)">Borde</span>
-      <span class="muestra-color" style="--color-muestra: var(--color-texto)">Texto</span>
-      <span class="muestra-color" style="--color-muestra: var(--color-texto-suave)">Texto suave</span>
-    </div>
-
-    <h2>Tarjetas con KPI</h2>
-    <div class="rejilla">
-      <section class="tarjeta">
-        <h3 class="tarjeta-titulo">Tiempo activo hoy</h3>
-        <div class="kpi"><span class="kpi-valor">6 h 12 min</span><span class="kpi-etiqueta">desde las 07:40</span></div>
-      </section>
-      <section class="tarjeta">
-        <h3 class="tarjeta-titulo">Cumplimiento del día</h3>
-        <div class="kpi"><span class="kpi-valor">72 %</span><span class="kpi-etiqueta">meta: 80 %</span></div>
-      </section>
-      <section class="tarjeta">
-        <h3 class="tarjeta-titulo">Foco del bloque</h3>
-        <div class="kpi"><span class="kpi-valor">45 %</span><span class="kpi-etiqueta">BD I · parcial</span></div>
-      </section>
-    </div>
-
-    <h2>Barras de progreso</h2>
-    <section class="tarjeta">
-      <p>Estudio 70 %</p>
-      <div class="progreso" data-clase="estudio" style="--valor: 70%"><div class="progreso-relleno"></div></div>
-      <p>Distracción 25 %</p>
-      <div class="progreso" data-clase="distraccion" style="--valor: 25%"><div class="progreso-relleno"></div></div>
-      <p>Sin clase (acento) 50 %</p>
-      <div class="progreso" style="--valor: 50%"><div class="progreso-relleno"></div></div>
+    <!-- 1. Una vista armada con los componentes, como se vería en el dashboard. -->
+    <section class="m-seccion" id="ejemplo" aria-labelledby="t-ejemplo">
+      <div class="vista-cabecera">
+        <div>
+          <h2 id="t-ejemplo" style="margin: 0">Resumen de la semana</h2>
+          <p class="vista-subtitulo">Lun 26 oct – dom 1 nov 2026 · promedios por día con datos (6 de 7) · datos de ejemplo</p>
+        </div>
+        <div class="vista-acciones" id="acciones-ejemplo"></div>
+      </div>
+      <div class="grilla" id="grilla-ejemplo"></div>
     </section>
 
-    <h2>Barra apilada por clase</h2>
-    <section class="tarjeta">
-      <div class="apilada">
-        <div data-clase="estudio" style="--valor: 40%" title="Estudio 40 %"></div>
-        <div data-clase="distraccion" style="--valor: 15%" title="Distracción 15 %"></div>
-        <div data-clase="neutral" style="--valor: 20%" title="Neutral 20 %"></div>
-        <div data-clase="sin-clasificar" style="--valor: 5%" title="Sin clasificar 5 %"></div>
-        <div data-clase="afk" style="--valor: 10%" title="AFK 10 %"></div>
+    <section class="m-seccion" id="colores" aria-labelledby="t-colores">
+      <h2 id="t-colores">Colores</h2>
+      <p class="m-nota">Un color fijo por clase y estado en todas las vistas. Debajo de cada nombre, su variable y el valor que tiene ahora (cambia con el tema y el modo). "Sin PC" va rayado: casi no se distingue del fondo.</p>
+      <h3 class="m-subtitulo">Clases y estados</h3><div class="m-muestras" id="colores-clases"></div>
+      <h3 class="m-subtitulo">Cumplimiento y niveles (alias de los de arriba)</h3><div class="m-muestras" id="colores-alias"></div>
+      <h3 class="m-subtitulo">Cursos</h3><div class="m-muestras" id="colores-cursos"></div>
+      <h3 class="m-subtitulo">Interfaz</h3><div class="m-muestras" id="colores-interfaz"></div>
+    </section>
+
+    <section class="m-seccion" id="tipografia" aria-labelledby="t-tipografia">
+      <h2 id="t-tipografia">Tipografía</h2>
+      <p class="m-nota" id="nota-fuentes"></p>
+      <div class="tarjeta m-pila">
+        <div class="m-tipo"><code>--texto-xxl</code><span class="cifra" style="font-size: var(--texto-xxl); font-weight: var(--peso-fuerte)">18 h 40 min</span></div>
+        <div class="m-tipo"><code>--texto-xl</code><span style="font-size: var(--texto-xl); font-weight: var(--peso-fuerte)">Resumen de la semana</span></div>
+        <div class="m-tipo"><code>--texto-l</code><span style="font-size: var(--texto-l); font-weight: var(--peso-medio)">Horas por curso contra su meta</span></div>
+        <div class="m-tipo"><code>--texto-m</code><span>Texto normal: el bloque de Estadística empezó 12 minutos tarde.</span></div>
+        <div class="m-tipo"><code>--texto-s</code><span style="font-size: var(--texto-s)">Texto de tablas, listas y controles: Programación · Matemáticas · Inglés.</span></div>
+        <div class="m-tipo"><code>--texto-xs</code><span style="font-size: var(--texto-xs); color: var(--color-texto-suave)">Notas y leyendas: datos de ActivityWatch, actualizados a las 17:42.</span></div>
+        <div class="m-tipo"><code>pesos</code><span><span style="font-weight: var(--peso-normal)">Normal 400</span> · <span style="font-weight: var(--peso-medio)">Medio 600</span> · <span style="font-weight: var(--peso-fuerte)">Fuerte 700</span></span></div>
+        <div class="m-tipo"><code>cifras tabulares</code><span class="cifra" style="font-size: var(--texto-l)">1 111 · 8 888 · 07:05 · 23:59 · 72,4 %</span></div>
       </div>
     </section>
 
-    <h2>Etiquetas</h2>
-    <section class="tarjeta">
-      <span class="etiqueta" data-clase="estudio">Estudio</span>
-      <span class="etiqueta" data-clase="distraccion">Distracción</span>
-      <span class="etiqueta" data-clase="neutral">Neutral</span>
-      <span class="etiqueta" data-clase="sin-clasificar">Sin clasificar</span>
-      <span class="etiqueta" data-clase="ia">IA</span>
-      <span class="etiqueta" data-clase="afk">AFK</span>
-      <span class="etiqueta" data-clase="sin-pc">Sin PC</span>
-      <span class="etiqueta">Sin color</span>
+    <section class="m-seccion" id="formas" aria-labelledby="t-formas">
+      <h2 id="t-formas">Espacios y formas</h2>
+      <p class="m-nota">Espacios en múltiplos de 4 px. Radios y sombras cambian con el tema.</p>
+      <div class="grilla">
+        <div class="tarjeta ancho-5 m-espacios" id="espacios"></div>
+        <div class="tarjeta ancho-7"><div class="m-formas" id="formas-lista"></div></div>
+      </div>
     </section>
 
-    <h2>Gráfico de prueba (ECharts, F1-06)</h2>
-    <section class="tarjeta">
-      <h3 class="tarjeta-titulo">Minutos por hora y clase (datos inventados)</h3>
-      <div id="grafico-prueba" class="grafico"></div>
+    <section class="m-seccion" id="chips" aria-labelledby="t-chips">
+      <h2 id="t-chips">Chips y etiquetas</h2>
+      <p class="m-nota">Cada chip lleva ícono y texto: el color ayuda, pero no es lo único. El nivel se lee también por cuántas barras del medidor están llenas.</p>
+      <div class="tarjeta">
+        <div class="m-fila"><span class="m-fila-titulo">Cumplimiento</span><span id="chips-estado" class="m-fila"></span></div>
+        <div class="m-fila"><span class="m-fila-titulo">Nivel</span><span id="chips-nivel" class="m-fila"></span></div>
+        <div class="m-fila"><span class="m-fila-titulo">Clases</span><span id="chips-clase" class="m-fila"></span></div>
+        <div class="m-fila"><span class="m-fila-titulo">Cursos</span><span id="chips-curso" class="m-fila"></span></div>
+      </div>
     </section>
 
-    <h2>Aviso</h2>
-    <p class="aviso">ActivityWatch no responde. Revisa que esté abierto (ícono en la bandeja).</p>
+    <section class="m-seccion" id="tablas" aria-labelledby="t-tablas">
+      <h2 id="t-tablas">Tabla y listas</h2>
+      <p class="m-nota">La tabla y "más usados" de la vista de ejemplo, más sus casos vacíos.</p>
+      <div class="grilla">
+        <div class="ancho-6" id="tabla-vacia"></div>
+        <div class="ancho-6" id="lista-vacia"></div>
+      </div>
+    </section>
+
+    <section class="m-seccion" id="botones" aria-labelledby="t-botones">
+      <h2 id="t-botones">Botones</h2>
+      <p class="m-nota">Pasa el mouse, presiona (se achican un poco) y recórrelos con Tab para ver el anillo de foco.</p>
+      <div class="tarjeta" id="botones-lista"></div>
+    </section>
+
+    <section class="m-seccion" id="formularios" aria-labelledby="t-formularios">
+      <h2 id="t-formularios">Formularios</h2>
+      <p class="m-nota">Cada campo con su etiqueta; la ayuda y el error quedan unidos al control (aria-describedby).</p>
+      <div class="grilla">
+        <form class="tarjeta ancho-7" id="formulario" novalidate></form>
+        <div class="tarjeta ancho-5" id="formulario-opciones"></div>
+      </div>
+    </section>
+
+    <section class="m-seccion" id="controles" aria-labelledby="t-controles">
+      <h2 id="t-controles">Controles</h2>
+      <p class="m-nota">Segmentado: una opción entre pocas (con las flechas del teclado). Pestañas: ← → también cambian.</p>
+      <div class="grilla">
+        <div class="tarjeta ancho-5" id="segmentado-demo"></div>
+        <div class="tarjeta ancho-7" id="pestanas-demo"></div>
+      </div>
+    </section>
+
+    <section class="m-seccion" id="alertas" aria-labelledby="t-alertas">
+      <h2 id="t-alertas">Alertas</h2>
+      <div class="m-pila" id="alertas-lista"></div>
+    </section>
+
+    <section class="m-seccion" id="estados" aria-labelledby="t-estados">
+      <h2 id="t-estados">Estados: vacío, cargando y error</h2>
+      <p class="m-nota">Todo gráfico o lista tiene los tres. "Reintentar" muestra la ruedita mientras trabaja. Con "reducir movimiento" el brillo del esqueleto no se mueve.</p>
+      <div class="grilla" id="estados-lista"></div>
+    </section>
+
+    <section class="m-seccion" id="dialogo" aria-labelledby="t-dialogo">
+      <h2 id="t-dialogo">Diálogo</h2>
+      <p class="m-nota">Modal nativo: atrapa el foco, Esc o un clic afuera lo cierran sin elegir.</p>
+      <div class="tarjeta">
+        <div class="botonera" id="dialogo-botones"></div>
+        <p class="m-resultado" id="dialogo-resultado" aria-live="polite">Todavía no elegiste nada.</p>
+      </div>
+    </section>
+
+    <section class="m-seccion" id="grilla" aria-labelledby="t-grilla">
+      <h2 id="t-grilla">Grilla</h2>
+      <p class="m-nota">12 columnas con .ancho-N. Mide su propio ancho: si el contenido se angosta, las columnas se apilan.</p>
+      <div class="grilla" id="grilla-demo"></div>
+      <h3 class="m-subtitulo">Grilla automática (.grilla-auto, columnas de al menos 12rem)</h3>
+      <div class="grilla-auto" style="--ancho-minimo: 12rem" id="grilla-auto-demo"></div>
+    </section>
   </main>
 
   <script type="module">
-    import { iniciarTema } from './js/tema.js';
+    import { aplicarTema, temaElegido } from './js/tema.js';
+    import { TEMAS, iniciarTemasEstilo, elegirTemaEstilo, temaEstilo } from './js/temas.js';
     import { crearGrafico, colorDeClase } from './js/graficos.js';
-    iniciarTema(document.getElementById('boton-tema'));
+    import { el } from './js/dom.js';
+    import { duracionLegible, duracionCompacta, porcentajeLegible } from './js/formato.js';
+    import { ESTADOS, ESTADOS_CUMPLIMIENTO, NIVELES, COLORES_CURSO, NOMBRE_ESTADO } from './motor/tipos.js';
+    import {
+      crearTarjeta, crearFilaKpis, crearChipEstado, crearChipNivel, crearEtiqueta, crearVacio, crearCargando,
+      crearError, crearAviso, crearLeyenda, crearTabla, crearListaProporcional, crearSegmentado, crearPestanas,
+      abrirDialogo, crearBarraApilada, crearCampo, crearProgreso,
+    } from './js/componentes/ui.js';
 
-    // Gráfico de prueba: barras apiladas por hora. Los colores salen de tokens.css (vía graficos.js).
-    const horas = Array.from({ length: 18 }, (_, i) => `${i + 6}:00`); // 6:00 a 23:00
-    const minutos = {
-      estudio:          [0, 10, 40, 50, 45, 20, 0, 0, 30, 55, 50, 10, 0, 15, 40, 35, 10, 0],
-      distraccion:      [0, 5, 5, 0, 5, 20, 30, 10, 5, 0, 5, 20, 25, 15, 10, 15, 30, 20],
-      neutral:          [5, 15, 10, 5, 5, 10, 15, 20, 10, 5, 5, 15, 20, 10, 5, 5, 10, 5],
-      'sin-clasificar': [0, 5, 0, 5, 5, 5, 5, 5, 5, 0, 0, 5, 5, 5, 5, 0, 5, 5],
+    const $ = (id) => document.getElementById(id);
+    const H = 3600, M = 60; // segundos en una hora y en un minuto
+
+    // ── Selectores de estilo y de modo ──
+    await iniciarTemasEstilo();
+    aplicarTema(temaElegido());
+    // Si el modo es "sistema" y Windows cambia de claro a oscuro, los gráficos se redibujan.
+    matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      if (temaElegido() === 'sistema') document.dispatchEvent(new CustomEvent('tema-cambiado'));
+    });
+    const mostrarDescripcion = () => {
+      const t = TEMAS.find((x) => x.id === temaEstilo());
+      $('descripcion-tema').textContent = `Tema: ${t.nombre}. ${t.descripcion}`;
     };
-    const nombres = { estudio: 'Estudio', distraccion: 'Distracción', neutral: 'Neutral', 'sin-clasificar': 'Sin clasificar' };
-    window.graficoPrueba = crearGrafico(document.getElementById('grafico-prueba'), (c) => ({
-      tooltip: { trigger: 'axis' },
-      legend: { top: 0 },
-      grid: { left: 40, right: 16, top: 40, bottom: 30 },
-      xAxis: { type: 'category', data: horas },
-      yAxis: { type: 'value', max: 60, name: 'min' },
-      series: Object.entries(minutos).map(([clase, datos]) => ({
-        name: nombres[clase], type: 'bar', stack: 'total', data: datos,
-        itemStyle: { color: colorDeClase(clase, c) },
+    $('control-estilo').append(crearSegmentado({
+      etiqueta: 'Tema de estilo', valor: temaEstilo(),
+      opciones: TEMAS.map((t) => ({ valor: t.id, texto: t.nombre })),
+      alCambiar: async (id) => { await elegirTemaEstilo(id); mostrarDescripcion(); },
+    }));
+    $('control-modo').append(crearSegmentado({
+      etiqueta: 'Modo claro u oscuro', valor: temaElegido(),
+      opciones: [{ valor: 'sistema', texto: 'Sistema' }, { valor: 'claro', texto: 'Claro' }, { valor: 'oscuro', texto: 'Oscuro' }],
+      alCambiar: (modo) => aplicarTema(modo),
+    }));
+    mostrarDescripcion();
+
+    // ── 1. Vista de ejemplo ──
+    $('acciones-ejemplo').append(crearSegmentado({
+      etiqueta: 'Período', valor: 'semana',
+      opciones: [{ valor: 'dia', texto: 'Día' }, { valor: 'semana', texto: 'Semana' }, { valor: 'mes', texto: 'Mes' }, { valor: 'rango', texto: 'Rango' }],
+    }));
+
+    const kpis = crearFilaKpis([
+      { etiqueta: 'Estudio total', valor: '18 h 40 min', detalle: '3 h 07 min por día con datos',
+        comparacion: { texto: '+2 h 10 min', sentido: 'sube', bueno: true, referencia: 'frente a la semana pasada' } },
+      { etiqueta: 'Distracción', valor: '6 h 05 min', detalle: 'dentro de bloques: 1 h 20 min',
+        comparacion: { texto: '−45 min', sentido: 'baja', bueno: true, referencia: 'frente a la semana pasada' } },
+      { etiqueta: 'Tiempo en clases', valor: '14 h', detalle: '7 de 8 clases (1 feriado)',
+        comparacion: { texto: '±0 min', sentido: 'igual', bueno: null, referencia: 'igual que la semana pasada' } },
+      { etiqueta: 'Cumplimiento', valor: '72 %', detalle: 'meta: 80 %',
+        comparacion: { texto: '−6 puntos', sentido: 'baja', bueno: false, referencia: 'frente a la semana pasada' } },
+      { etiqueta: 'Racha', valor: '4 días', detalle: 'la mejor: 9 días',
+        comparacion: { texto: '+1 día', sentido: 'sube', bueno: true, referencia: 'que ayer' } },
+    ]);
+
+    // Gráfico de ECharts: horas por día y clase (los colores salen de los tokens, vía graficos.js).
+    const dias = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+    const horasPorClase = {
+      estudio:          [3.2, 2.6, 4.1, 3.4, 2.9, 2.5, 0],
+      ia:               [0.4, 0.6, 0.3, 0.5, 0.2, 0.1, 0],
+      neutral:          [1.8, 2.1, 1.2, 1.5, 2.4, 1.0, 0],
+      distraccion:      [0.9, 1.4, 0.6, 0.8, 1.2, 1.2, 0],
+      'sin-clasificar': [0.3, 0.2, 0.4, 0.2, 0.3, 0.1, 0],
+    };
+    const contGrafico = el('div', { class: 'grafico' });
+    const tarjetaGrafico = crearTarjeta({
+      titulo: 'Horas por día y clase', subtitulo: 'Tiempo activo en la PC · línea: meta de estudio (3 h)', clase: 'ancho-8',
+      acciones: crearSegmentado({ etiqueta: 'Agrupar por', valor: 'clase', opciones: [{ valor: 'clase', texto: 'Clase' }, { valor: 'area', texto: 'Área' }, { valor: 'curso', texto: 'Curso' }] }),
+      contenido: contGrafico,
+      pie: 'Domingo sin datos (PC apagada). Pasa el mouse por una barra para ver el detalle.',
+    });
+
+    const reparto = [
+      { clave: 'estudio', valor: 4 * H + 10 * M }, { clave: 'ia', valor: 35 * M }, { clave: 'neutral', valor: 2 * H + 5 * M },
+      { clave: 'distraccion', valor: H + 40 * M }, { clave: 'sin-clasificar', valor: 25 * M },
+      { clave: 'afk', valor: H + 15 * M }, { clave: 'sin-pc', valor: 5 * H + 50 * M },
+    ];
+    const tarjetaReparto = crearTarjeta({
+      titulo: 'Reparto de las horas despierto', subtitulo: 'Hoy · despierto desde las 06:40 (16 h 00 min)', clase: 'ancho-4',
+      contenido: [crearBarraApilada(reparto, { titulo: 'Reparto de las horas despierto' }),
+        crearLeyenda(reparto.map((p) => ({ clave: p.clave, valor: `${duracionLegible(p.valor)} · ${porcentajeLegible(p.valor / (16 * H))}` })), { columna: true })],
+    });
+
+    const cursos = [
+      { nombre: 'BD I', curso: 'curso-1', real: 4.5 * H, meta: 6 * H },
+      { nombre: 'DBP', curso: 'curso-2', real: 7.2 * H, meta: 8 * H },
+      { nombre: 'Prog III', curso: 'curso-3', real: 6.5 * H, meta: 6 * H },
+      { nombre: 'Estadística', curso: 'curso-4', real: 3 * H, meta: 6 * H },
+      { nombre: 'EDO', curso: 'curso-5', real: 2.5 * H, meta: 5 * H },
+      { nombre: 'PI2', curso: 'curso-6', real: 1.75 * H, meta: 2 * H },
+      { nombre: 'Inglés', curso: 'curso-7', real: 3.25 * H, meta: 3 * H },
+    ];
+    const tarjetaCursos = crearTarjeta({
+      titulo: 'Horas por curso contra su meta', subtitulo: 'Estudio dentro de los bloques de cada curso', clase: 'ancho-6',
+      contenido: cursos.map((c) => crearProgreso({
+        nombre: c.nombre, clave: c.curso, valor: c.real, meta: c.meta, maximo: Math.max(c.real, c.meta),
+        texto: duracionLegible(c.real), textoMeta: `/ ${duracionCompacta(c.meta)}`,
+      })),
+    });
+
+    const urls = (dominio, n) => Array.from({ length: n }, (_, i) => ({ texto: `https://${dominio}/ejemplo/pagina-${i + 1}`, valor: (n - i) * 9 * M }));
+    const masUsados = [
+      { nombre: 'youtube.com', valor: 3 * H + 5 * M, clave: 'distraccion',
+        detalle: [
+          { texto: 'https://www.youtube.com/watch?v=ejemplo-lofi-para-estudiar', valor: 1 * H + 10 * M },
+          { texto: 'https://www.youtube.com/watch?v=ejemplo-resumen-partido&list=una-lista-de-reproduccion-con-nombre-muy-largo-que-no-entra', valor: 55 * M },
+          { texto: 'https://www.youtube.com/feed/subscriptions', valor: 40 * M },
+          { texto: 'https://www.youtube.com/shorts/ejemplo', valor: 20 * M },
+        ] },
+      { nombre: 'github.com', valor: 2 * H + 20 * M, clave: 'estudio', detalle: urls('github.com', 3) },
+      { nombre: 'docs.python.org', valor: H + 35 * M, clave: 'estudio', detalle: urls('docs.python.org', 2) },
+      { nombre: 'chatgpt.com', valor: H + 10 * M, clave: 'ia', detalle: urls('chatgpt.com', 2) },
+      { nombre: 'web.whatsapp.com', valor: 50 * M, clave: 'neutral', detalle: urls('web.whatsapp.com', 1) },
+      { nombre: 'un-sitio-con-un-nombre-de-dominio-larguisimo.example.org', valor: 25 * M, clave: 'sin-clasificar', detalle: [] },
+    ];
+    const tarjetaMasUsados = crearTarjeta({
+      titulo: 'Más usados', subtitulo: 'Sitios por dominio · despliega uno para ver sus URLs', clase: 'ancho-6',
+      contenido: crearListaProporcional(masUsados),
+    });
+
+    const bloques = [
+      { hora: '07:00–08:30', curso: ['curso-3', 'Prog III'], tipo: 'Estudio en PC', foco: 0.82, retraso: 0, nivel: 'friccion', estado: 'cumplido' },
+      { hora: '09:00–10:30', curso: ['curso-4', 'Estadística'], tipo: 'Estudio en PC', foco: 0.55, retraso: 12, nivel: 'aviso', estado: 'parcial' },
+      { hora: '11:00–12:00', curso: ['curso-7', 'Inglés'], tipo: 'Estudio en papel', foco: null, retraso: null, nivel: 'ninguno', estado: 'pendiente' },
+      { hora: '15:00–16:30', curso: ['curso-2', 'DBP'], tipo: 'Estudio en PC', foco: 0.31, retraso: 25, nivel: 'total', estado: 'fallido' },
+      { hora: '17:00–18:30', curso: ['curso-1', 'BD I'], tipo: 'Estudio en PC', foco: 0.64, retraso: 0, nivel: 'aviso', estado: 'en_curso' },
+      { hora: '20:00–21:00', curso: ['curso-5', 'EDO'], tipo: 'Examen', foco: null, retraso: null, nivel: 'total', estado: 'pendiente' },
+      { hora: '22:00–22:15', curso: [null, 'Rutina: Inglés diario'], tipo: 'Rutina (check-in)', foco: null, retraso: null, nivel: 'ninguno', estado: 'no_medible' },
+    ];
+    const columnasBloques = [
+      { clave: 'hora', titulo: 'Hora', numerica: true },
+      { clave: 'curso', titulo: 'Bloque', formato: ([c, n]) => (c ? crearEtiqueta(c, n) : n) },
+      { clave: 'tipo', titulo: 'Tipo' },
+      { clave: 'foco', titulo: 'Foco', numerica: true, formato: (v) => porcentajeLegible(v) },
+      { clave: 'retraso', titulo: 'Retraso', numerica: true, formato: (v) => (v === null ? '—' : v === 0 ? 'a tiempo' : `+${v} min`) },
+      { clave: 'nivel', titulo: 'Nivel', formato: (v) => crearChipNivel(v) },
+      { clave: 'estado', titulo: 'Estado', formato: (v) => crearChipEstado(v) },
+    ];
+    const tarjetaBloques = crearTarjeta({
+      titulo: 'Bloques de hoy', subtitulo: 'Miércoles 4 de noviembre · % del día: 58 % (3 de 5 bloques medibles terminados)', clase: 'ancho-12',
+      acciones: el('button', { class: 'boton boton-pequeno', type: 'button' }, 'Empezar bloque ahora'),
+      contenido: crearTabla({ columnas: columnasBloques, filas: bloques, descripcion: 'Bloques del plan de hoy con su foco, retraso, nivel y estado' }),
+    });
+
+    $('grilla-ejemplo').append(
+      el('div', { class: 'ancho-12' }, kpis),
+      tarjetaGrafico, tarjetaReparto, tarjetaCursos, tarjetaMasUsados, tarjetaBloques);
+
+    window.graficoPrueba = crearGrafico(contGrafico, (c) => ({
+      tooltip: {
+        trigger: 'axis', axisPointer: { type: 'shadow' },
+        valueFormatter: (v) => duracionCompacta(v * H),
+      },
+      legend: { top: 0, left: 0, itemWidth: 10, itemHeight: 10, icon: 'roundRect' },
+      grid: { left: 40, right: 64, top: 40, bottom: 24 },
+      xAxis: { type: 'category', data: dias, axisTick: { show: false } },
+      yAxis: { type: 'value', axisLabel: { formatter: '{value} h' }, splitLine: { lineStyle: { type: 'dashed' } } },
+      series: Object.entries(horasPorClase).map(([clase, datos], i, todas) => ({
+        name: NOMBRE_ESTADO[clase], type: 'bar', stack: 'total', data: datos, barMaxWidth: 36,
+        itemStyle: { color: colorDeClase(clase, c), borderColor: c.superficie, borderWidth: 1,
+          borderRadius: i === todas.length - 1 ? [4, 4, 0, 0] : 0 },
+        emphasis: { focus: 'series' },
+        ...(clase === 'estudio' ? { markLine: { symbol: 'none', silent: true, data: [{ yAxis: 3 }], label: { formatter: 'meta 3 h', color: c.textoSuave, position: 'end' }, lineStyle: { color: c.texto, type: 'dashed', width: 1 } } } : {}),
       })),
     }));
+
+    // ── Colores ──
+    // Lee el color ya resuelto de una variable (con el tema y el modo de ahora) y lo pasa a #hex.
+    // El navegador puede darlo como rgb(), color(srgb …) u oklab(…) (si sale de color-mix): para no
+    // interpretar cada formato, se pinta un punto en un <canvas> y se leen sus valores rojo, verde y azul.
+    const sonda = el('span', { style: { display: 'none' } });
+    document.body.append(sonda);
+    const lienzo = el('canvas', { width: '1', height: '1' }).getContext('2d', { willReadFrequently: true });
+    function hexDe(variable) {
+      sonda.style.color = `var(${variable})`;
+      lienzo.clearRect(0, 0, 1, 1);
+      lienzo.fillStyle = getComputedStyle(sonda).color;
+      lienzo.fillRect(0, 0, 1, 1);
+      const [r, g, b, a] = lienzo.getImageData(0, 0, 1, 1).data;
+      const canal = (x) => x.toString(16).padStart(2, '0');
+      return `#${canal(r)}${canal(g)}${canal(b)}${a < 255 ? ` · ${Math.round((a / 255) * 100)} %` : ''}`;
+    }
+    const muestras = [];
+    function muestra(variable, nombre, atributos = {}) {
+      const valor = el('span', {});
+      muestras.push([variable, valor]);
+      return el('div', { class: 'm-muestra', ...atributos },
+        el('span', { class: 'm-muestra-color', style: { '--color-muestra': `var(${variable})` } }),
+        el('b', {}, nombre), el('code', {}, variable), valor);
+    }
+    function actualizarMuestras() { for (const [v, nodo] of muestras) nodo.textContent = hexDe(v); }
+    $('colores-clases').append(...ESTADOS.map((e) => muestra(`--color-${e}`, NOMBRE_ESTADO[e], { 'data-clase': e })));
+    $('colores-alias').append(
+      ...[['cumplido', 'Cumplido'], ['parcial', 'Parcial'], ['fallido', 'Fallido'], ['pendiente', 'Pendiente']].map(([v, n]) => muestra(`--color-${v}`, n)),
+      muestra('--color-nivel-aviso', 'Nivel aviso'), muestra('--color-nivel-friccion', 'Nivel fricción'), muestra('--color-nivel-total', 'Nivel total'),
+      muestra('--color-plan-bloque', 'Plan: bloque'), muestra('--color-plan-clase', 'Plan: clase'), muestra('--color-plan-rutina', 'Plan: rutina'));
+    $('colores-cursos').append(...COLORES_CURSO.map((c, i) => muestra(`--color-${c}`, `Curso ${i + 1}`)));
+    $('colores-interfaz').append(...[
+      ['acento', 'Acento'], ['acento-texto', 'Texto sobre acento'], ['acento-suave', 'Acento suave'], ['foco', 'Anillo de foco'],
+      ['fondo', 'Fondo'], ['superficie', 'Superficie'], ['superficie-2', 'Superficie hundida'], ['borde', 'Borde'],
+      ['borde-fuerte', 'Borde fuerte'], ['texto', 'Texto'], ['texto-suave', 'Texto suave'], ['aviso', 'Aviso'], ['aviso-fondo', 'Fondo de aviso'],
+    ].map(([v, n]) => muestra(`--color-${v}`, n)));
+
+    function actualizarFuentes() {
+      const css = getComputedStyle(document.documentElement);
+      $('nota-fuentes').textContent = `Texto: ${css.getPropertyValue('--fuente-texto').trim()} · Números: ${css.getPropertyValue('--fuente-numeros').trim()}`;
+    }
+
+    // ── Espacios y formas ──
+    $('espacios').append(...[1, 2, 3, 4, 5, 6, 8, 10, 12].map((n) =>
+      el('div', { class: 'm-espacio' }, el('code', {}, `--espacio-${n}`), el('i', { style: { '--ancho': `var(--espacio-${n})` } }))));
+    $('formas-lista').append(
+      ...['s', 'm', 'l'].map((r) => el('div', { class: 'm-forma', style: { 'border-radius': `var(--radio-${r})` } }, `--radio-${r}`)),
+      el('div', { class: 'm-forma', style: { 'border-radius': 'var(--radio-pildora)', height: '2.5rem' } }, '--radio-pildora'),
+      el('div', { class: 'm-forma', style: { 'border-radius': 'var(--radio-l)', 'box-shadow': 'var(--sombra)' } }, '--sombra'),
+      el('div', { class: 'm-forma', style: { 'border-radius': 'var(--radio-l)', 'box-shadow': 'var(--sombra-emergente)' } }, '--sombra-emergente'));
+
+    // ── Chips ──
+    $('chips-estado').append(...ESTADOS_CUMPLIMIENTO.map((e) => crearChipEstado(e)));
+    $('chips-nivel').append(...NIVELES.map((n) => crearChipNivel(n)));
+    $('chips-clase').append(...ESTADOS.map((e) => crearChipEstado(e)));
+    $('chips-curso').append(...cursos.map((c) => crearEtiqueta(c.curso, c.nombre)), crearEtiqueta('curso-8', 'Curso 8 (libre)'));
+
+    // ── Tabla y listas vacías ──
+    $('tabla-vacia').append(crearTarjeta({ titulo: 'Tabla sin filas', contenido: crearTabla({ columnas: columnasBloques.slice(0, 4), filas: [], vacio: 'No hay bloques planificados hoy (feriado).' }) }));
+    $('lista-vacia').append(crearTarjeta({
+      titulo: 'Más usados · con detalle bajo pedido',
+      subtitulo: 'El detalle se pide al abrir (tarda medio segundo); el último falla',
+      contenido: crearListaProporcional([
+        { nombre: 'Code.exe', valor: 3 * H + 20 * M, clave: 'estudio' },
+        { nombre: 'chrome.exe', valor: 2 * H + 45 * M, clave: 'neutral' },
+        { nombre: 'Discord.exe', valor: 40 * M, clave: 'distraccion' },
+      ], {
+        total: 6 * H + 45 * M,
+        alDesplegar: (fila) => new Promise((ok, falla) => setTimeout(() => (fila.nombre === 'Discord.exe'
+          ? falla(new Error('ActivityWatch no respondió'))
+          : ok([{ texto: `${fila.nombre} · ventana principal`, valor: fila.valor * 0.7 }, { texto: `${fila.nombre} · otras ventanas`, valor: fila.valor * 0.3 }])), 500)),
+      }),
+    }));
+
+    // ── Botones ──
+    const variantes = [['Primario', 'boton-primario', 'Guardar plan'], ['Secundario', '', 'Cancelar'], ['Fantasma', 'boton-fantasma', 'Ver detalle'], ['Peligro', 'boton-peligro', 'Borrar bloque']];
+    $('botones-lista').append(...variantes.map(([nombre, clase, texto]) => el('div', { class: 'm-fila' },
+      el('span', { class: 'm-fila-titulo' }, nombre),
+      el('button', { class: `boton ${clase}`, type: 'button' }, texto),
+      el('button', { class: `boton ${clase}`, type: 'button', disabled: true }, 'Deshabilitado'),
+      el('button', { class: `boton boton-pequeno ${clase}`, type: 'button' }, 'Pequeño'),
+      el('button', { class: `boton ${clase}`, type: 'button', disabled: true, 'aria-busy': 'true' }, 'Guardando…'))),
+    el('div', { class: 'm-fila' }, el('span', { class: 'm-fila-titulo' }, 'Con ícono'),
+      el('button', { class: 'boton boton-icono', type: 'button', 'aria-label': 'Día anterior', title: 'Día anterior' }, '‹'),
+      el('button', { class: 'boton boton-icono', type: 'button', 'aria-label': 'Día siguiente', title: 'Día siguiente' }, '›'),
+      el('button', { class: 'boton boton-icono boton-pequeno boton-fantasma', type: 'button', 'aria-label': 'Cerrar', title: 'Cerrar' }, '✕')));
+
+    // ── Formularios ──
+    $('formulario').append(
+      el('h3', { class: 'tarjeta-titulo' }, 'Nuevo bloque de estudio'),
+      el('div', { class: 'formulario-fila' },
+        crearCampo({ etiqueta: 'Curso', tipo: 'select', valor: 'est', opciones: [{ valor: 'bd1', texto: 'BD I' }, { valor: 'dbp', texto: 'DBP' }, { valor: 'p3', texto: 'Prog III' }, { valor: 'est', texto: 'Estadística' }, { valor: 'edo', texto: 'EDO' }] }),
+        crearCampo({ etiqueta: 'Empieza', tipo: 'time', valor: '09:00' })),
+      el('div', { class: 'formulario-fila', style: { 'margin-top': 'var(--espacio-4)' } },
+        crearCampo({ etiqueta: 'Duración (min)', tipo: 'number', valor: '0', error: 'La duración tiene que ser mayor que 0 min.', atributos: { min: '5', step: '5' } }),
+        crearCampo({ etiqueta: 'Días', tipo: 'text', valor: 'lun, mié, vie', ayuda: 'Separados por coma.' })),
+      el('div', { style: { 'margin-top': 'var(--espacio-4)' } },
+        crearCampo({ etiqueta: 'Notas', tipo: 'textarea', opcional: true, ayuda: 'Se ven en la página de aviso durante el bloque.', atributos: { placeholder: 'Por ejemplo: capítulo 4, ejercicios 1 a 10', rows: '3' } })),
+      el('div', { class: 'botonera', style: { 'margin-top': 'var(--espacio-5)' } },
+        el('button', { class: 'boton boton-primario', type: 'button' }, 'Guardar bloque'),
+        el('button', { class: 'boton boton-fantasma', type: 'button' }, 'Cancelar')));
+    $('formulario-opciones').append(
+      el('h3', { class: 'tarjeta-titulo' }, 'Opciones'),
+      crearCampo({ etiqueta: 'Nivel inicial', tipo: 'radio', valor: 'friccion', opciones: [{ valor: 'aviso', texto: 'Aviso' }, { valor: 'friccion', texto: 'Fricción' }, { valor: 'total', texto: 'Total' }], ayuda: 'Endurecer es inmediato; aflojar aplica desde mañana.' }),
+      crearCampo({ etiqueta: 'Avisarme 5 min antes', tipo: 'checkbox', valor: true }),
+      crearCampo({ etiqueta: 'Contar las clases en el estudio total', tipo: 'checkbox', valor: false }),
+      crearCampo({ etiqueta: 'Comodines por semana', tipo: 'number', valor: '5', atributos: { disabled: true }, ayuda: 'Deshabilitado: se cambia en Ajustes.' }));
+
+    // ── Controles ──
+    const salida = el('p', { class: 'm-resultado' }, 'Agrupado por: Clase');
+    $('segmentado-demo').append(el('h3', { class: 'tarjeta-titulo' }, 'Control segmentado'),
+      crearSegmentado({ etiqueta: 'Agrupar por', valor: 'clase', nombre: 'agrupar-demo',
+        opciones: [{ valor: 'clase', texto: 'Clase' }, { valor: 'area', texto: 'Área' }, { valor: 'curso', texto: 'Curso' }, { valor: 'app', texto: 'App', deshabilitada: true }],
+        alCambiar: (v) => { salida.textContent = `Agrupado por: ${{ clase: 'Clase', area: 'Área', curso: 'Curso' }[v]}`; } }),
+      salida);
+    $('pestanas-demo').append(el('h3', { class: 'tarjeta-titulo' }, 'Pestañas'), crearPestanas({
+      etiqueta: 'Totales', activa: 'clase',
+      pestanas: [
+        { id: 'clase', texto: 'Por clase', contenido: () => crearBarraApilada(reparto.slice(0, 5), { titulo: 'Tiempo activo por clase', leyenda: true }) },
+        { id: 'area', texto: 'Por área', contenido: () => crearLeyenda([
+          { clave: 'curso-1', etiqueta: 'Programación', valor: '11 h 05 min' }, { clave: 'curso-4', etiqueta: 'Matemáticas', valor: '5 h 30 min' },
+          { clave: 'curso-7', etiqueta: 'Inglés', valor: '2 h 05 min' }, { clave: 'curso-8', etiqueta: 'Humanidades', valor: '0 min' }], { columna: true }) },
+        { id: 'vacia', texto: 'Por curso', contenido: () => crearVacio('Sin bloques terminados esta semana.', { compacto: true }) },
+      ],
+    }));
+
+    // ── Alertas ──
+    $('alertas-lista').append(
+      crearAviso('info', 'Aflojar no es inmediato: el nivel Aviso aplica desde mañana, 5 de noviembre.', { titulo: 'Cambio pendiente' }),
+      crearAviso('exito', 'Plan guardado en ActivityWatch.'),
+      crearAviso('cuidado', 'El agente no responde desde hace 2 min; la extensión mantiene la última decisión.', { titulo: 'Sin agente' }),
+      crearAviso('error', 'No se pudo guardar el plan: ActivityWatch respondió 500. Tus cambios siguen en esta página.', { titulo: 'Error al guardar' }),
+      el('p', { class: 'aviso' }, 'Aviso sencillo (.aviso, el de "AW no responde" del dashboard).'));
+
+    // ── Estados ──
+    const tarjetaError = crearTarjeta({ titulo: 'Error', clase: 'ancho-4',
+      contenido: crearError('No se pudo leer ActivityWatch.', { detalle: '¿Está abierto? (ícono en la bandeja)', reintentar: () => new Promise((ok) => setTimeout(ok, 1200)) }) });
+    $('estados-lista').append(
+      crearTarjeta({ titulo: 'Vacío', clase: 'ancho-4', contenido: crearVacio('Sin datos en este período.', { detalle: 'La PC estuvo apagada o ActivityWatch no registró.', accion: { texto: 'Ver la semana anterior', alHacer: () => {} } }) }),
+      crearTarjeta({ titulo: 'Cargando', clase: 'ancho-4', contenido: crearCargando({ filas: 5 }) }),
+      tarjetaError,
+      crearTarjeta({ titulo: 'Gráfico cargando', clase: 'ancho-6', contenido: crearCargando({ grafico: true }) }),
+      crearTarjeta({ titulo: 'Lista vacía (compacta)', clase: 'ancho-6', contenido: crearListaProporcional([], { vacio: 'Nada sin clasificar esta semana.' }) }));
+
+    // ── Diálogo ──
+    const resultado = $('dialogo-resultado');
+    $('dialogo-botones').append(
+      el('button', { class: 'boton', type: 'button', onclick: async () => {
+        const r = await abrirDialogo({
+          titulo: '¿Bajar el nivel a Aviso?',
+          contenido: [el('p', {}, 'Aflojar no es inmediato: el cambio aplica desde el próximo día lógico (mañana, 5 de noviembre).'),
+            el('p', {}, 'Hoy sigue en Fricción.')],
+          acciones: [{ valor: 'cancelar', texto: 'Cancelar' }, { valor: 'programar', texto: 'Programar cambio', tipo: 'primario' }],
+        });
+        resultado.textContent = r ? `Elegiste: ${r}.` : 'Cerraste sin elegir.';
+      } }, 'Bajar el nivel…'),
+      el('button', { class: 'boton boton-peligro', type: 'button', onclick: async () => {
+        const r = await abrirDialogo({
+          titulo: '¿Borrar el bloque de Estadística?',
+          contenido: 'Se borra del plan (lun, mié y vie a las 09:00). Lo ya registrado en ActivityWatch no se toca.',
+          acciones: [{ valor: 'cancelar', texto: 'Cancelar' }, { valor: 'borrar', texto: 'Borrar bloque', tipo: 'peligro' }],
+        });
+        resultado.textContent = r ? `Elegiste: ${r}.` : 'Cerraste sin elegir.';
+      } }, 'Borrar bloque…'));
+
+    // ── Grilla ──
+    $('grilla-demo').append(...[12, 8, 4, 6, 6, 4, 4, 4, 3, 3, 3, 3, 9, 3].map((n) => el('div', { class: `m-caja ancho-${n}` }, `.ancho-${n}`)));
+    $('grilla-auto-demo').append(...Array.from({ length: 6 }, (_, i) => el('div', { class: 'm-caja' }, `Celda ${i + 1}`)));
+
+    // Al cambiar de tema o de modo: valores de las muestras y fuentes.
+    const refrescar = () => { actualizarMuestras(); actualizarFuentes(); };
+    refrescar();
+    document.addEventListener('tema-cambiado', refrescar);
   </script>
 </body>
 </html>

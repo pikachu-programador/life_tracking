@@ -1,0 +1,67 @@
+/*
+  Tema «Tablero» (V-10) — PROPUESTA: la paleta y la tipografía finales las decide Dremy (F1-02).
+
+  Personalidad: panel de instrumentos. La interfaz es blanco y negro (el acento es el mismo
+  color del texto), así el color queda solo para los datos, con tonos de señal intensos.
+  Esquinas rectas (también las "píldoras"), bordes nítidos, casi sin sombras y movimiento rápido.
+  Letra: Bahnschrift (la DIN de Windows 10 y 11), para texto y números.
+
+  Cómo funciona: js/temas.js carga este archivo justo DESPUÉS de tokens.css. Como usa el mismo
+  selector (:root) y viene después, sus valores ganan. Lo que no aparece aquí queda como en
+  tokens.css (espacios, tamaños de letra…). Los alias de tokens.css (--color-cumplido,
+  --color-nivel-total…) se escriben con var(), así que cambian solos con estos colores.
+  Ojo: --color-plan-bloque usa el acento, así que en este tema los bloques del plan son negros
+  (blancos en oscuro): el plan es la "estructura" y lo real, la señal de color.
+
+  Colores: light-dark(claro, oscuro) en hex. pruebas/temas.test.js los lee para revisar el
+  contraste del texto y que los colores de clase y de curso se distingan entre sí.
+*/
+
+:root {
+  /* ── Clases y estados ── colores de señal, bien saturados. */
+  --color-estudio:        light-dark(#00915b, #53d39d);
+  --color-distraccion:    light-dark(#e8392a, #f2464f);
+  --color-neutral:        light-dark(#8f98a6, #828d96);
+  --color-sin-clasificar: light-dark(#e09c00, #fcd52f);
+  --color-ia:             light-dark(#7f2cae, #ad6ae6);
+  --color-afk:            light-dark(#cbd0d7, #3c434c);
+  --color-sin-pc:         light-dark(#e8ebef, #1c2025);
+
+  /* ── Interfaz ── el acento es tinta: negro en claro, blanco en oscuro. */
+  --color-acento:         light-dark(#0d1014, #f1f3f5);
+  --color-acento-texto:   light-dark(#ffffff, #0d1014);
+  --color-fondo:          light-dark(#eceef1, #08090b);
+  --color-superficie:     light-dark(#ffffff, #121519);
+  --color-borde:          light-dark(#d3d8de, #272c33);
+  --color-texto:          light-dark(#0d1014, #f1f3f5);
+  --color-texto-suave:    light-dark(#4d5560, #a3acb7);
+  --color-aviso:          light-dark(#903a00, #fc9240);
+  --color-aviso-fondo:    light-dark(#ffeedd, #2e1f0e);
+
+  /* ── Cursos ── */
+  --color-curso-1:        light-dark(#5a8ff3, #338fe9);
+  --color-curso-2:        light-dark(#17a795, #02ab96);
+  --color-curso-3:        light-dark(#d27231, #ffa057);
+  --color-curso-4:        light-dark(#a7517a, #e16694);
+  --color-curso-5:        light-dark(#5f8a02, #98da6c);
+  --color-curso-6:        light-dark(#037ba5, #63d6f1);
+  --color-curso-7:        light-dark(#544696, #bf94ff);
+  --color-curso-8:        light-dark(#804c0b, #ab7c3c);
+
+  /* ── Tipografía ── */
+  --fuente-texto: Bahnschrift, "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  --fuente-numeros: Bahnschrift, "Segoe UI", system-ui, sans-serif;
+
+  /* ── Formas ── todo recto; las sombras casi desaparecen (separan los bordes). */
+  --radio-s: 2px;
+  --radio-m: 2px;
+  --radio-l: 3px;
+  --radio-pildora: 2px;
+  --sombra: 0 1px 0 light-dark(rgb(13 16 20 / 0.05), rgb(0 0 0 / 0.6));
+  --sombra-emergente: 0 10px 28px light-dark(rgb(13 16 20 / 0.20), rgb(0 0 0 / 0.75));
+
+  /* ── Movimiento ── seco y rápido. */
+  --duracion-rapida: 90ms;
+  --duracion-media: 150ms;
+  --duracion-lenta: 240ms;
+}

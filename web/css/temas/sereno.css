@@ -1,0 +1,62 @@
+/*
+  Tema «Sereno» (V-10) — PROPUESTA: la paleta y la tipografía finales las decide Dremy (F1-02).
+
+  Personalidad: calma y aire. Grises fríos casi blancos, un azul tranquilo como acento,
+  esquinas bien redondeadas y sombras difusas que apenas despegan las tarjetas del fondo.
+  Letra: Segoe UI Variable (la de Windows 11; en Windows 10 cae en Segoe UI).
+
+  Cómo funciona: js/temas.js carga este archivo justo DESPUÉS de tokens.css. Como usa el mismo
+  selector (:root) y viene después, sus valores ganan. Lo que no aparece aquí queda como en
+  tokens.css (espacios, tamaños de letra…). Los alias de tokens.css (--color-cumplido,
+  --color-nivel-total…) se escriben con var(), así que cambian solos con estos colores.
+
+  Colores: light-dark(claro, oscuro) en hex. pruebas/temas.test.js los lee para revisar el
+  contraste del texto y que los colores de clase y de curso se distingan entre sí.
+*/
+
+:root {
+  /* ── Clases y estados ── verde azulado (estudio) y coral (distracción): se distinguen también con daltonismo. */
+  --color-estudio:        light-dark(#0a8b80, #50cb9d);
+  --color-distraccion:    light-dark(#d14a50, #e5676c);
+  --color-neutral:        light-dark(#8f9cb0, #7c95a1);
+  --color-sin-clasificar: light-dark(#c18d00, #efc24f);
+  --color-ia:             light-dark(#7e57c1, #af87f2);
+  --color-afk:            light-dark(#c9d1dc, #3b4554);
+  --color-sin-pc:         light-dark(#eaeff5, #1d242e);
+
+  /* ── Interfaz ── */
+  --color-acento:         light-dark(#2f62c9, #82a8ff);
+  --color-acento-texto:   light-dark(#ffffff, #0b1530);
+  --color-fondo:          light-dark(#f3f6f9, #0e1319);
+  --color-superficie:     light-dark(#ffffff, #151b23);
+  --color-borde:          light-dark(#e1e7ee, #253040);
+  --color-texto:          light-dark(#17202b, #e4eaf1);
+  --color-texto-suave:    light-dark(#566375, #9aa8b9);
+  --color-aviso:          light-dark(#8f4c0a, #eea25e);
+  --color-aviso-fondo:    light-dark(#fff3e3, #33260f);
+
+  /* ── Cursos ── */
+  --color-curso-1:        light-dark(#4f86e0, #3d84dc);
+  --color-curso-2:        light-dark(#0ca793, #07ac97);
+  --color-curso-3:        light-dark(#cf7820, #fda865);
+  --color-curso-4:        light-dark(#d870ae, #e67199);
+  --color-curso-5:        light-dark(#3c7700, #9bd576);
+  --color-curso-6:        light-dark(#005e7d, #76d3f2);
+  --color-curso-7:        light-dark(#6c43a8, #b599ff);
+  --color-curso-8:        light-dark(#7b461f, #a77d47);
+
+  /* ── Tipografía ── */
+  --fuente-texto: "Segoe UI Variable Text", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+  --fuente-numeros: "Segoe UI Variable Display", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+
+  /* ── Formas ── esquinas amplias y sombras en dos capas (una cerca, otra difusa). */
+  --radio-s: 6px;
+  --radio-m: 10px;
+  --radio-l: 16px;
+  --sombra: 0 1px 2px light-dark(rgb(23 32 43 / 0.04), rgb(0 0 0 / 0.3)), 0 4px 14px light-dark(rgb(23 32 43 / 0.05), rgb(0 0 0 / 0.22));
+  --sombra-emergente: 0 2px 6px light-dark(rgb(23 32 43 / 0.06), rgb(0 0 0 / 0.3)), 0 16px 40px light-dark(rgb(23 32 43 / 0.14), rgb(0 0 0 / 0.55));
+
+  /* ── Movimiento ── un poco más pausado que el provisional. */
+  --duracion-rapida: 140ms;
+  --duracion-media: 220ms;
+}
