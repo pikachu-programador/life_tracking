@@ -111,10 +111,11 @@ flowchart LR
 - [x] **F0-05 · Servir `web/` desde AW**
   - Hecho cuando: `http://localhost:5600/pages/rastreador/` muestra un `index.html` de prueba que importa un módulo `.js` y este se ejecuta.
   - Notas: configuración según §14; copiar la configuración antes de editarla y reiniciar AW después. Si el módulo no carga por el tipo MIME, ver §14.
-- [ ] **F0-06 · Preparar datos de ejemplo**
-  - Objetivo: 2 o 3 días exportados de AW (ventana, AFK y web), con una copia anonimizada para las pruebas.
-  - Hecho cuando: `datos-ejemplo/` tiene la copia anonimizada y los datos reales quedan fuera del repo.
+- [x] **F0-06 · Preparar datos de ejemplo**
+  - Objetivo: datos de ejemplo de AW (ventana, AFK y web) para las pruebas, sin datos reales.
+  - Hecho cuando: `datos-ejemplo/` tiene datos sintéticos de ventana, web, AFK y check-ins, con `plan-ejemplo.json` y con `verdad.json` como respuesta correcta de cada día; `node datos-ejemplo/generar.mjs` los regenera idénticos; los datos reales quedan fuera del repo.
   - Notas: incluir un día con trasnoche y otro con huecos sin PC.
+  - Resultado (2026-11-04): 14 días sintéticos (5 al 18 de octubre de 2026) con sus casos en `datos-ejemplo/README.md` (trasnoches, huecos sin PC, feriado, día sin datos, examen en total). Dremy decidió aceptarlos en lugar de días reales anonimizados; `herramientas/exportar-anonimizado.js` queda por si hace falta sumar días reales.
 - [x] **F0-07 · Responder "Por validar"**
   - Hecho cuando: cada punto de §17 tiene respuesta.
 
