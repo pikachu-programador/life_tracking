@@ -381,11 +381,12 @@ Las demás formas (`EventoAW`, `DatosDiaAW`, `ReglaAW`, `ReglasCompiladas`, `Che
 
 **Día lógico (algoritmo de `calcularDiaLogico`, §10)**
 
-- **Actividad** = segmentos de las 5 clases (no AFK ni Sin PC). Un **hueco** es el tiempo entre dos actividades.
-- **Límite de un inicio de día de AW** `S` (las 04:00 de una fecha): de los huecos de al menos `huecoMin` que tocan la ventana [`S` − 8 h, `S` + 8 h], el más largo. Su borde izquierdo es el fin del día anterior y el derecho, el inicio del día. Así la actividad de la 1:00 a. m. es del día anterior, y una trasnoche que pasa de las 04:00 sin hueco de 3 h también.
-- **Inicio:** check-in de despertar → límite de `S(fecha)` → `S` (`fuenteInicio` = `'inicio_dia'`).
+- **Actividad** = segmentos de las 5 clases (no AFK ni Sin PC). Un **hueco** es una racha sin actividad, incluidas las que tocan el principio o el final de los datos: antes de la primera actividad el hueco empieza en −∞, y después de la última termina en +∞ si ya pasaron `huecoMin` desde ella (si no, la persona puede seguir activa y ese hueco todavía no existe).
+- **Límite de un inicio de día de AW** `S` (las 04:00 de una fecha): de los huecos de al menos `huecoMin` que tocan la ventana [`S` − 8 h, `S` + 8 h], el que **contiene** `S`; si ninguno lo contiene, el más cercano a `S`; si empatan, el más largo. Su borde izquierdo es el fin del día anterior y el derecho, el inicio del día. Así la actividad de la 1:00 a. m. es del día anterior, una trasnoche que pasa de las 04:00 sin hueco de 3 h también, y el hueco de una clase presencial a media mañana no le gana a una noche corta.
+- **Inicio:** check-in de despertar → límite de `S(fecha)` (si su inicio cae antes de `S(fecha + 1)`) → `S` (`fuenteInicio` = `'inicio_dia'`).
 - **Fin:** check-in de dormir → límite de `S(fecha + 1)` → si el día sigue (hoy): `ahora`, o la última actividad si ya pasaron `huecoMin` → `S(fecha + 1)`.
-- Sin actividad en el día: `sinDatos` y `fin` = `inicio` (= `S`). El día nunca dura más de 24 h.
+- **Sin datos:** si con esos dos límites no queda actividad en [inicio, fin) (o fin ≤ inicio), el día es `sinDatos`, con `inicio` = `fin` = `S` (o la hora del check-in de despertar). El día nunca dura más de 24 h.
+- `huecoMin` lo calcula quien llama: `plan.umbrales.hueco_sueno_h × 60`.
 
 **Flujo de un día en el dashboard** (`web/js/datos.js`, F2-09)
 
@@ -395,7 +396,7 @@ Las demás formas (`EventoAW`, `DatosDiaAW`, `ReglaAW`, `ReglasCompiladas`, `Che
 4. `expandirDia` → `ItemsDelDia`; `asignarContexto`; `resumirDia` → `ResumenDia`.
 5. Los resúmenes de días terminados y `cerrado` quedan en caché en la memoria (§6.1); se vacía si cambian el plan o los check-ins.
 
-Las vistas solo usan `web/js/datos.js`:
+Las vistas **leen y guardan** datos solo con `web/js/datos.js`; para calcular pueden importar funciones puras del motor (`simular`, `agregarPeriodo`, `compararPeriodos`, `agruparPor`, `validarPlan`, `proponerCambio`, `expandirRango`…):
 
 | Función | Devuelve |
 |---|---|
@@ -405,9 +406,24 @@ Las vistas solo usan `web/js/datos.js`:
 | `datos.segmentos(desde, hasta)` | `[{fecha, segmentos}]` (para el explorador y Clasificación) |
 | `datos.plan()`, `datos.guardarPlan(plan)` | Plan normalizado; guardar valida antes y vacía la caché |
 | `datos.niveles()`, `datos.guardarNiveles(n)` | Ajuste `rastreador-niveles` |
-| `datos.checkins(desde, hasta)`, `datos.registrarCheckin(c)`, `datos.borrarCheckin(id)` | Check-ins (bucket propio) |
+| `datos.checkins(desde, hasta)`, `datos.registrarCheckin(c)`, `datos.borrarCheckin(id)` | Check-ins (bucket propio); `registrarCheckin` guarda siempre `fecha` |
+| `datos.intervenciones(desde, hasta)` | Intervenciones reales del agente (vacía hasta la fase 6); `DiaCompleto.intervenciones` trae las del día |
 | `datos.reglas()` | `{classes, compiladas}` (reglas de AW y las que no compilan) |
 | `datos.estadoAW()` | `{conectado, version, hostname, buckets}` |
+
+**Reglas entre módulos** (revisión de F1-09)
+
+- **Día sin datos y `no_medible`:** despertar y dormir son `no_medible` si su hora sale de `'inicio_dia'` o `'sin_datos'`. Lo que se mide en la PC (bloques `estudio_pc` y `examen`, rutinas `pc`) en un día sin datos ya terminado es `fallido` ("no empezó"); lo que va por check-in (papel, rutinas `checkin`) se evalúa igual que siempre. Un día sin datos entra al % del período (y puede cortar rachas), pero sus métricas no entran a los promedios "por día con datos".
+- **Check-ins:** despertar = `instanteLocal(fecha, valor)`; dormir = el primer instante con esa hora después del inicio del día lógico (o de `S`); si hay varios del mismo tipo y fecha, manda el de mayor `instante`; en despertar y dormir el `refId` no importa.
+- **Bloque terminado antes:** el foco y el peso en el % usan la duración **planificada** (terminar antes no mejora el foco); el contexto `'bloque'` llega solo hasta el fin real.
+- **"Ahora":** `datos.js` pasa siempre la hora actual. Un día en curso (no `cerrado`) entra en los totales, pero no corta rachas.
+- **Resumen:** `resumirDia` hace `expandirDia` y `asignarContexto` adentro (son baratos) y acepta `opciones.items` si ya están calculados. `agregarPeriodo(resumenes, desde, hasta, {umbrales})` y `compararPeriodos(actual, anterior)` → `ComparacionPeriodo` (lo usan V-05 y V-09). El período anterior de un mes es el mes calendario anterior.
+- **`METRICAS`:** claves `estudio`, `estudioTotal`, `papel`, `clases`, `ia`, `neutral`, `distraccion`, `sinClasificar`, `activo`, `afk`, `sinPc`, `despierto`, `cumplimiento`, `retraso`, `cambiosPorHora`, `focoMasLargo`, `despertar` y `dormir` (minutos locales; `dormir` suma 1440 si pasa la medianoche). "Con datos" = día sin `sinDatos` y valor distinto de `null`. El cumplimiento de un período es el ponderado de §9 con todos sus días, no el promedio de los %.
+- **Clases:** id `c-<curso>-<días unidos>-<HHMM>`, con `-2`, `-3`… si se repite. **Asistencia** clase por clase: una clase con check-in `falto` no cuenta como tiempo en clases; con `asistio` o sin check-in, sí.
+- **Excepciones superpuestas:** cancelar gana a subir a total.
+- **Categoría de las webs:** `segmentar` usa la categoría del evento de ventana (app y título), como la vista Actividad de AW; el agente también probará la URL. Una regla que solo coincide por URL puede dar distinto en el simulador y en el bloqueo real: se acepta y se revisa en F7-07.
+- **Navegadores sin la extensión:** `Actividad` puede traer `esNavegador` y `conExtension`; en el simulador, un navegador con `url = null` cuenta como sin extensión. En nivel total se bloquea con el motivo `'sin_extension'` (§11).
+- **Nombres:** lo que se guarda en AW (plan, niveles, check-ins, intervenciones) va en snake_case, como en §8 y §12; lo que calcula el motor, en camelCase.
 
 ### 6.8 Herramientas de desarrollo
 
@@ -519,10 +535,11 @@ Se guarda en el ajuste `rastreador-plan` de AW y se puede exportar e importar en
 - **Puntualidad** = minutos entre el inicio planificado y el primer minuto de Estudio.
 - **% del día** = Σ(peso × duración planificada) ÷ Σ(duración planificada), con peso 1 (cumplido), 0,5 (parcial) y 0 (fallido). Solo entran bloques y rutinas medibles.
 - **% de la semana** = la misma fórmula con todos sus días.
+- **Días sin datos, bloques terminados antes y estados `pendiente` / `no_medible`:** ver las reglas entre módulos de §6.7.
 
 ## 10. Día lógico y horas despierto
 
-- **Inicio:** check-in de despertar. Si no hay, la primera actividad (no AFK) después del último hueco de 3 h o más. Si tampoco hay, el "inicio del día" de AW (ajuste `startOfDay`, 04:00 por defecto).
+- **Inicio:** check-in de despertar. Si no hay, la primera actividad (no AFK) después del último hueco de 3 h o más. Si tampoco hay, el "inicio del día" de AW (ajuste `startOfDay`, 04:00 por defecto). El algoritmo exacto (qué hueco cuenta) está en §6.7.
 - **Fin:** check-in de dormir. Si no hay, la última actividad antes del siguiente hueco de 3 h o más.
 - **Horas despierto** = ahora − inicio (hoy) o fin − inicio (días pasados).
 - **Reparto de las horas despierto:** estudio, distracción, neutral, IA, sin clasificar, AFK y sin PC. Siempre suma las horas despierto.
@@ -553,7 +570,7 @@ Convención de AW para buckets: `<nombre>_<hostname>`. Todos los buckets propios
 | Bucket | Qué guarda | Campos de `data` |
 |---|---|---|
 | `rastreador-sesiones_<host>` | Inicio y fin reales de cada bloque | bloque_id, tipo, curso, nivel_inicial, nivel_final, estado, terminado_antes, motivo |
-| `rastreador-intervenciones_<host>` | Cada aviso, fricción, bloqueo, pase, escalamiento o salida de emergencia | bloque_id, nivel, accion, objetivo (app o web), app, url, titulo, motivo |
+| `rastreador-intervenciones_<host>` | Cada aviso, fricción, bloqueo, pase, escalamiento o salida de emergencia | bloque_id (id del bloque del día, `<id>@<fecha>`), clase_id, nivel, accion, objetivo (app o web), app, url, titulo, motivo |
 | `rastreador-checkins_<host>` | Despertar, dormir, rutina, estudio en papel, asistencia | tipo, ref_id, valor, nota y `fecha` (día lógico al que se refiere; si falta, el día de AW del timestamp). `valor`: `HH:MM` en despertar y dormir, `hecho` o `no_hecho` en rutina y papel, `asistio` o `falto` en asistencia |
 | `rastreador-agente_<host>` | Latido del agente cada minuto | estado |
 
@@ -689,3 +706,4 @@ Todas las vistas usan un **selector de período** común (Día, Semana, Mes o Ra
 | 2026-11-01 | v4 (respuestas de F0-07): las rutinas pueden no tener franja horaria y entonces cuentan en todo el día lógico (§8); en las clases el nivel se queda siempre en aviso, sin escalamiento (§9, §11); laptop en clase, horario en Google Calendar (la clase de Inglés real es sáb y dom de 15:00 a 18:00), umbrales iniciales aceptados, paleta para más adelante y rutina Inglés diario de 15 min (§17) |
 | 2026-11-04 | v5 (visualizaciones, aceptada por Dremy): nuevo módulo Resumen del motor con `resumirDia` y `agregarPeriodo` (§5, §6.2); caché de días y de resúmenes solo en la memoria del navegador, nunca en AW (§6.1); temas como archivos que redefinen las variables de `tokens.css` (§6.1, §15); vistas Resumen del período, Día típico, Explorador de actividad y Comparar, con selector de período común (§13); sueño fuera de alcance y F8-06 en pausa (§2); `docs/visualizaciones.md` (§15) |
 | 2026-11-04 | v6 (sesión en la nube; decisiones tomadas sin Dremy, ver la bitácora `2026-11-04-nube`): contratos del motor con firmas y formas de los datos (§6.7, `web/motor/tipos.js`); instantes en ms y duraciones en segundos; algoritmo del día lógico con ventana de ±8 h alrededor del inicio de día y tope de 24 h (§6.7); la consulta canónica devuelve también los periodos AFK para distinguir AFK de Sin PC; `REGEX_APP_NAVEGADOR` y las fechas pasan al motor (`tipos.js`, `fechas.js`); regex de AW traducidas a JS con `\b` y `\w` Unicode (`regex.js`); check-ins con `fecha` opcional (§12); clases con `id`, rutinas `dia_logico` con `evento`, bloques con `terminados_antes` y cursos con color de token (§8); el nivel de cada bloque cambia por `rastreador-niveles` (§11); servicio de datos del dashboard `web/js/datos.js` (§6.7); herramientas de desarrollo: AW falso, reloj de prueba `?ahora=` y capturas (§6.8, §15) |
+| 2026-11-04 | v6.1 (revisión cruzada de F1-09): algoritmo del día lógico con huecos abiertos en los bordes y el hueco que contiene las 04:00 (o el más cercano) en vez del más largo; día sin datos y `no_medible`; instante de los check-ins de dormir; bloques terminados antes con duración planificada; `compararPeriodos` y `umbrales` en `agregarPeriodo`; claves de `METRICAS`; asistencia clase por clase; navegadores sin extensión en el Decisor; las vistas pueden importar funciones puras del motor (§6.7, §9, §10, §12) |

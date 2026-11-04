@@ -75,3 +75,23 @@ test('la RegExp no guarda estado entre llamadas (sin g ni y)', () => {
   assert.ok(!r.global && !r.sticky);
   assert.ok(r.test('a') && r.test('a'));
 });
+
+// ── Revisión de F1-09: casos que Python acepta ──
+test('"]" suelto fuera de corchetes es literal, como en Python', () => {
+  assert.ok(coincide('\\[EN] Lesson', '[EN] Lesson 3'));
+});
+
+test('\\pL (sin llaves) es \\p{L}', () => {
+  assert.ok(coincide('^\\pL+$', 'ñandú'));
+  assert.ok(!coincide('^\\pL+$', 'a1'));
+});
+
+test('\\A y \\Z siguen marcando inicio y fin del TEXTO aunque haya (?m)', () => {
+  assert.ok(!coincide('(?m)\\Aab', 'x\nab'));
+  assert.ok(coincide('(?m)^ab', 'x\nab'));
+  assert.ok(!coincide('(?m)ab\\Z', 'ab\nx'));
+});
+
+test('\\W dentro de corchetes da un error claro (en JS no entendería tildes)', () => {
+  assert.throws(() => regexDeAW('[^\\W\\d_]+'), /\\W dentro de corchetes/);
+});

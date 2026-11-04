@@ -174,9 +174,10 @@ Cambios en las tareas: F5-02 se hace dentro de F2-01 y F5-03 dentro de F4-02, po
   - Objetivo: carpeta `pruebas/` con el test runner de Node y los datos de `datos-ejemplo/`.
   - Hecho cuando: un solo comando corre todas las pruebas.
   - Resultado (2026-11-04): `npm test` corre todo `pruebas/**/*.test.js`; `pruebas/ayudantes/ejemplo.js` lee los buckets, el plan y `verdad.json` de `datos-ejemplo/` (siempre como copias).
-- [ ] **F1-09 · Contratos del motor**
+- [x] **F1-09 · Contratos del motor**
   - Objetivo: fijar las firmas de las funciones del motor y la forma de los datos entre el motor y el dashboard (evento clasificado, resumen del día, resumen del período), para poder programar los módulos en paralelo.
   - Hecho cuando: `arquitectura.md` §6.7 tiene las firmas con JSDoc y las formas; `web/motor/tipos.js` tiene las constantes y los `@typedef`; las fechas puras pasan a `web/motor/fechas.js` (con días de la semana, horas del plan y períodos) y las regex de AW se traducen a JS en `web/motor/regex.js`; la consulta canónica devuelve también los periodos AFK; `web/js/dom.js` y `web/js/formato.js` dan los ayudantes comunes de las vistas; todo con pruebas.
+  - Resultado (2026-11-04): commits `a9d2ddd` y el de la revisión. Un subagente revisor encontró 28 puntos (3 graves: `afk` en el AW falso, bordes y elección del hueco en el día lógico, días sin datos y `no_medible`); se corrigieron en §6.7 ("Reglas entre módulos"), §9, §10, §12, `tipos.js`, `regex.js` y `fechas.js`, y se avisó a cada subagente afectado.
 
 ---
 
@@ -492,7 +493,7 @@ No hay V-07: [visualizaciones.md](visualizaciones.md) salta de V-06 a V-08.
 
 - [ ] **V-01 · Resumen diario y su caché**
   - Objetivo: `resumirDia(segmentos, plan, checkins, dia)` → un objeto con todas las métricas de un día lógico (visualizaciones §3); los resúmenes de días terminados quedan en caché y hoy siempre se recalcula.
-  - Hecho cuando: con los datos de ejemplo, los minutos por clase y área de cada día coinciden con `minutos_por_clase_y_area` de `verdad.json`; las pruebas cubren trasnoche, día sin datos (10-13) y feriado (10-08).
+  - Hecho cuando: con los datos de ejemplo, los minutos por clase y área de cada día coinciden con `minutos_por_clase_y_area` de `verdad.json` dentro de la tolerancia de H-01 (sin contar `(afk)` ni `Estudio (sin teclado)`; las diferencias explicadas de H-01 valen aquí); las pruebas cubren trasnoche, día sin datos (10-13) y feriado (10-08).
   - Notas: función pura del motor. La caché vive en la memoria del navegador, como la de días de F2-08; no se guarda en AW. Cumplimiento, puntualidad y racha se suman al resumen cuando existan F4-03; estudio en papel y asistencia, cuando existan los check-ins (F5-01, F5-03).
 - [ ] **V-02 · Agregado por período**
   - Objetivo: `agregarPeriodo(resumenes, desde, hasta)` → totales, promedio por día (con datos o incluyendo los días vacíos), mediana, máximo y mínimo con su fecha, desviación estándar, rachas, día de la semana promedio y comparación con el período anterior del mismo largo.
@@ -542,7 +543,7 @@ No hay V-07: [visualizaciones.md](visualizaciones.md) salta de V-06 a V-08.
     1. **Reglas de ejemplo.** Crear `datos-ejemplo/clases-ejemplo.json` con el formato del ajuste `classes` de AW y la taxonomía v3 (§7): clases Estudio (áreas Programación, Matemáticas, Inglés y Humanidades), Distracción, Neutral e IA (prioridad 30), con regex que reconozcan las apps, los títulos y las URLs inventados de `generar.mjs`. No copiar reglas de `datos-reales/`.
     2. **Categorizar en JS.** Una función pura en `web/motor/` que aplica `classes` a un evento con el criterio de §7: regex contra todos los campos de texto de `data` salvo `select_keys`; gana el mayor rango (prioridad, o profundidad × 10) y en empate la regla posterior. F6-02 la reutiliza.
     3. **Prueba contra la verdad.** Clasificar los eventos de ejemplo (ventana ∩ no AFK) con `clases-ejemplo.json` y comparar los minutos por clase y área de cada día con `minutos_por_clase_y_area` de `verdad.json`, sin contar los tramos sin teclado (`(afk)`, `Estudio (sin teclado)`).
-    4. **Consulta canónica.** `/query/` reconoce la consulta que arma `web/js/consultas.js` y la resuelve en JS: ventana ∩ no AFK, pestañas con audio cuentan como actividad, buckets web del hostname, `categorize` con el paso 2, y devuelve `eventos`, `navegador` y `no_afk` con la misma forma que AW. No interpreta el lenguaje de consultas de AW: cualquier otra consulta recibe un error claro.
+    4. **Consulta canónica.** `/query/` reconoce la consulta que arma `web/js/consultas.js` y la resuelve en JS: ventana ∩ no AFK, pestañas con audio cuentan como actividad, buckets web del hostname, `categorize` con el paso 2, y devuelve `eventos`, `navegador`, `no_afk` y `afk` con la misma forma que AW. No interpreta el lenguaje de consultas de AW: cualquier otra consulta recibe un error claro.
     5. **Servidor.** Rutas de `/api/0`, `classes` servido desde `clases-ejemplo.json`, `startOfDay` = 04:00, `POST` de ajustes solo en memoria y `web/` en `/pages/rastreador/`. Puerto 5600 por defecto, configurable.
   - Hecho cuando: la prueba del paso 3 da al menos 95 % del tiempo con teclado de cada día en la clase correcta, y cada diferencia que quede está explicada en la prueba (por ejemplo, un tutorial con título que no nombra un área); con AW cerrado, `node herramientas/aw-falso.js` arranca y el dashboard muestra Hoy y Horas del día para los días de ejemplo (por ejemplo `#/hoy?fecha=2026-10-05`) sin avisos de error; hay pruebas de cada ruta; por comprobar con Dremy: los totales por clase coinciden (±1 min) con un AW real que tenga los mismos datos y reglas importados.
   - Notas: `verdad.json` registra la intención (un tutorial de YouTube cuenta como estudio), así que no se le exige una coincidencia exacta: la prueba mide qué tan bien clasifican las reglas. La herramienta no está en la arquitectura: al implementarla, registrarla en §15 y §19.

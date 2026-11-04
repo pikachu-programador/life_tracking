@@ -135,3 +135,26 @@ test('diaDe y diaTerminado aceptan números (ms) además de Date', () => {
   assert.equal(diaDe(Date.parse('2026-11-01T06:00:00Z')), '2026-10-31');
   assert.ok(diaTerminado('2026-10-31', Date.parse('2026-11-01T09:00:00Z')));
 });
+
+// ── Revisión de F1-09 ──
+import { inicioDelDia } from '../web/motor/fechas.js';
+
+test('diaDe acepta el timestamp ISO de un evento de AW', () => {
+  assert.equal(diaDe('2026-11-01T06:00:00.000000+00:00'), '2026-10-31');
+});
+
+test('diaDe con otro inicio de día', () => {
+  // 1-nov 05:00 Lima: con inicio 06:00 todavía es el 31-oct; con 04:00 ya es el 1-nov.
+  assert.equal(diaDe(Date.parse('2026-11-01T10:00:00Z'), '06:00'), '2026-10-31');
+  assert.equal(diaDe(Date.parse('2026-11-01T10:00:00Z'), '04:00'), '2026-11-01');
+});
+
+test('inicioDelDia devuelve ms', () => {
+  assert.equal(inicioDelDia('2026-10-31'), Date.parse('2026-10-31T09:00:00Z'));
+  assert.equal(typeof (inicioDelDia('2026-10-31') + 8 * 3600e3), 'number');
+});
+
+test('periodoSiguiente en semana y rango', () => {
+  assert.deepEqual(periodoSiguiente(periodoDe('semana', '2026-10-14')), { tipo: 'semana', desde: '2026-10-19', hasta: '2026-10-25' });
+  assert.deepEqual(periodoSiguiente({ tipo: 'rango', desde: '2026-10-10', hasta: '2026-10-12' }), { tipo: 'rango', desde: '2026-10-13', hasta: '2026-10-15' });
+});

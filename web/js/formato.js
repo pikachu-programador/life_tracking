@@ -1,13 +1,10 @@
 // Formatos para mostrar datos (funciones puras).
 
+import { CLASE_DE_AW, NOMBRE_ESTADO, CLASES as CLAVES_CLASES } from '../motor/tipos.js';
+
 /** Clases de primer nivel (arquitectura §7): nombre en AW → clave usada en CSS (data-clase) y nombre visible. */
-const CLASES = {
-  'Estudio': { clave: 'estudio', nombre: 'Estudio' },
-  'Distracción': { clave: 'distraccion', nombre: 'Distracción' },
-  'Neutral': { clave: 'neutral', nombre: 'Neutral' },
-  'IA': { clave: 'ia', nombre: 'IA' },
-  'Uncategorized': { clave: 'sin-clasificar', nombre: 'Sin clasificar' },
-};
+// (F1-09) Se arma con las constantes de web/motor/tipos.js para no tener dos copias de la misma lista.
+const CLASES = Object.fromEntries(Object.entries(CLASE_DE_AW).map(([enAW, clave]) => [enAW, { clave, nombre: NOMBRE_ESTADO[clave] }]));
 
 /**
  * Clase de una categoría de AW. ["Estudio", "Inglés"] → { clave: "estudio", nombre: "Estudio" }.
@@ -18,7 +15,7 @@ export function claseDe(categoria) {
 }
 
 /** Orden fijo de las clases al mostrarlas. */
-export const ORDEN_CLASES = ['estudio', 'ia', 'neutral', 'distraccion', 'sin-clasificar'];
+export const ORDEN_CLASES = CLAVES_CLASES;
 
 /** Segundos → "2 h 05 min", "45 min", "0 min". */
 export function duracionLegible(segundos) {

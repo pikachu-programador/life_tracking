@@ -90,6 +90,12 @@ export const CONTEXTOS = ['bloque', 'clase', 'rutina', 'libre'];
 
 export const ACCIONES = ['permitir', 'aviso', 'friccion', 'bloqueo'];
 
+// ── Resúmenes (§6.7) ──
+
+/** Claves de METRICAS (resumen.js): las métricas escalares de un día que se agregan por período. */
+export const CLAVES_METRICAS = ['estudio', 'estudioTotal', 'papel', 'clases', 'ia', 'neutral', 'distraccion', 'sinClasificar',
+  'activo', 'afk', 'sinPc', 'despierto', 'cumplimiento', 'retraso', 'cambiosPorHora', 'focoMasLargo', 'despertar', 'dormir'];
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Formas de los datos (las mismas que docs/arquitectura.md §6.7).
 // ─────────────────────────────────────────────────────────────────────────────
@@ -495,6 +501,8 @@ export const ACCIONES = ['permitir', 'aviso', 'friccion', 'bloqueo'];
  * @property {string|null} titulo
  * @property {string|null} url
  * @property {string[]|null} categoria
+ * @property {boolean} [esNavegador]    la app es un navegador
+ * @property {boolean} [conExtension]   el navegador tiene la extensión (en el simulador: url !== null)
  */
 
 /**
@@ -522,7 +530,7 @@ export const ACCIONES = ['permitir', 'aviso', 'friccion', 'bloqueo'];
  * @property {string} nivel        nivel efectivo, ya escalado
  * @property {string} objetivo     'web:<dominio>' o 'app:<app>'
  * @property {string} motivo       'fuera_de_bloque' | 'nivel_ninguno' | 'protegido' | 'ia' | 'nunca_bloquear' |
- *                                 'pase_vigente' | 'no_bloqueable' | 'distraccion' | 'patron_url' | 'sin_clasificar'
+ *                                 'pase_vigente' | 'no_bloqueable' | 'distraccion' | 'patron_url' | 'sin_clasificar' | 'sin_extension'
  */
 
 /**
@@ -570,6 +578,7 @@ export const ACCIONES = ['permitir', 'aviso', 'friccion', 'bloqueo'];
  * @property {ItemsDelDia} items
  * @property {ResumenDia} resumen
  * @property {Checkin[]} checkins                del día
+ * @property {Intervencion[]} intervenciones     reales, del día (vacía hasta que exista el agente)
  * @property {Plan} plan
  * @property {ConfigNiveles} config              vigente ese día
  */

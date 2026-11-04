@@ -17,9 +17,11 @@ export const DESFASE_LIMA_MIN = -5 * 60;
 const MS_MIN = 60 * 1000;
 const MS_DIA = 24 * 60 * MS_MIN;
 
-/** Date o número → milisegundos. */
+/** Date, número (ms) o texto ISO 8601 (el timestamp de un evento de AW) → milisegundos. */
 function ms(instante) {
-  return typeof instante === 'number' ? instante : instante.getTime();
+  if (typeof instante === 'number') return instante;
+  if (typeof instante === 'string') return Date.parse(instante);
+  return instante.getTime();
 }
 
 /** "04:00" → 240 (minutos desde la medianoche). */
@@ -56,6 +58,11 @@ export function periodoDelDia(fecha, inicioDia = '04:00') {
   // Medianoche de esa fecha en UTC, + hora de inicio, − desfase de Lima (restar −5 h = sumar 5 h).
   const inicio = new Date(Date.parse(fecha + 'T00:00:00Z') + (minutosDeHora(inicioDia) - DESFASE_LIMA_MIN) * MS_MIN);
   return [inicio, new Date(inicio.getTime() + MS_DIA)];
+}
+
+/** Inicio del día de AW `fecha` en ms (lo mismo que periodoDelDia(fecha)[0], pero como número, que es lo que usa el motor). */
+export function inicioDelDia(fecha, inicioDia = '04:00') {
+  return periodoDelDia(fecha, inicioDia)[0].getTime();
 }
 
 /** Día de AW ("AAAA-MM-DD") al que pertenece un instante. */

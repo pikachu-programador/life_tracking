@@ -42,6 +42,11 @@ export function regexDeAW(texto, { ignorarMayusculas = false } = {}) {
     if (c === '\\') {
       const s = texto[i + 1];
       if (s === undefined) throw new Error('La regex termina en una barra invertida');
+      if ((s === 'p' || s === 'P') && /[A-Za-z]/.test(texto[i + 2] ?? '') ) {
+        salida += `\\${s}{${texto[i + 2]}}`; // \pL (una letra, sin llaves) → \p{L}
+        i += 3;
+        continue;
+      }
       if ('pPux'.includes(s) && texto[i + 2] === '{') {
         // \p{L}, \u{1F600} y \x{1F600} (Rust) se copian enteros, con sus llaves.
         const cierre = texto.indexOf('}', i + 3);
@@ -109,6 +114,7 @@ export function regexDeAW(texto, { ignorarMayusculas = false } = {}) {
     }
 
     if (c === '}') { salida += '\\}'; i++; continue; }
+    if (c === ']') { salida += '\\]'; i++; continue; } // "]" suelto: literal en Python, error en JS con la bandera u
 
     salida += c;
     i++;
@@ -126,10 +132,12 @@ export function regexDeAW(texto, { ignorarMayusculas = false } = {}) {
 /** Traduce "\" + s (s = carácter que sigue a la barra). */
 function traducirEscape(s, enClase, texto, i) {
   switch (s) {
-    case 'A': if (!enClase) return '^'; break;
-    case 'Z': case 'z': if (!enClase) return '$'; break;
+    case 'A': if (!enClase) return '(?<![\\s\\S])'; break; // inicio del texto, aunque haya (?m)
+    case 'Z': case 'z': if (!enClase) return '(?![\\s\\S])'; break; // fin del texto
     case 'w': return enClase ? PALABRA : `[${PALABRA}]`;
-    case 'W': return enClase ? '\\W' : `[^${PALABRA}]`;
+    case 'W':
+      if (enClase) throw new Error('\\W dentro de corchetes no está soportado (en JS no entiende tildes); usa [^…] con letras');
+      return `[^${PALABRA}]`;
     case 'd': return '\\p{Nd}';
     case 'D': return '\\P{Nd}';
     case 'b': return enClase ? '\\b' : LIMITE; // dentro de corchetes, \b es "retroceso" en los dos lenguajes
