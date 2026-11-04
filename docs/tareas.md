@@ -299,9 +299,10 @@ Cambios en las tareas: F5-02 se hace dentro de F2-01 y F5-03 dentro de F4-02, po
   - Objetivo: estado cumplido, parcial, fallido o no medible según §9, con los umbrales del plan.
   - Hecho cuando: hay pruebas para cada tipo de bloque y de rutina, incluidos el estudio en papel y las rutinas con check-in (lo de F5-03).
   - Resultado (2026-11-04): `web/motor/cumplimiento.js` (evaluarBloque y evaluarRutina según §9, con estudio en papel y rutinas con check-in: lo de F5-03). Revisión: aprobado con cambios menores.
-- [ ] **F4-03 · Cumplimiento diario, semanal y por curso**
+- [x] **F4-03 · Cumplimiento diario, semanal y por curso**
   - Objetivo: % del día y de la semana con la fórmula de §9; horas por curso contra su meta (Estudio dentro de los bloques del curso) y horas por área (§9).
   - Hecho cuando: un día armado a mano en las pruebas da el % esperado.
+  - Resultado (2026-11-04): `web/motor/porcentajes.js` (porcentajeDia, porcentajeVarios ponderados; horasPorCurso con papel = bloque hecho menos actividad en la PC; horasPorArea). Días armados a mano: 10-12 = 71,4 %, 10-16 = 75 %. Revisión: aprobado con cambios menores.
 - [x] **F4-04 · Configuración de niveles**
   - Objetivo: modelo del ajuste `rastreador-niveles` en el motor (`web/motor/niveles.js`), con la regla de asimetría de §11.
   - Hecho cuando: hay pruebas de que endurecer aplica hoy y aflojar desde el día lógico siguiente, y de la configuración vigente en cada fecha.
@@ -347,9 +348,9 @@ Cambios en las tareas: F5-02 se hace dentro de F2-01 y F5-03 dentro de F4-02, po
   - Objetivo: usar los check-ins de despertar y dormir en el cálculo del día lógico.
   - Hecho cuando: el check-in de despertar manda sobre la estimación y se puede corregir un día pasado.
   - Notas: el motor se hace dentro de F2-01; corregir un día pasado llega con la vista Diario (F5-04).
-- [ ] **F5-03 · Estudio en papel y rutinas con check-in**
+- [x] **F5-03 · Estudio en papel y rutinas con check-in**
   - Objetivo: completar las reglas de §9 que dependen de check-ins.
-  - Notas: se hace dentro de F4-02.
+  - Notas: se hace dentro de F4-02 (hecha ahí).
   - Hecho cuando: un bloque en papel con la PC en AFK y check-in "hecho" sale cumplido; con distracción en la PC sale parcial.
 - [ ] **F5-04 · Vista Diario**
   - Objetivo: por día, check-ins e intervenciones con su motivo; editar o borrar errores.
