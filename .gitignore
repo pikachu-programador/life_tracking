@@ -7,6 +7,7 @@ docs/_por_borrar/
 
 # Estado personal de Obsidian (ventanas abiertas, pestañas).
 docs/.obsidian/workspace*.json
+docs/.obsidian/graph.json
 
 # Secretos y tokens (por ejemplo, el de Notion en F8-04).
 .env
