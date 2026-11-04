@@ -298,10 +298,11 @@ Cambios en las tareas: F5-02 se hace dentro de F2-01 y F5-03 dentro de F4-02, po
 - [ ] **F4-03 · Cumplimiento diario, semanal y por curso**
   - Objetivo: % del día y de la semana con la fórmula de §9; horas por curso contra su meta (Estudio dentro de los bloques del curso) y horas por área (§9).
   - Hecho cuando: un día armado a mano en las pruebas da el % esperado.
-- [ ] **F4-04 · Configuración de niveles**
+- [x] **F4-04 · Configuración de niveles**
   - Objetivo: modelo del ajuste `rastreador-niveles` en el motor (`web/motor/niveles.js`), con la regla de asimetría de §11.
   - Hecho cuando: hay pruebas de que endurecer aplica hoy y aflojar desde el día lógico siguiente, y de la configuración vigente en cada fecha.
   - Notas: cada cambio pendiente se guarda con `aplica_desde`; la configuración vigente la calcula el motor (§11). La interfaz pasó a F4-09.
+  - Resultado (2026-11-04): `web/motor/niveles.js` (configuración vigente por fecha, asimetría endurecer hoy / aflojar mañana, cambios pendientes, nivel de cada bloque). Revisión cruzada: aprobado con cambios menores (anotados en la bitácora).
 - [ ] **F4-05 · Decisor**
   - Objetivo: actividad + bloque activo + nivel + pases + avisos acumulados → permitir, aviso, fricción o bloqueo, con escalamiento.
   - Hecho cuando: hay pruebas para cada nivel, para el escalamiento tras 3 avisos, para `nunca_bloquear` y para lo sin clasificar en total.
