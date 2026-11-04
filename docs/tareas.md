@@ -243,9 +243,10 @@ Cambios en las tareas: F5-02 se hace dentro de F2-01 y F5-03 dentro de F4-02, po
 | F3-07 | Cargar tu horario 2026-2 | Tú | F3-04 | 1 | S | Esencial |
 | F3-08 | Empezar bloque ahora | Dashboard | F3-02, F3-03 | 2 | S | Importante |
 
-- [ ] **F3-01 · Modelo del plan y validación**
+- [x] **F3-01 · Modelo del plan y validación**
   - Objetivo: el modelo de §8, con validación de campos obligatorios, horas válidas y solapes.
   - Hecho cuando: un plan inválido da mensajes claros y las pruebas pasan.
+  - Resultado (2026-11-04): `web/motor/plan.js` (normalizarPlan, validarPlan con mensajes claros y avisos de solapes, planVacio, UMBRALES_INICIALES); `plan-ejemplo.json` válido. Revisión: aprobado con cambios menores.
 - [ ] **F3-02 · Guardar el plan en AW y respaldo**
   - Objetivo: leer y escribir el ajuste `rastreador-plan`; exportar e importar JSON.
   - Hecho cuando: el plan sobrevive a reiniciar AW, y exportar → importar lo deja idéntico.
