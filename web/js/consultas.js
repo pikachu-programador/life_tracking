@@ -9,18 +9,10 @@
 // Las funciones que arman el texto de la consulta son puras (sin red): se prueban en pruebas/consultas.test.js.
 // Solo `eventosCategorizados()` habla con AW, a través del cliente de aw.js.
 
-/**
- * Nombres de proceso de cada navegador (copiado de `browser_appname_regex` de aw-webui; solo los de escritorio).
- * La clave es la que aparece en el id del bucket: "aw-watcher-web-<clave>_<host>".
- */
-export const REGEX_APP_NAVEGADOR = {
-  chrome: '(?i)^(google[-_ ]?chrome|chrome|chromium|ungoogled[-_ ]?chromium|arc(\\.exe)?$|dia(\\.exe)?$|helium(\\.exe)?$)',
-  firefox: '(?i)(firefox|librewolf|waterfox|nightly)',
-  opera: '(?i)(opera)',
-  brave: '(?i)(brave)',
-  edge: '(?i)^(microsoft[-_ ]?edge|msedge)',
-  vivaldi: '(?i)(vivaldi)',
-};
+// REGEX_APP_NAVEGADOR (nombres de proceso de cada navegador) vive ahora en web/motor/tipos.js,
+// porque el motor también lo usa (F1-09). Se reexporta para no cambiar a quien lo importa desde aquí.
+import { REGEX_APP_NAVEGADOR } from '../motor/tipos.js';
+export { REGEX_APP_NAVEGADOR };
 
 /**
  * Pasa un valor a texto para meterlo en una consulta de AW.
@@ -67,6 +59,7 @@ export function bucketsDeNavegador(buckets, hostname) {
  *   eventos    → eventos de ventana activos, cada uno con data.$category
  *   navegador  → eventos web (url, title, $domain…) mientras el navegador era la ventana activa
  *   no_afk     → periodos en que se estaba usando la PC
+ *   afk        → periodos AFK (PC encendida sin uso); con ellos el motor distingue AFK de Sin PC (F1-09)
  */
 export function consultaCanonica({ bucketVentana, bucketAfk, navegadores = [], reglas, incluirAudible = true }) {
   const c = (texto) => aTextoDeConsulta(texto);
@@ -75,6 +68,8 @@ export function consultaCanonica({ bucketVentana, bucketAfk, navegadores = [], r
   s.push(`events = flood(query_bucket(${c(bucketVentana)}));`);
   s.push(`not_afk = flood(query_bucket(${c(bucketAfk)}));`);
   s.push('not_afk = filter_keyvals(not_afk, "status", ["not-afk"]);');
+  s.push(`afk = flood(query_bucket(${c(bucketAfk)}));`);
+  s.push('afk = filter_keyvals(afk, "status", ["afk"]);');
 
   // Eventos del navegador: solo mientras su ventana estaba enfocada.
   s.push('browser_events = [];');
@@ -94,7 +89,7 @@ export function consultaCanonica({ bucketVentana, bucketAfk, navegadores = [], r
 
   s.push('events = filter_period_intersect(events, not_afk);');
   s.push(`events = categorize(events, ${c(reglas)});`);
-  s.push('RETURN = {"eventos": events, "navegador": browser_events, "no_afk": not_afk};');
+  s.push('RETURN = {"eventos": events, "navegador": browser_events, "no_afk": not_afk, "afk": afk};');
   return s;
 }
 
@@ -103,7 +98,7 @@ export function consultaCanonica({ bucketVentana, bucketAfk, navegadores = [], r
  * AW cachea las consultas de días terminados, así que conviene pedir un periodo por día (§14).
  * @param {object} aw  cliente de aw.js
  * @param {Array<[Date, Date]>} periodos
- * @returns {Promise<Array<{eventos: object[], navegador: object[], no_afk: object[]}>>} uno por periodo
+ * @returns {Promise<Array<{eventos: object[], navegador: object[], no_afk: object[], afk: object[]}>>} uno por periodo
  */
 export async function eventosCategorizados(aw, periodos) {
   const [info, buckets, classes] = await Promise.all([aw.info(), aw.buckets(), aw.ajuste('classes')]);

@@ -3,9 +3,12 @@
 import { aw } from './aw.js';
 import { eventosCategorizados } from './consultas.js';
 import { crearAlmacenDias } from './datos-dia.js';
+import { reloj } from './reloj.js';
 
 export const almacen = crearAlmacenDias({
   pedirPeriodos: (periodos) => eventosCategorizados(aw, periodos),
+  // Reloj del dashboard (H-02): la hora real, o la de ?ahora= para probar con los datos de ejemplo.
+  ahora: () => reloj.ahora(),
   // Hora en que empieza el día según AW (Ajustes → "Start of day"); si no se puede leer, 04:00.
   inicioDia: async () => {
     try {

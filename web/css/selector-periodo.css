@@ -1,0 +1,167 @@
+/* selector-periodo.css — selector de período (V-04, js/componentes/selector-periodo.js).
+   Solo usa variables de tokens.css.
+
+   [ Día | Semana | Mes | Rango ]   ‹  5 – 11 oct 2026 · esta semana  ›   [Hoy]   (en Rango: Desde [ ] – Hasta [ ]) */
+
+.selector-periodo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--espacio-2) var(--espacio-3);
+  font-size: var(--texto-s);
+}
+
+/* Con la clase display:flex el atributo hidden ya no oculta: se repite aquí. */
+.selector-periodo [hidden] { display: none !important; }
+
+/* ── Control segmentado ── */
+.selector-periodo-tipos {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-m);
+  background: var(--color-superficie-2);
+}
+.selector-periodo-tipo {
+  font: inherit;
+  font-size: var(--texto-s);
+  font-weight: var(--peso-medio); /* el mismo peso elegido o no: el texto no "salta" de ancho */
+  padding: var(--espacio-1) var(--espacio-3);
+  border: 0;
+  border-radius: calc(var(--radio-m) - 2px);
+  background: transparent;
+  color: var(--color-texto-suave);
+  cursor: pointer;
+  transition:
+    background-color var(--duracion-rapida) var(--curva-salida),
+    color var(--duracion-rapida) var(--curva-salida),
+    box-shadow var(--duracion-rapida) var(--curva-salida),
+    transform var(--duracion-rapida) var(--curva-salida);
+}
+.selector-periodo-tipo[aria-pressed="true"] {
+  background: var(--color-superficie);
+  color: var(--color-texto);
+  box-shadow: var(--sombra);
+}
+.selector-periodo-tipo:active { transform: scale(0.97); }
+/* El hover solo con mouse (en pantallas táctiles el "hover" se queda pegado tras tocar). */
+@media (hover: hover) and (pointer: fine) {
+  .selector-periodo-tipo:hover:not([aria-pressed="true"]) { color: var(--color-texto); }
+}
+
+/* ── Navegación: ‹ texto › ── */
+.selector-periodo-navegacion {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espacio-1);
+}
+.selector-periodo-flecha {
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+}
+.selector-periodo-icono {
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Texto del período. Tiene un ancho mínimo por tipo para que las flechas no se muevan bajo el mouse
+   al pasar de "5 – 11 oct" a "28 sep – 4 oct". */
+.selector-periodo-fecha { position: relative; display: inline-flex; }
+.selector-periodo-texto {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: var(--espacio-2);
+  min-width: 13rem;
+  padding: var(--espacio-1) var(--espacio-2);
+  border: 1px solid transparent;
+  border-radius: var(--radio-m);
+  background: transparent;
+  color: var(--color-texto);
+  font: inherit;
+  font-size: var(--texto-s);
+  font-weight: var(--peso-medio);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--duracion-rapida) var(--curva-salida), border-color var(--duracion-rapida) var(--curva-salida);
+}
+.selector-periodo[data-tipo="dia"] .selector-periodo-texto { min-width: 18.5rem; }
+.selector-periodo[data-tipo="mes"] .selector-periodo-texto { min-width: 12rem; }
+.selector-periodo[data-tipo="rango"] .selector-periodo-texto { min-width: 15rem; }
+.selector-periodo-texto:disabled { cursor: default; } /* en Rango solo informa */
+@media (hover: hover) and (pointer: fine) {
+  .selector-periodo-texto:not(:disabled):hover { background: var(--color-superficie-2); border-color: var(--color-borde); }
+}
+.selector-periodo-actual { color: var(--color-texto-suave); font-weight: var(--peso-normal); }
+.selector-periodo-actual::before { content: "· "; }
+.selector-periodo-icono-calendario { align-self: center; color: var(--color-texto-suave); width: 0.9rem; height: 0.9rem; }
+.selector-periodo-texto:disabled .selector-periodo-icono-calendario { display: none; }
+
+/* El <input type="date"> del calendario está debajo del texto, invisible pero presente
+   (el calendario del navegador se abre junto a él). */
+.selector-periodo-campo-oculto {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+/* Si el navegador no puede abrir el calendario, el campo se muestra (js: data-campo-visible). */
+.selector-periodo[data-campo-visible] .selector-periodo-campo-oculto {
+  position: static;
+  width: auto;
+  height: auto;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.selector-periodo-hoy[disabled] { opacity: 0.45; }
+
+/* ── Rango: Desde – Hasta ── */
+.selector-periodo-rango {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--espacio-2);
+}
+.selector-periodo-campo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espacio-2);
+  color: var(--color-texto-suave);
+}
+.selector-periodo-guion { color: var(--color-texto-suave); }
+.selector-periodo-rango input[type="date"],
+.selector-periodo[data-campo-visible] .selector-periodo-campo-oculto {
+  font: inherit;
+  font-size: var(--texto-s);
+  font-variant-numeric: tabular-nums;
+  padding: var(--espacio-1) var(--espacio-2);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-m);
+  background: var(--color-superficie);
+  color: var(--color-texto);
+  transition: border-color var(--duracion-rapida) var(--curva-salida);
+}
+@media (hover: hover) and (pointer: fine) {
+  .selector-periodo-rango input[type="date"]:hover { border-color: var(--color-borde-fuerte); }
+}
+.selector-periodo-rapido[aria-pressed="true"] {
+  border-color: var(--color-acento);
+  background: var(--color-acento-suave);
+  color: var(--color-acento);
+}

@@ -59,7 +59,8 @@ test('consultaCanonica: AFK, navegador, audible, categorías y RETURN', () => {
   assert.ok(texto.includes('events = categorize(events, [[["IA"],{"type":"regex","regex":"claude\\.exe"}]]);'));
   // El filtro AFK va DESPUÉS de sumar el audio (como en aw-webui).
   assert.ok(texto.indexOf('period_union(not_afk, audible_events)') < texto.indexOf('filter_period_intersect(events, not_afk)'));
-  assert.match(s.at(-1), /^RETURN = \{"eventos": events, "navegador": browser_events, "no_afk": not_afk\};$/);
+  assert.match(texto, /afk = filter_keyvals\(afk, "status", \["afk"\]\);/);
+  assert.match(s.at(-1), /^RETURN = \{"eventos": events, "navegador": browser_events, "no_afk": not_afk, "afk": afk\};$/);
 });
 
 test('consultaCanonica sin audible ni navegadores', () => {

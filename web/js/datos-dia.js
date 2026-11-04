@@ -14,7 +14,7 @@ import { periodoDelDia, diaTerminado, diasDelRango } from './fechas.js';
  * @param {(periodos: Array<[Date, Date]>) => Promise<any[]>} opciones.pedirPeriodos
  *   pide a AW los datos de varios periodos (uno por día) y devuelve un resultado por periodo.
  * @param {() => Promise<string>|string} [opciones.inicioDia]  el `startOfDay` de AW ("04:00").
- * @param {() => Date} [opciones.ahora]  reloj (en las pruebas se pasa uno fijo).
+ * @param {() => (number|Date)} [opciones.ahora]  reloj en ms o Date (en las pruebas se pasa uno fijo; en el dashboard, reloj.js).
  */
 export function crearAlmacenDias({ pedirPeriodos, inicioDia = () => '04:00', ahora = () => new Date() }) {
   const cache = new Map();      // fecha → datos (solo días terminados)

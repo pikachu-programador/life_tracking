@@ -1,8 +1,37 @@
-/* componentes.css — piezas reutilizables (tarjeta, KPI, barra de progreso, etiqueta).
-   Se ven todas en muestra.html. Solo usa variables de tokens.css. */
+/* componentes.css — piezas reutilizables de todas las vistas (tarjeta, KPI, barras, chips, tabla, formularios…).
+   Se ven todas en muestra.html. Solo usa variables de tokens.css, o mezclas de ellas con color-mix().
+   Cada bloque trae su HTML de uso; web/js/componentes/ui.js arma ese mismo HTML desde JS (V-10).
 
-/* ── Color por clase o estado ──
-   Cualquier componente con data-clase="..." recibe --color-clase, que luego usa como quiera. */
+   Índice
+    1. Color por clase, estado, nivel o curso     12. Botones
+    2. Grilla de 12 columnas y grilla automática   13. Campos de formulario
+    3. Tarjeta                                     14. Control segmentado
+    4. KPI y fila de KPIs                          15. Pestañas
+    5. Barra de progreso (con meta)                16. Diálogo
+    6. Barra apilada                               17. Alertas y aviso
+    7. Etiqueta de clase                           18. Estados: vacío, cargando y error
+    8. Chips de cumplimiento y de nivel            19. Selector de fecha (F2-08)
+    9. Leyenda                                     20. Otros (totales, gráfico, muestra de color, solo-lector)
+   10. Tabla compacta
+   11. Lista proporcional ("más usados")
+
+   Reglas de la casa (skill emil-design-eng):
+   - :hover solo dentro de @media (hover: hover) and (pointer: fine): en pantallas táctiles no se "pega".
+   - Transiciones cortas y solo de las propiedades que cambian (nunca `all`).
+   - Con "reducir movimiento" se apagan transform y animaciones; los cambios de color se quedan (ver el final).
+   - Números con cifras tabulares (todas del mismo ancho) para que las columnas no "bailen".
+*/
+
+/* ── 1. Color por clase, estado, nivel o curso ──
+   Cualquier elemento con uno de estos atributos recibe --color-clase (el color "de lo que representa"):
+     data-clase="estudio | ia | neutral | distraccion | sin-clasificar | afk | sin-pc"
+     data-estado="cumplido | parcial | fallido | pendiente | en_curso | no_medible"   (cumplimiento, tipos.js)
+     data-nivel="ninguno | aviso | friccion | total"
+     data-curso="curso-1 … curso-8"
+   Y además tres mezclas que usan los componentes:
+     --tinta-clase   el color mezclado con el del texto: sirve para íconos y texto (pasa contraste AA).
+     --fondo-clase   un fondo suave del mismo color (14 % sobre la superficie).
+     --relleno-clase lo que pinta una barra: el color, o un rayado para "Sin PC" (nunca solo el color). */
 [data-clase="estudio"]        { --color-clase: var(--color-estudio); }
 [data-clase="distraccion"]    { --color-clase: var(--color-distraccion); }
 [data-clase="neutral"]        { --color-clase: var(--color-neutral); }
@@ -11,87 +40,923 @@
 [data-clase="afk"]            { --color-clase: var(--color-afk); }
 [data-clase="sin-pc"]         { --color-clase: var(--color-sin-pc); }
 
-/* ── Tarjeta ── */
-.tarjeta {
-  background: var(--color-superficie);
-  border: 1px solid var(--color-borde);
-  border-radius: var(--radio-l);
-  box-shadow: var(--sombra);
-  padding: var(--espacio-4) var(--espacio-6);
+[data-estado="cumplido"]   { --color-clase: var(--color-cumplido); }
+[data-estado="parcial"]    { --color-clase: var(--color-parcial); }
+[data-estado="fallido"]    { --color-clase: var(--color-fallido); }
+[data-estado="pendiente"]  { --color-clase: var(--color-pendiente); }
+[data-estado="en_curso"]   { --color-clase: var(--color-acento); }
+[data-estado="no_medible"] { --color-clase: var(--color-texto-suave); }
+
+[data-nivel="ninguno"]  { --color-clase: var(--color-neutral); }
+[data-nivel="aviso"]    { --color-clase: var(--color-nivel-aviso); }
+[data-nivel="friccion"] { --color-clase: var(--color-nivel-friccion); }
+[data-nivel="total"]    { --color-clase: var(--color-nivel-total); }
+
+[data-curso="curso-1"] { --color-clase: var(--color-curso-1); }
+[data-curso="curso-2"] { --color-clase: var(--color-curso-2); }
+[data-curso="curso-3"] { --color-clase: var(--color-curso-3); }
+[data-curso="curso-4"] { --color-clase: var(--color-curso-4); }
+[data-curso="curso-5"] { --color-clase: var(--color-curso-5); }
+[data-curso="curso-6"] { --color-clase: var(--color-curso-6); }
+[data-curso="curso-7"] { --color-clase: var(--color-curso-7); }
+[data-curso="curso-8"] { --color-clase: var(--color-curso-8); }
+
+/* :where() no suma especificidad: cualquier regla de abajo puede cambiar estas mezclas. */
+:where([data-clase], [data-estado], [data-nivel], [data-curso], .alerta) {
+  --tinta-clase: color-mix(in oklab, var(--color-clase) 55%, var(--color-texto));
+  --fondo-clase: color-mix(in srgb, var(--color-clase) 14%, var(--color-superficie));
+  --borde-clase: color-mix(in srgb, var(--color-clase) 45%, var(--color-superficie));
+  --relleno-clase: var(--color-clase);
 }
-.tarjeta-titulo {
-  font-size: var(--texto-s);
-  font-weight: var(--peso-medio);
-  color: var(--color-texto-suave);
-  margin: 0 0 var(--espacio-3);
+/* "Sin PC" es casi del color del fondo: se dibuja rayado para que se vea aunque el color no se distinga. */
+[data-clase="sin-pc"] {
+  --relleno-clase: repeating-linear-gradient(135deg, var(--color-sin-pc) 0 3px, var(--color-borde-fuerte) 3px 4px);
 }
 
-/* Rejilla de tarjetas que se acomoda al ancho disponible. */
+/* ── 2. Grilla ──
+   12 columnas; cada hijo dice cuántas ocupa con .ancho-N (sin clase ocupa las 12).
+   La grilla mide su propio ancho (container query), no el de la ventana: con el menú lateral
+   a 1366 px la zona de contenido mide ~1070 px y todo entra en una fila; si se angosta, se apila.
+     <div class="grilla">
+       <section class="tarjeta ancho-8">…</section>
+       <section class="tarjeta ancho-4">…</section>
+     </div>
+   Grilla automática: tantas columnas como entren, cada una de al menos --ancho-minimo (15rem).
+     <div class="grilla-auto" style="--ancho-minimo: 12rem">…</div> */
+.grilla {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--espacio-4);
+  container-type: inline-size;
+}
+.grilla > * { grid-column: span 12; min-width: 0; }
+.grilla > .ancho-2  { grid-column: span 2; }
+.grilla > .ancho-3  { grid-column: span 3; }
+.grilla > .ancho-4  { grid-column: span 4; }
+.grilla > .ancho-5  { grid-column: span 5; }
+.grilla > .ancho-6  { grid-column: span 6; }
+.grilla > .ancho-7  { grid-column: span 7; }
+.grilla > .ancho-8  { grid-column: span 8; }
+.grilla > .ancho-9  { grid-column: span 9; }
+.grilla > .ancho-12 { grid-column: span 12; }
+/* Menos de ~900 px de contenido: las columnas angostas pasan a media fila y las anchas a fila entera. */
+@container (max-width: 56rem) {
+  .grilla > .ancho-2, .grilla > .ancho-3, .grilla > .ancho-4, .grilla > .ancho-5 { grid-column: span 6; }
+  .grilla > .ancho-6, .grilla > .ancho-7, .grilla > .ancho-8, .grilla > .ancho-9 { grid-column: span 12; }
+}
+@container (max-width: 36rem) {
+  .grilla > * { grid-column: span 12 !important; }
+}
+
+.grilla-auto {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--ancho-minimo, 15rem)), 1fr));
+  gap: var(--espacio-4);
+}
+
+/* Rejilla anterior (F1): se mantiene porque la usan vistas existentes. Para lo nuevo, .grilla-auto. */
 .rejilla {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: var(--espacio-4);
 }
 
-/* ── KPI: un número grande con su etiqueta ── */
-.kpi { display: flex; flex-direction: column; gap: var(--espacio-1); }
+/* ── 3. Tarjeta ──
+   Simple:   <section class="tarjeta"><h2 class="tarjeta-titulo">Tiempo activo</h2>…</section>
+   Completa:
+     <section class="tarjeta">
+       <header class="tarjeta-cabecera">
+         <div><h2 class="tarjeta-titulo">Horas por curso</h2><p class="tarjeta-subtitulo">Semana del 27 oct</p></div>
+         <div class="tarjeta-acciones"><button class="boton boton-pequeno">Ver todo</button></div>
+       </header>
+       …contenido…
+       <p class="tarjeta-pie">Fuente: ActivityWatch</p>
+     </section> */
+.tarjeta {
+  min-width: 0;
+  background: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-l);
+  box-shadow: var(--sombra);
+  padding: var(--espacio-5);
+}
+.tarjeta-cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--espacio-2) var(--espacio-4);
+  margin-bottom: var(--espacio-4);
+}
+.tarjeta-cabecera > :first-child { flex: 1 1 12rem; min-width: 0; }
+.tarjeta-titulo {
+  font-size: var(--texto-m);
+  font-weight: var(--peso-medio);
+  line-height: 1.3;
+  color: var(--color-texto);
+  margin: 0 0 var(--espacio-3);
+}
+.tarjeta-cabecera .tarjeta-titulo { margin: 0; }
+.tarjeta-subtitulo { margin: var(--espacio-1) 0 0; font-size: var(--texto-s); color: var(--color-texto-suave); }
+.tarjeta-acciones { display: flex; flex-wrap: wrap; align-items: center; gap: var(--espacio-2); }
+.tarjeta-pie {
+  margin: var(--espacio-4) 0 0;
+  padding-top: var(--espacio-3);
+  border-top: 1px solid var(--color-borde);
+  font-size: var(--texto-xs);
+  color: var(--color-texto-suave);
+}
+
+/* ── 4. KPI ──
+   Un número grande con su etiqueta, un detalle y la comparación con el período anterior.
+   La comparación lleva flecha y signo (▲ +2 h 10 min): el color ayuda, pero no es lo único.
+   data-bueno="si" (verde: mejoró), "no" (rojo: empeoró) o "neutro" (gris).
+     <div class="kpis">
+       <div class="kpi">
+         <span class="kpi-etiqueta">Estudio total</span>
+         <span class="kpi-valor">18 <span class="kpi-unidad">h</span> 40 <span class="kpi-unidad">min</span></span>
+         <span class="kpi-comparacion" data-sentido="sube" data-bueno="si">
+           <span class="kpi-delta"><span aria-hidden="true">▲</span> +2 h 10 min</span> frente a la semana pasada
+         </span>
+         <span class="kpi-detalle">2 h 40 min por día con datos</span>
+       </div>
+     </div>
+   Dentro de .kpis cada KPI es una tarjetita; suelto (dentro de una .tarjeta) no lleva caja. */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11.5rem), 1fr));
+  gap: var(--espacio-3);
+}
+.kpis > .kpi {
+  container-type: inline-size;
+  padding: var(--espacio-4);
+  background: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-l);
+  box-shadow: var(--sombra);
+}
+.kpi { display: flex; flex-direction: column; gap: var(--espacio-1); min-width: 0; }
 .kpi-valor {
   font-family: var(--fuente-numeros);
   font-size: var(--texto-xxl);
   font-weight: var(--peso-fuerte);
-  line-height: 1;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;  /* todas las cifras miden lo mismo: los números no "bailan" al actualizarse */
+  white-space: nowrap;
 }
+/* En la fila de KPIs el número se achica si la tarjetita es angosta (5 KPIs a 1366 px). */
+.kpis .kpi-valor { font-size: var(--texto-xl); margin: var(--espacio-1) 0; }
+@container (min-width: 14rem) { .kpis .kpi-valor { font-size: var(--texto-xxl); } }
+/* Las unidades (h, min, %) más chicas y suaves: el ojo lee primero la cifra. */
+.kpi-unidad { font-size: 0.55em; font-weight: var(--peso-medio); color: var(--color-texto-suave); letter-spacing: 0; }
 .kpi-etiqueta { font-size: var(--texto-s); color: var(--color-texto-suave); }
+.kpi-detalle { font-size: var(--texto-xs); color: var(--color-texto-suave); }
+.kpi-comparacion {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 var(--espacio-2);
+  font-size: var(--texto-xs);
+  color: var(--color-texto-suave);
+}
+.kpi-delta {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.25em;
+  padding: 1px var(--espacio-2);
+  border-radius: var(--radio-pildora);
+  font-weight: var(--peso-medio);
+  font-family: var(--fuente-numeros);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--color-texto);
+  background: var(--color-superficie-2);
+}
+.kpi-delta > [aria-hidden] { font-size: 0.8em; }
+.kpi-comparacion[data-bueno="si"] .kpi-delta {
+  color: color-mix(in oklab, var(--color-cumplido) 55%, var(--color-texto));
+  background: color-mix(in srgb, var(--color-cumplido) 14%, var(--color-superficie));
+}
+.kpi-comparacion[data-bueno="no"] .kpi-delta {
+  color: color-mix(in oklab, var(--color-fallido) 55%, var(--color-texto));
+  background: color-mix(in srgb, var(--color-fallido) 14%, var(--color-superficie));
+}
 
-/* ── Barra de progreso ──
+/* ── 5. Barra de progreso ──
    Uso: <div class="progreso" style="--valor: 70%"><div class="progreso-relleno"></div></div>
-   Con data-clase toma el color de la clase; si no, el acento. */
+   Con data-clase / data-estado / data-curso toma ese color; si no, el acento.
+   Con meta: <span class="progreso-meta" style="--meta: 80%"></span> dentro de .progreso (una raya vertical).
+   Fila con nombre y valor (horas por curso contra la meta):
+     <div class="progreso-fila" data-curso="curso-1">
+       <span class="progreso-nombre">BD I</span>
+       <span class="progreso-valor">4 h 30 min <span class="progreso-de">/ 6 h</span></span>
+       <div class="progreso" style="--valor: 75%; --meta: 100%" role="img" aria-label="BD I: 4 h 30 min de 6 h">
+         <div class="progreso-relleno"></div><span class="progreso-meta"></span>
+       </div>
+     </div> */
 .progreso {
+  position: relative;
   height: var(--espacio-2);
-  border-radius: var(--radio-s);
-  background: var(--color-fondo);
-  border: 1px solid var(--color-borde);
-  overflow: hidden;
+  border-radius: var(--radio-pildora);
+  background: var(--color-superficie-2);
+  box-shadow: inset 0 0 0 1px var(--color-borde);
 }
 .progreso-relleno {
-  width: var(--valor, 0%);
+  width: min(var(--valor, 0%), 100%);
   height: 100%;
-  background: var(--color-clase, var(--color-acento));
+  border-radius: inherit;
+  background: var(--relleno-clase, var(--color-clase, var(--color-acento)));
 }
+.progreso-meta {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  left: var(--meta, 100%);
+  width: 2px;
+  margin-left: -1px;
+  border-radius: 1px;
+  background: var(--color-texto);
+}
+.progreso-fila {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: var(--espacio-1) var(--espacio-3);
+}
+.progreso-fila > .progreso { grid-column: 1 / -1; }
+.progreso-fila + .progreso-fila { margin-top: var(--espacio-3); }
+.progreso-nombre { font-size: var(--texto-s); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.progreso-valor { font-size: var(--texto-s); font-family: var(--fuente-numeros); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.progreso-de { color: var(--color-texto-suave); }
 
-/* ── Barra apilada: reparto por clase (cada tramo con su ancho en --valor) ── */
+/* ── 6. Barra apilada ──
+   Reparto por clase o estado; cada tramo con su ancho en --valor y su nombre en title (detalle al pasar el mouse).
+   Entre tramos queda una ranura de 2 px del color de la tarjeta, para que se lean como piezas separadas.
+     <div class="apilada" role="img" aria-label="Estudio 40 %, Distracción 15 %, …">
+       <div data-clase="estudio" style="--valor: 40%" title="Estudio · 3 h 10 min (40 %)"></div>
+       …
+     </div>
+   .apilada-delgada: la misma barra con 8 px de alto (por ejemplo, dentro de una tabla). */
 .apilada {
   display: flex;
+  gap: 2px;
   height: var(--espacio-6);
   border-radius: var(--radio-m);
   overflow: hidden;
-  background: var(--color-sin-pc);
 }
-.apilada > [data-clase] { width: var(--valor, 0%); background: var(--color-clase); }
+.apilada-delgada { height: var(--espacio-2); border-radius: var(--radio-pildora); gap: 1px; }
+.apilada > [data-clase], .apilada > [data-estado], .apilada > [data-curso], .apilada > [data-nivel] {
+  flex: 0 1 var(--valor, 0%);
+  min-width: 0;
+  background: var(--relleno-clase);
+  transition: opacity var(--duracion-rapida) var(--curva-salida);
+}
+/* Al pasar el mouse, el tramo señalado queda y los demás se atenúan. */
+@media (hover: hover) and (pointer: fine) {
+  .apilada:hover > :not(:hover) { opacity: 0.45; }
+}
 
-/* ── Etiqueta: pastilla con el color de su clase ── */
+/* ── 7. Etiqueta de clase ──
+   Pastilla con un punto del color de su clase: <span class="etiqueta" data-clase="estudio">Estudio</span>
+   Sirve también con data-curso="curso-3" (nombre del curso con su color). */
 .etiqueta {
   display: inline-flex;
   align-items: center;
   gap: var(--espacio-1);
-  padding: var(--espacio-1) var(--espacio-2);
-  border-radius: var(--radio-s);
+  padding: 2px var(--espacio-2);
+  border-radius: var(--radio-pildora);
   font-size: var(--texto-xs);
   font-weight: var(--peso-medio);
-  background: var(--color-fondo);
+  line-height: 1.5;
+  white-space: nowrap;
+  background: var(--color-superficie-2);
   border: 1px solid var(--color-borde);
 }
 /* Punto de color delante del texto. */
 .etiqueta::before {
   content: "";
+  flex: none;
   width: var(--espacio-2);
   height: var(--espacio-2);
   border-radius: 50%;
-  background: var(--color-clase, var(--color-texto-suave));
+  background: var(--relleno-clase, var(--color-texto-suave));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-texto) 12%, transparent);
 }
 
-/* ── Selector de fecha o de rango ── */
+/* Solo el punto (por ejemplo, delante de la etiqueta de un KPI): <span class="etiqueta-punto" data-clase="estudio"></span> */
+.etiqueta-punto {
+  display: inline-block;
+  width: var(--espacio-2);
+  height: var(--espacio-2);
+  margin-right: var(--espacio-2);
+  border-radius: 50%;
+  vertical-align: 0.05em;
+  background: var(--relleno-clase, var(--color-texto-suave));
+}
+
+/* ── 8. Chips de cumplimiento y de nivel ──
+   El ícono lo pone el CSS según el atributo: basta con el texto.
+     <span class="chip" data-estado="cumplido">Cumplido</span>     ✓ en un círculo
+     <span class="chip" data-estado="parcial">Parcial</span>       círculo a medias
+     <span class="chip" data-estado="fallido">Fallido</span>       ✕ en un círculo
+     <span class="chip" data-estado="pendiente">Pendiente</span>   círculo punteado
+     <span class="chip" data-estado="en_curso">En curso</span>     punto dentro de un círculo
+     <span class="chip" data-estado="no_medible">No medible</span> raya dentro de un círculo
+     <span class="chip" data-nivel="friccion">Fricción</span>      medidor de 3 barras (0, 1, 2 o 3 llenas)
+   Los íconos son SVG usados como máscara: la forma sale del SVG y el color, de --tinta-clase. */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375em;
+  padding: 2px var(--espacio-2) 2px 6px;
+  border-radius: var(--radio-pildora);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-medio);
+  line-height: 1.5;
+  white-space: nowrap;
+  color: var(--color-texto);
+  background: var(--fondo-clase, var(--color-superficie-2));
+  border: 1px solid var(--borde-clase, var(--color-borde));
+}
+.chip::before {
+  content: "";
+  flex: none;
+  width: 0.875rem;
+  height: 0.875rem;
+  background: var(--tinta-clase, var(--color-texto-suave));
+  -webkit-mask: var(--icono) center / contain no-repeat;
+  mask: var(--icono) center / contain no-repeat;
+}
+.chip:not([data-estado], [data-nivel])::before { display: none; }
+[data-estado="cumplido"]   { --icono: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cmask id='m'%3E%3Ccircle cx='8' cy='8' r='8' fill='%23fff'/%3E%3Cpath d='M4.6 8.4l2.3 2.3 4.6-4.9' fill='none' stroke='%23000' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/mask%3E%3Ccircle cx='8' cy='8' r='8' mask='url(%23m)'/%3E%3C/svg%3E"); }
+[data-estado="parcial"]    { --icono: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6.75' fill='none' stroke='%23000' stroke-width='2'/%3E%3Cpath d='M8 3.5a4.5 4.5 0 0 0 0 9z'/%3E%3C/svg%3E"); }
+[data-estado="fallido"]    { --icono: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cmask id='m'%3E%3Ccircle cx='8' cy='8' r='8' fill='%23fff'/%3E%3Cpath d='M5.4 5.4l5.2 5.2M10.6 5.4l-5.2 5.2' stroke='%23000' stroke-width='1.9' stroke-linecap='round'/%3E%3C/mask%3E%3Ccircle cx='8' cy='8' r='8' mask='url(%23m)'/%3E%3C/svg%3E"); }
+[data-estado="pendiente"]  { --icono: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6.75' fill='none' stroke='%23000' stroke-width='2' stroke-dasharray='3.2 2.1'/%3E%3C/svg%3E"); }
+[data-estado="en_curso"]   { --icono: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6.75' fill='none' stroke='%23000' stroke-width='2'/%3E%3Ccircle cx='8' cy='8' r='3.25'/%3E%3C/svg%3E"); }
+[data-estado="no_medible"] { --icono: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6.75' fill='none' stroke='%23000' stroke-width='2'/%3E%3Cpath d='M5 8h6' stroke='%23000' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E"); }
+/* Medidor de nivel: barras llenas = qué tan fuerte interviene (ninguno 0, aviso 1, fricción 2, total 3). */
+[data-nivel="ninguno"]  { --icono: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.2'%3E%3Crect x='1.6' y='9.6' width='3' height='4.8' rx='.6'/%3E%3Crect x='6.5' y='6.6' width='3' height='7.8' rx='.6'/%3E%3Crect x='11.4' y='2.6' width='3' height='11.8' rx='.6'/%3E%3C/svg%3E"); }
+[data-nivel="aviso"]    { --icono: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' stroke='%23000' stroke-width='1.2'%3E%3Crect x='1.6' y='9.6' width='3' height='4.8' rx='.6'/%3E%3Crect x='6.5' y='6.6' width='3' height='7.8' rx='.6' fill='none'/%3E%3Crect x='11.4' y='2.6' width='3' height='11.8' rx='.6' fill='none'/%3E%3C/svg%3E"); }
+[data-nivel="friccion"] { --icono: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' stroke='%23000' stroke-width='1.2'%3E%3Crect x='1.6' y='9.6' width='3' height='4.8' rx='.6'/%3E%3Crect x='6.5' y='6.6' width='3' height='7.8' rx='.6'/%3E%3Crect x='11.4' y='2.6' width='3' height='11.8' rx='.6' fill='none'/%3E%3C/svg%3E"); }
+[data-nivel="total"]    { --icono: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' stroke='%23000' stroke-width='1.2'%3E%3Crect x='1.6' y='9.6' width='3' height='4.8' rx='.6'/%3E%3Crect x='6.5' y='6.6' width='3' height='7.8' rx='.6'/%3E%3Crect x='11.4' y='2.6' width='3' height='11.8' rx='.6'/%3E%3C/svg%3E"); }
+/* "Ninguno" no interviene: chip sin fondo de color. */
+.chip[data-nivel="ninguno"] { background: transparent; }
+
+/* ── 9. Leyenda ──
+   <ul class="leyenda">
+     <li data-clase="estudio">Estudio <span class="leyenda-valor">3 h 10 min · 40 %</span></li>
+   </ul>
+   .leyenda-columna: una entrada por renglón, con el valor alineado a la derecha. */
+.leyenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espacio-2) var(--espacio-4);
+  margin: var(--espacio-3) 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--texto-xs);
+}
+.leyenda > li { display: inline-flex; align-items: center; gap: var(--espacio-2); min-width: 0; }
+.leyenda > li::before {
+  content: "";
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radio-s);
+  background: var(--relleno-clase, var(--color-texto-suave));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-texto) 12%, transparent);
+}
+.leyenda-valor { color: var(--color-texto-suave); font-family: var(--fuente-numeros); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.leyenda-columna { flex-direction: column; flex-wrap: nowrap; gap: var(--espacio-2); }
+.leyenda-columna > li { display: flex; }
+.leyenda-columna .leyenda-valor { margin-left: auto; padding-left: var(--espacio-3); }
+
+/* ── 10. Tabla compacta ──
+   <div class="tabla-contenedor">            (se desplaza de costado si no entra)
+     <table class="tabla">
+       <thead><tr><th>Curso</th><th class="num">Horas</th></tr></thead>
+       <tbody><tr><td>BD I</td><td class="num">4 h 30 min</td></tr></tbody>
+     </table>
+   </div>
+   .num: número alineado a la derecha, cifras tabulares. .centro: centrado. .tabla-densa: filas más bajas. */
+.tabla-contenedor { overflow-x: auto; min-width: 0; }
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--texto-s);
+  font-variant-numeric: tabular-nums;
+}
+.tabla caption { caption-side: top; text-align: left; padding-bottom: var(--espacio-2); font-size: var(--texto-xs); color: var(--color-texto-suave); }
+.tabla th {
+  padding: 0 var(--espacio-3) var(--espacio-2);
+  text-align: left;
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-medio);
+  color: var(--color-texto-suave);
+  white-space: nowrap;
+  border-bottom: 1px solid var(--color-borde-fuerte);
+}
+.tabla td {
+  padding: var(--espacio-2) var(--espacio-3);
+  border-bottom: 1px solid var(--color-borde);
+  vertical-align: middle;
+}
+.tabla tbody tr:last-child td { border-bottom: 0; }
+.tabla tfoot td { font-weight: var(--peso-medio); border-top: 1px solid var(--color-borde-fuerte); border-bottom: 0; }
+/* La primera y la última columna van al ras del borde de la tarjeta. */
+.tabla :is(th, td):first-child { padding-left: 0; }
+.tabla :is(th, td):last-child { padding-right: 0; }
+.tabla .num { text-align: right; font-family: var(--fuente-numeros); white-space: nowrap; }
+.tabla .centro { text-align: center; }
+.tabla-densa td { padding-top: var(--espacio-1); padding-bottom: var(--espacio-1); }
+.tabla-vacia { padding: var(--espacio-6) 0 !important; text-align: center; color: var(--color-texto-suave); }
+@media (hover: hover) and (pointer: fine) {
+  .tabla tbody tr:hover td { background: var(--color-superficie-2); }
+}
+
+/* ── 11. Lista proporcional ("más usados") ──
+   Cada fila: nombre, valor y una barra cuyo largo es proporcional (--valor). Con <details>,
+   la fila se despliega para ver el detalle (por ejemplo, las URLs completas de un dominio).
+     <ol class="lista-prop">
+       <li data-clase="distraccion" style="--valor: 62%">
+         <details>
+           <summary class="lista-prop-cabeza">
+             <span class="lista-prop-nombre">youtube.com</span>
+             <span class="lista-prop-valor">3 h 05 min</span>
+             <span class="lista-prop-barra" aria-hidden="true"></span>
+           </summary>
+           <ul class="lista-prop-detalle"><li><span>https://…</span><span class="lista-prop-valor">40 min</span></li></ul>
+         </details>
+       </li>
+       <li …><div class="lista-prop-cabeza">…lo mismo, sin desplegable…</div></li>
+     </ol>
+   En una misma lista, conviene que todas las filas tengan desplegable o ninguna (así los valores se alinean). */
+.lista-prop { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.lista-prop-cabeza {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: var(--espacio-1) var(--espacio-3);
+  padding: var(--espacio-2) var(--espacio-2);
+  margin: 0 calc(-1 * var(--espacio-2));
+  border-radius: var(--radio-m);
+}
+summary.lista-prop-cabeza {
+  grid-template-columns: minmax(0, 1fr) auto 1rem;
+  cursor: pointer;
+  list-style: none;  /* quita el triángulo de <summary>: se dibuja uno propio */
+  transition: background-color var(--duracion-rapida) var(--curva-salida);
+}
+summary.lista-prop-cabeza::-webkit-details-marker { display: none; }
+/* Flecha del desplegable (gira al abrir). */
+summary.lista-prop-cabeza::after {
+  content: "";
+  grid-column: 3;
+  grid-row: 1;
+  align-self: center;
+  width: 0.75rem;
+  height: 0.75rem;
+  background: var(--color-texto-suave);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M4 2.5 7.5 6 4 9.5' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M4 2.5 7.5 6 4 9.5' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  transition: transform var(--duracion-rapida) var(--curva-salida);
+}
+details[open] > summary.lista-prop-cabeza::after { transform: rotate(90deg); }
+@media (hover: hover) and (pointer: fine) {
+  summary.lista-prop-cabeza:hover { background: var(--color-superficie-2); }
+}
+.lista-prop-nombre { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--texto-s); }
+.lista-prop-valor {
+  font-size: var(--texto-s);
+  font-family: var(--fuente-numeros);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  text-align: right;
+}
+.lista-prop-porcentaje { color: var(--color-texto-suave); margin-left: var(--espacio-2); }
+.lista-prop-barra {
+  grid-column: 1 / 3;
+  position: relative;
+  height: 4px;
+  border-radius: var(--radio-pildora);
+  background: var(--color-superficie-2);
+  overflow: hidden;
+}
+.lista-prop-barra::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--valor, 0%);
+  border-radius: inherit;
+  background: var(--relleno-clase, var(--color-acento));
+}
+.lista-prop-detalle {
+  list-style: none;
+  margin: var(--espacio-1) 0 var(--espacio-3) var(--espacio-3);
+  padding: 0 0 0 var(--espacio-3);
+  border-left: 2px solid var(--color-borde);
+  display: grid;
+  gap: var(--espacio-1);
+  font-size: var(--texto-xs);
+}
+.lista-prop-detalle > li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--espacio-3); align-items: baseline; }
+/* Las URLs se muestran completas: se cortan en cualquier punto en vez de desbordar. */
+.lista-prop-detalle > li > :first-child { color: var(--color-texto-suave); overflow-wrap: anywhere; }
+.lista-prop-detalle .lista-prop-valor { font-size: var(--texto-xs); }
+
+/* ── 12. Botones ──
+   .boton (base.css) es el secundario. Variantes:
+     <button class="boton boton-primario" type="button">Guardar plan</button>
+     <button class="boton" type="button">Cancelar</button>                       secundario
+     <button class="boton boton-fantasma" type="button">Ver detalle</button>
+     <button class="boton boton-peligro" type="button">Borrar bloque</button>
+     <button class="boton boton-pequeno" type="button">…</button>                 tamaño chico
+     <button class="boton boton-icono" type="button" aria-label="Día anterior">‹</button>
+     <button class="boton" aria-busy="true" disabled>Guardando…</button>          con ruedita
+   Al presionar se achica un poco (scale 0.97): la interfaz "responde" al clic. */
+.boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--espacio-2);
+  min-height: 2.25rem;
+  font-weight: var(--peso-medio);
+  line-height: 1.25;
+  text-decoration: none;
+  white-space: nowrap;
+  touch-action: manipulation;
+  transition: border-color var(--duracion-rapida) var(--curva-salida), background-color var(--duracion-rapida) var(--curva-salida),
+    color var(--duracion-rapida) var(--curva-salida), transform var(--duracion-rapida) var(--curva-salida);
+}
+.boton:active:not(:disabled) { transform: scale(0.97); }
+.boton:focus-visible { outline: 2px solid var(--color-foco); outline-offset: 2px; }
+.boton-fantasma { justify-content: flex-start; }
+.boton-primario {
+  background: var(--color-acento);
+  border-color: var(--color-acento);
+  color: var(--color-acento-texto);
+}
+.boton-peligro {
+  /* El rojo se oscurece en claro (y se aclara en oscuro) mezclándolo con el texto: así el texto pasa AA. */
+  background: color-mix(in oklab, var(--color-fallido) 80%, var(--color-texto));
+  border-color: transparent;
+  color: var(--color-acento-texto);
+}
+@media (hover: hover) and (pointer: fine) {
+  .boton-primario:hover:not(:disabled) { background: color-mix(in oklab, var(--color-acento) 86%, var(--color-texto)); border-color: transparent; }
+  .boton-peligro:hover:not(:disabled) { background: color-mix(in oklab, var(--color-fallido) 68%, var(--color-texto)); border-color: transparent; }
+  .boton-fantasma:hover:not(:disabled) { color: var(--color-texto); background: var(--color-superficie-2); border-color: transparent; }
+}
+.boton-pequeno { min-height: 1.75rem; padding: var(--espacio-1) var(--espacio-2); font-size: var(--texto-xs); }
+.boton-icono { width: 2.25rem; padding: 0; }
+.boton-icono.boton-pequeno { width: 1.75rem; }
+.boton:disabled { opacity: 0.5; cursor: not-allowed; border-color: var(--color-borde); }
+.boton-primario:disabled, .boton-peligro:disabled { border-color: transparent; }
+/* Ruedita de "trabajando": se agrega sola con aria-busy="true". */
+.boton[aria-busy="true"] { cursor: progress; }
+.boton[aria-busy="true"]::before {
+  content: "";
+  width: 0.875em;
+  height: 0.875em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: girar 700ms linear infinite;
+}
+@keyframes girar { to { transform: rotate(1turn); } }
+.botonera { display: flex; flex-wrap: wrap; align-items: center; gap: var(--espacio-2); }
+
+/* ── 13. Campos de formulario ──
+     <div class="campo">
+       <label class="campo-etiqueta" for="meta">Meta semanal</label>
+       <input class="control" id="meta" type="number" aria-describedby="meta-ayuda">
+       <p class="campo-ayuda" id="meta-ayuda">En horas, de 0 a 40.</p>
+     </div>
+   Con error: aria-invalid="true" en el control y <p class="campo-error" id="…">El texto del error</p>
+   (el control lo nombra en aria-describedby, así el lector de pantalla lo lee).
+   Casilla o botón de radio: <label class="opcion"><input type="checkbox"> Avisarme antes</label>
+   Varios radios: <fieldset class="campo"><legend class="campo-etiqueta">Nivel</legend> …opciones… </fieldset>
+   .control sirve para <input>, <select> y <textarea>. */
+.campo { display: grid; gap: var(--espacio-1); min-width: 0; margin: 0; padding: 0; border: 0; }
+.campo + .campo { margin-top: var(--espacio-4); }
+.campo-etiqueta { padding: 0; font-size: var(--texto-s); font-weight: var(--peso-medio); }
+.campo-opcional { font-weight: var(--peso-normal); color: var(--color-texto-suave); }
+.campo-ayuda { margin: 0; font-size: var(--texto-xs); color: var(--color-texto-suave); }
+.campo-error {
+  display: flex;
+  align-items: baseline;
+  gap: var(--espacio-1);
+  margin: 0;
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-medio);
+  color: color-mix(in oklab, var(--color-fallido) 55%, var(--color-texto));
+}
+/* Un "!" en un círculo antes del texto: el error no depende solo del color rojo. */
+.campo-error::before {
+  content: "!";
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 1.1em;
+  height: 1.1em;
+  border-radius: 50%;
+  font-size: 0.85em;
+  font-weight: var(--peso-fuerte);
+  color: var(--color-superficie);
+  background: color-mix(in oklab, var(--color-fallido) 55%, var(--color-texto));
+}
+.control {
+  /* El borde de los controles es más marcado que el de las tarjetas (contraste ≥ 3:1). */
+  --borde-control: color-mix(in srgb, var(--color-texto-suave) 75%, var(--color-superficie));
+  width: 100%;
+  min-height: 2.25rem;
+  padding: var(--espacio-1) var(--espacio-3);
+  font: inherit;
+  font-size: var(--texto-s);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-texto);
+  background: var(--color-superficie);
+  border: 1px solid var(--borde-control);
+  border-radius: var(--radio-m);
+  transition: border-color var(--duracion-rapida) var(--curva-salida), box-shadow var(--duracion-rapida) var(--curva-salida);
+}
+textarea.control { min-height: 5rem; padding-top: var(--espacio-2); resize: vertical; line-height: 1.45; }
+.control::placeholder { color: var(--color-texto-suave); opacity: 1; }
+@media (hover: hover) and (pointer: fine) {
+  .control:hover:not(:disabled, :focus) { border-color: var(--color-texto-suave); }
+}
+.control:focus-visible {
+  outline: none;
+  border-color: var(--color-foco);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-foco) 30%, transparent);
+}
+.control[aria-invalid="true"] { border-color: var(--color-fallido); }
+.control[aria-invalid="true"]:focus-visible { box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-fallido) 28%, transparent); }
+.control:disabled { opacity: 0.55; cursor: not-allowed; background: var(--color-superficie-2); }
+.opcion {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espacio-2);
+  font-size: var(--texto-s);
+  cursor: pointer;
+}
+.opcion input { width: 1rem; height: 1rem; margin: 0; accent-color: var(--color-acento); cursor: pointer; }
+.opciones { display: flex; flex-wrap: wrap; gap: var(--espacio-2) var(--espacio-4); }
+.formulario-fila { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: var(--espacio-4); }
+.formulario-fila > .campo + .campo { margin-top: 0; }
+
+/* ── 14. Control segmentado ──
+   Para elegir una sola opción entre pocas (Clase · Área · Curso). Son radios: las flechas del teclado funcionan solas.
+     <div class="segmentado" role="radiogroup" aria-label="Agrupar por">
+       <label class="segmentado-opcion"><input type="radio" name="agrupar" value="clase" checked><span>Clase</span></label>
+       <label class="segmentado-opcion"><input type="radio" name="agrupar" value="area"><span>Área</span></label>
+     </div> */
+.segmentado {
+  display: inline-flex;
+  max-width: 100%;
+  padding: 3px;
+  gap: 2px;
+  background: var(--color-fondo);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-m);
+  overflow-x: auto;
+}
+.segmentado-opcion { position: relative; flex: none; }
+/* El radio queda encima, invisible: recibe el clic y el foco; el <span> es lo que se ve. */
+.segmentado-opcion input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+.segmentado-opcion span {
+  display: block;
+  padding: var(--espacio-1) var(--espacio-3);
+  border-radius: max(var(--radio-m) - 3px, 2px);
+  font-size: var(--texto-s);
+  font-weight: var(--peso-medio);
+  color: var(--color-texto-suave);
+  white-space: nowrap;
+  transition: background-color var(--duracion-rapida) var(--curva-salida), color var(--duracion-rapida) var(--curva-salida),
+    box-shadow var(--duracion-rapida) var(--curva-salida);
+}
+.segmentado-opcion input:checked + span {
+  color: var(--color-texto);
+  background: var(--color-superficie);
+  box-shadow: 0 0 0 1px var(--color-borde), var(--sombra);
+}
+.segmentado-opcion input:focus-visible + span { outline: 2px solid var(--color-foco); outline-offset: 1px; }
+.segmentado-opcion input:disabled + span { opacity: 0.5; }
+@media (hover: hover) and (pointer: fine) {
+  .segmentado-opcion:hover input:not(:checked, :disabled) + span { color: var(--color-texto); }
+}
+
+/* ── 15. Pestañas ──
+     <div class="pestanas" role="tablist" aria-label="Detalle">
+       <button class="pestana" role="tab" id="t-clase" aria-controls="p-clase" aria-selected="true">Por clase</button>
+       <button class="pestana" role="tab" id="t-area" aria-controls="p-area" aria-selected="false" tabindex="-1">Por área</button>
+     </div>
+     <div class="pestana-panel" role="tabpanel" id="p-clase" aria-labelledby="t-clase">…</div>
+     <div class="pestana-panel" role="tabpanel" id="p-area" aria-labelledby="t-area" hidden>…</div>
+   (crearPestanas de ui.js agrega las flechas del teclado.) */
+.pestanas {
+  display: flex;
+  gap: var(--espacio-1);
+  border-bottom: 1px solid var(--color-borde);
+  overflow-x: auto;
+}
+.pestana {
+  flex: none;
+  margin-bottom: -1px;
+  padding: var(--espacio-2) var(--espacio-3);
+  font: inherit;
+  font-size: var(--texto-s);
+  font-weight: var(--peso-medio);
+  color: var(--color-texto-suave);
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: var(--radio-s) var(--radio-s) 0 0;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color var(--duracion-rapida) var(--curva-salida), border-color var(--duracion-rapida) var(--curva-salida);
+}
+.pestana[aria-selected="true"] { color: var(--color-texto); border-bottom-color: var(--color-acento); }
+.pestana:focus-visible { outline: 2px solid var(--color-foco); outline-offset: -2px; }
+@media (hover: hover) and (pointer: fine) {
+  .pestana:hover:not([aria-selected="true"]) { color: var(--color-texto); border-bottom-color: var(--color-borde-fuerte); }
+}
+.pestana-panel { padding-top: var(--espacio-4); }
+.pestana-panel:focus-visible { outline-offset: 4px; }
+
+/* ── 16. Diálogo ──
+   Ventana modal nativa (<dialog>): showModal() la abre encima de todo, con fondo atenuado,
+   atrapa el foco del teclado y se cierra con Esc. ui.js → abrirDialogo() la arma y devuelve la respuesta.
+     <dialog class="dialogo" aria-labelledby="d-titulo">
+       <form method="dialog">
+         <h2 class="dialogo-titulo" id="d-titulo">¿Bajar el nivel a Aviso?</h2>
+         <div class="dialogo-cuerpo">…</div>
+         <div class="dialogo-acciones">
+           <button class="boton" value="cancelar">Cancelar</button>
+           <button class="boton boton-primario" value="confirmar">Programar</button>
+         </div>
+       </form>
+     </dialog>
+   Aparece con una escala y opacidad cortas (desde el centro: un modal no sale de ningún botón). */
+.dialogo {
+  width: min(30rem, calc(100vw - 2 * var(--espacio-4)));
+  max-height: calc(100vh - 2 * var(--espacio-8));
+  padding: 0;
+  color: var(--color-texto);
+  background: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-l);
+  box-shadow: var(--sombra-emergente);
+  opacity: 1;
+  transform: none;
+  transition: opacity var(--duracion-media) var(--curva-salida), transform var(--duracion-media) var(--curva-salida),
+    overlay var(--duracion-media) allow-discrete, display var(--duracion-media) allow-discrete;
+}
+/* Cerrándose: más rápido que al abrir. */
+.dialogo:not([open]) { opacity: 0; transform: scale(0.97); transition-duration: var(--duracion-rapida); }
+@starting-style { .dialogo[open] { opacity: 0; transform: scale(0.97); } }
+.dialogo::backdrop {
+  background: light-dark(color-mix(in srgb, var(--color-texto) 32%, transparent), color-mix(in srgb, var(--color-fondo) 72%, transparent));
+  opacity: 1;
+  transition: opacity var(--duracion-media) var(--curva-salida), overlay var(--duracion-media) allow-discrete, display var(--duracion-media) allow-discrete;
+}
+.dialogo:not([open])::backdrop { opacity: 0; }
+@starting-style { .dialogo[open]::backdrop { opacity: 0; } }
+.dialogo-titulo { margin: 0; padding: var(--espacio-5) var(--espacio-5) 0; font-size: var(--texto-l); font-weight: var(--peso-medio); line-height: 1.3; }
+.dialogo-cuerpo { padding: var(--espacio-3) var(--espacio-5) var(--espacio-5); font-size: var(--texto-s); color: var(--color-texto-suave); }
+.dialogo-cuerpo > :last-child { margin-bottom: 0; }
+.dialogo-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--espacio-2);
+  padding: var(--espacio-3) var(--espacio-5);
+  background: var(--color-superficie-2);
+  border-top: 1px solid var(--color-borde);
+}
+
+/* ── 17. Alertas ──
+   Mensaje con ícono; data-tipo="info | exito | cuidado | error". El texto va en el color normal del
+   texto (pasa AA); el color del tipo queda para el ícono, el borde y el fondo suave.
+     <div class="alerta" data-tipo="cuidado" role="status">
+       <p class="alerta-titulo">El agente no responde</p>
+       <p>La extensión mantiene la última decisión.</p>
+     </div>
+   Para errores que interrumpen, role="alert" (el lector de pantalla lo anuncia enseguida). */
+.alerta[data-tipo="info"]    { --color-clase: var(--color-acento); }
+.alerta[data-tipo="exito"]   { --color-clase: var(--color-cumplido); }
+.alerta[data-tipo="cuidado"] { --color-clase: var(--color-aviso); }
+.alerta[data-tipo="error"]   { --color-clase: var(--color-fallido); }
+.alerta {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: var(--espacio-3);
+  padding: var(--espacio-3) var(--espacio-4);
+  font-size: var(--texto-s);
+  color: var(--color-texto);
+  background: var(--fondo-clase, var(--color-superficie-2));
+  border: 1px solid var(--borde-clase, var(--color-borde));
+  border-radius: var(--radio-m);
+}
+.alerta::before {
+  content: "";
+  grid-row: 1 / span 9;
+  width: 1rem;
+  height: 1rem;
+  margin-top: 0.15em;
+  background: var(--tinta-clase, var(--color-texto-suave));
+  -webkit-mask: var(--icono) center / contain no-repeat;
+  mask: var(--icono) center / contain no-repeat;
+}
+.alerta > * { grid-column: 2; margin: 0; }
+.alerta > * + * { margin-top: var(--espacio-1); }
+.alerta-titulo { font-weight: var(--peso-medio); }
+.alerta[data-tipo="info"]    { --icono: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cmask id='m'%3E%3Ccircle cx='8' cy='8' r='8' fill='%23fff'/%3E%3Cpath d='M8 7.3v4' stroke='%23000' stroke-width='1.8' stroke-linecap='round'/%3E%3Ccircle cx='8' cy='4.8' r='1.1'/%3E%3C/mask%3E%3Ccircle cx='8' cy='8' r='8' mask='url(%23m)'/%3E%3C/svg%3E"); }
+.alerta[data-tipo="exito"]   { --icono: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cmask id='m'%3E%3Ccircle cx='8' cy='8' r='8' fill='%23fff'/%3E%3Cpath d='M4.6 8.4l2.3 2.3 4.6-4.9' fill='none' stroke='%23000' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/mask%3E%3Ccircle cx='8' cy='8' r='8' mask='url(%23m)'/%3E%3C/svg%3E"); }
+.alerta[data-tipo="cuidado"] { --icono: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cmask id='m'%3E%3Crect width='16' height='16' fill='%23fff'/%3E%3Cpath d='M8 5.6v3.6' stroke='%23000' stroke-width='1.8' stroke-linecap='round'/%3E%3Ccircle cx='8' cy='11.7' r='1.05'/%3E%3C/mask%3E%3Cpath d='M6.6 1.8a1.6 1.6 0 0 1 2.8 0l6.1 10.9A1.6 1.6 0 0 1 14.1 15H1.9a1.6 1.6 0 0 1-1.4-2.3z' mask='url(%23m)'/%3E%3C/svg%3E"); }
+.alerta[data-tipo="error"]   { --icono: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cmask id='m'%3E%3Ccircle cx='8' cy='8' r='8' fill='%23fff'/%3E%3Cpath d='M5.4 5.4l5.2 5.2M10.6 5.4l-5.2 5.2' stroke='%23000' stroke-width='1.9' stroke-linecap='round'/%3E%3C/mask%3E%3Ccircle cx='8' cy='8' r='8' mask='url(%23m)'/%3E%3C/svg%3E"); }
+
+/* Aviso (F1): mensaje sencillo de "cuidado" (por ejemplo, "AW no responde" en index.html).
+   Texto en el color normal (pasa AA); --color-aviso queda para el borde y la raya de la izquierda. */
+.aviso {
+  padding: var(--espacio-3) var(--espacio-4);
+  border-radius: var(--radio-m);
+  background: var(--color-aviso-fondo);
+  color: var(--color-texto);
+  border: 1px solid color-mix(in srgb, var(--color-aviso) 50%, var(--color-aviso-fondo));
+  border-left: 4px solid var(--color-aviso);
+  font-size: var(--texto-s);
+}
+
+/* ── 18. Estados: vacío, cargando y error ──
+   Todo gráfico o lista tiene los tres (visualizaciones §5).
+     <div class="estado estado-vacio"><p class="estado-texto">Sin datos en este período.</p><button class="boton">Ver la semana anterior</button></div>
+     <div class="estado-carga" role="status"><span class="solo-lector">Cargando…</span>
+       <span class="esqueleto" style="--ancho: 90%"></span><span class="esqueleto" style="--ancho: 60%"></span></div>
+     <div class="estado estado-error" role="alert"><p class="estado-texto">No se pudo leer ActivityWatch.</p><button class="boton">Reintentar</button></div>
+   .esqueleto-bloque: un rectángulo del alto de un gráfico (--alto-grafico). */
+.estado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--espacio-3);
+  min-height: 10rem;
+  padding: var(--espacio-6) var(--espacio-4);
+  text-align: center;
+  border: 1px dashed var(--color-borde-fuerte);
+  border-radius: var(--radio-l);
+  color: var(--color-texto-suave);
+}
+.estado::before {
+  content: "";
+  width: 2rem;
+  height: 2rem;
+  background: var(--color-texto-suave);
+  opacity: 0.7;
+  -webkit-mask: var(--icono) center / contain no-repeat;
+  mask: var(--icono) center / contain no-repeat;
+}
+.estado-vacio { --icono: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 26h24'/%3E%3Cpath d='M8 26v-6M14 26V14M20 26v-9M26 26V9' stroke-dasharray='2 3'/%3E%3C/svg%3E"); }
+.estado-error {
+  --icono: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='16' cy='16' r='12'/%3E%3Cpath d='M16 10v7'/%3E%3Ccircle cx='16' cy='21.5' r='.6' fill='%23000'/%3E%3C/svg%3E");
+  border-style: solid;
+  border-color: color-mix(in srgb, var(--color-fallido) 40%, var(--color-superficie));
+  background: color-mix(in srgb, var(--color-fallido) 5%, var(--color-superficie));
+}
+.estado-error::before { background: color-mix(in oklab, var(--color-fallido) 55%, var(--color-texto)); opacity: 1; }
+.estado-texto { margin: 0; max-width: 36ch; font-size: var(--texto-s); }
+.estado-error .estado-texto { color: var(--color-texto); }
+.estado-detalle { margin: 0; max-width: 48ch; font-size: var(--texto-xs); }
+.estado-compacto { min-height: 0; padding: var(--espacio-4); flex-direction: row; text-align: left; }
+.estado-compacto::before { width: 1.25rem; height: 1.25rem; }
+
+.estado-carga { display: grid; gap: var(--espacio-3); padding: var(--espacio-2) 0; }
+.esqueleto {
+  position: relative;
+  display: block;
+  width: var(--ancho, 100%);
+  height: 0.75rem;
+  border-radius: var(--radio-s);
+  background: color-mix(in srgb, var(--color-texto) 8%, var(--color-superficie));
+  overflow: hidden;
+}
+.esqueleto-bloque { height: var(--alto-grafico); border-radius: var(--radio-m); }
+/* Brillo que pasa de izquierda a derecha. Se mueve con transform (lo hace la tarjeta de video, sin recalcular la página). */
+.esqueleto::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent,
+    light-dark(color-mix(in srgb, var(--color-superficie) 70%, transparent), color-mix(in srgb, var(--color-texto) 7%, transparent)),
+    transparent);
+  transform: translateX(-100%);
+  animation: esqueleto-brillo 1.6s var(--curva-entrada-salida) infinite;
+}
+@keyframes esqueleto-brillo { to { transform: translateX(100%); } }
+
+/* ── 19. Selector de fecha o de rango (F2-08) ── */
 .selector-fecha {
   display: flex;
   flex-wrap: wrap;
@@ -110,29 +975,20 @@
 }
 .selector-fecha label { font-size: var(--texto-s); color: var(--color-texto-suave); }
 .selector-fecha-texto { font-size: var(--texto-s); color: var(--color-texto-suave); }
-.boton:disabled { opacity: 0.5; cursor: default; border-color: var(--color-borde); }
 
-/* ── Lista de totales por clase (resumen provisional de F2-08) ── */
+/* ── 20. Otros ── */
+
+/* Lista de totales por clase (resumen provisional de F2-08). */
 .lista-totales { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--espacio-2); }
 .lista-totales li { display: flex; justify-content: space-between; gap: var(--espacio-4); font-size: var(--texto-s); }
 .lista-totales .valor { font-family: var(--fuente-numeros); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .kpi + .lista-totales { margin-top: var(--espacio-4); }
 .nota-carga { font-size: var(--texto-xs); color: var(--color-texto-suave); margin-top: var(--espacio-3); }
 
-/* ── Contenedor de un gráfico de ECharts (necesita un alto fijo) ── */
-.grafico { width: 100%; height: 280px; }
+/* Contenedor de un gráfico de ECharts (necesita un alto fijo). */
+.grafico { width: 100%; height: var(--alto-grafico); }
 
-/* ── Aviso (por ejemplo, "AW no responde") ── */
-.aviso {
-  padding: var(--espacio-3) var(--espacio-4);
-  border-radius: var(--radio-m);
-  background: var(--color-aviso-fondo);
-  color: var(--color-aviso);
-  border: 1px solid var(--color-aviso);
-  font-size: var(--texto-s);
-}
-
-/* ── Muestra de un token de color (muestra.html) ── */
+/* Muestra de un token de color (muestra.html). */
 .muestra-color { display: flex; align-items: center; gap: var(--espacio-2); font-size: var(--texto-s); }
 .muestra-color::before {
   content: "";
@@ -141,4 +997,32 @@
   border-radius: var(--radio-s);
   border: 1px solid var(--color-borde);
   background: var(--color-muestra);
+}
+
+/* Cifras tabulares sueltas (horas en un párrafo, por ejemplo). */
+.cifra { font-family: var(--fuente-numeros); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* Texto solo para lectores de pantalla: no se ve, pero se lee. */
+.solo-lector {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Reducir movimiento ──
+   Sin transform ni animaciones (botón que se achica, flecha que gira, diálogo que crece, brillo, ruedita);
+   los cambios de color y de opacidad se quedan porque ayudan a entender qué pasó. */
+@media (prefers-reduced-motion: reduce) {
+  .boton:active:not(:disabled) { transform: none; }
+  details[open] > summary.lista-prop-cabeza::after { transition: none; }
+  .dialogo, .dialogo:not([open]) { transform: none; }
+  @starting-style { .dialogo[open] { transform: none; } }
+  .esqueleto::after { animation: none; display: none; }
+  .boton[aria-busy="true"]::before { animation: none; border-right-color: currentColor; opacity: 0.6; }
 }

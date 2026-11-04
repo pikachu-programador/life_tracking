@@ -1,0 +1,60 @@
+/*
+  Tema «Cuaderno» (V-10) — PROPUESTA: la paleta y la tipografía finales las decide Dremy (F1-02).
+
+  Personalidad: papel y tinta. Fondos color hueso, texto marrón casi negro, acento azul de
+  pluma fuente y colores de lápiz (verde bosque, ladrillo, ocre, ciruela). Esquinas casi rectas,
+  líneas finas en vez de sombras, como hojas apoyadas sobre la mesa. En oscuro: el mismo
+  cuaderno a la luz de una lámpara (fondos marrón oscuro, nunca negro puro).
+  Letra: Cambria (serifa hecha para pantalla, con cifras alineadas), también para los números.
+
+  Cómo funciona: js/temas.js carga este archivo justo DESPUÉS de tokens.css. Como usa el mismo
+  selector (:root) y viene después, sus valores ganan. Lo que no aparece aquí queda como en
+  tokens.css (espacios, tamaños de letra…). Los alias de tokens.css (--color-cumplido,
+  --color-nivel-total…) se escriben con var(), así que cambian solos con estos colores.
+
+  Colores: light-dark(claro, oscuro) en hex. pruebas/temas.test.js los lee para revisar el
+  contraste del texto y que los colores de clase y de curso se distingan entre sí.
+*/
+
+:root {
+  /* ── Clases y estados ── colores de lápiz: apagados, pero separados en claridad. */
+  --color-estudio:        light-dark(#017964, #6ebe9c);
+  --color-distraccion:    light-dark(#bb4f27, #d87563);
+  --color-neutral:        light-dark(#8a8984, #746d67);
+  --color-sin-clasificar: light-dark(#ca9b31, #efc167);
+  --color-ia:             light-dark(#773c7e, #b1a4dc);
+  --color-afk:            light-dark(#d3cab9, #4a443a);
+  --color-sin-pc:         light-dark(#ede6d9, #2c2822);
+
+  /* ── Interfaz ── */
+  --color-acento:         light-dark(#2b4c8c, #9db8ef);
+  --color-acento-texto:   light-dark(#fbf8f1, #141a28);
+  --color-fondo:          light-dark(#f4efe4, #1a1713);
+  --color-superficie:     light-dark(#fbf8f1, #23201a);
+  --color-borde:          light-dark(#e0d6c3, #3b352b);
+  --color-texto:          light-dark(#2b241b, #ede4d4);
+  --color-texto-suave:    light-dark(#685b49, #b3a690);
+  --color-aviso:          light-dark(#80460f, #f2b98f);
+  --color-aviso-fondo:    light-dark(#f8e7cc, #372a17);
+
+  /* ── Cursos ── */
+  --color-curso-1:        light-dark(#295397, #5188cc);
+  --color-curso-2:        light-dark(#00786a, #0aab96);
+  --color-curso-3:        light-dark(#cb7d4b, #ffae85);
+  --color-curso-4:        light-dark(#813564, #b96696);
+  --color-curso-5:        light-dark(#6c994a, #a3ce7c);
+  --color-curso-6:        light-dark(#5099b6, #7cd2ef);
+  --color-curso-7:        light-dark(#8565b2, #b59bed);
+  --color-curso-8:        light-dark(#895e34, #b59061);
+
+  /* ── Tipografía ── */
+  --fuente-texto: Cambria, Constantia, Georgia, serif;
+  --fuente-numeros: Cambria, Georgia, serif;
+
+  /* ── Formas ── esquinas de papel cortado y una sola línea de sombra, sin desenfoque. */
+  --radio-s: 2px;
+  --radio-m: 3px;
+  --radio-l: 4px;
+  --sombra: 0 1px 0 light-dark(rgb(90 66 24 / 0.10), rgb(0 0 0 / 0.45));
+  --sombra-emergente: 0 2px 0 light-dark(rgb(90 66 24 / 0.10), rgb(0 0 0 / 0.45)), 0 12px 28px light-dark(rgb(60 40 10 / 0.16), rgb(0 0 0 / 0.55));
+}

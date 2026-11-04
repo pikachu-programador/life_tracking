@@ -33,6 +33,34 @@
   --color-aviso:          light-dark(#b25e00, #ffb057);  /* mensajes, p. ej. "AW no responde" */
   --color-aviso-fondo:    light-dark(#fff3e0, #3a2a12);
 
+  /* ── Cursos (V-11) ── ⚠ PROVISIONALES, como el resto de la paleta.
+     El plan elige uno por curso ("curso-1" … "curso-8", arquitectura §8). Tonos separados de los de las clases. */
+  --color-curso-1:        light-dark(#3a7bd5, #6ea8ff);
+  --color-curso-2:        light-dark(#0f9488, #3dd6c6);
+  --color-curso-3:        light-dark(#d97706, #fbbf5a);
+  --color-curso-4:        light-dark(#c2417e, #f47fb6);
+  --color-curso-5:        light-dark(#5b8c1a, #9ed45a);
+  --color-curso-6:        light-dark(#0e7fae, #4cc4f0);
+  --color-curso-7:        light-dark(#8a8a1c, #c9c95c);  /* oliva: el violeta anterior se confundía con IA */
+  --color-curso-8:        light-dark(#9a6b3f, #d2a374);
+
+  /* ── Alias con significado (V-11): reutilizan colores de arriba, no agregan colores nuevos ── */
+  --color-cumplido:       var(--color-estudio);
+  --color-parcial:        var(--color-sin-clasificar);
+  --color-fallido:        var(--color-distraccion);
+  --color-pendiente:      var(--color-neutral);
+  --color-nivel-aviso:    var(--color-sin-clasificar);
+  --color-nivel-friccion: var(--color-aviso);
+  --color-nivel-total:    var(--color-distraccion);
+  --color-plan-bloque:    var(--color-acento);
+  --color-plan-clase:     var(--color-neutral);
+  --color-plan-rutina:    var(--color-ia);
+  /* Mezclas de colores existentes (color-mix): fondos suaves y zonas hundidas. */
+  --color-acento-suave:   color-mix(in srgb, var(--color-acento) 14%, transparent);
+  --color-superficie-2:   color-mix(in srgb, var(--color-texto) 4%, var(--color-superficie));
+  --color-borde-fuerte:   color-mix(in srgb, var(--color-texto) 22%, var(--color-superficie));
+  --color-foco:           var(--color-acento);  /* anillo de foco del teclado */
+
   /* ── Tipografía ── */
   --fuente-texto: system-ui, "Segoe UI", Roboto, sans-serif;
   --fuente-numeros: system-ui, "Segoe UI", Roboto, sans-serif;  /* KPI y horas (con cifras de ancho fijo) */
@@ -59,6 +87,27 @@
   --radio-m: 8px;
   --radio-l: 12px;
   --sombra: 0 1px 3px light-dark(rgb(0 0 0 / 0.08), rgb(0 0 0 / 0.4));
+  --sombra-emergente: 0 8px 24px light-dark(rgb(0 0 0 / 0.14), rgb(0 0 0 / 0.55));  /* menús, ventanas y detalles */
+  --radio-pildora: 999px;
+
+  /* ── Espaciado extra (V-11) ── */
+  --espacio-5: 1.25rem;
+  --espacio-10: 2.5rem;
+  --espacio-12: 3rem;
+
+  /* ── Movimiento (V-11): corto y con salida suave; con "reducir movimiento" se apaga en base.css ── */
+  --duracion-rapida: 120ms;
+  --duracion-media: 200ms;
+  --duracion-lenta: 250ms;
+  --curva-salida: cubic-bezier(0.23, 1, 0.32, 1);
+  --curva-entrada-salida: cubic-bezier(0.77, 0, 0.175, 1);
+
+  /* ── Diseño general (V-11) ── */
+  --ancho-menu: 232px;
+  --ancho-contenido: 1320px;
+  --alto-grafico: 280px;
+  --z-menu: 10;
+  --z-emergente: 100;
 }
 
 /* Modo fijado a mano desde js/tema.js (si no hay atributo, se sigue al sistema). */

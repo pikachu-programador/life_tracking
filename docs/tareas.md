@@ -1,7 +1,7 @@
 ---
 proyecto: Rastreador de tiempo + modo meta
 documento: Tareas
-version: 4
+version: 5
 actualizado: 2026-11-04
 ---
 
@@ -79,6 +79,16 @@ flowchart LR
 4. F3-01, F3-02, F3-03, F3-04, F3-07, F3-06, F3-08, F3-05.
 5. F4-01 a F4-08, en orden.
 
+**Orden de la sesión en la nube (2026-11-04).** Sin AW real, todo se prueba con `datos-ejemplo/` y el AW falso (H-01). El coordinador fijó primero los contratos del motor (F1-09, arquitectura §6.7); con ellos, los módulos del motor se programan en paralelo, cada uno con datos armados a mano en sus pruebas:
+
+1. F1-08, F1-09 (coordinador).
+2. En paralelo: H-01 · F3-01 y F3-03 · F1-05 y F2-01 · F4-01, F4-02 y F4-03 · F4-04, F4-05 y F4-06 · V-01, V-02 y V-03 · V-04 y V-10.
+3. Coordinador: H-02, V-11, F2-09 y H-03.
+4. En paralelo, las vistas: F1-07, F2-02 a F2-07, F3-04 a F3-06, F3-08, F4-07 a F4-09, F5-01, F5-04, F5-05 y V-05 a V-09.
+5. Cada tarea se marca hecha solo después de que otro subagente la revisa (código, pruebas y capturas si es interfaz).
+
+Cambios en las tareas: F5-02 se hace dentro de F2-01 y F5-03 dentro de F4-02, porque los datos de ejemplo ya traen check-ins; F4-04 queda solo con el motor y su interfaz pasa a F4-09; nuevas F1-09, F2-09, F4-09, V-11, H-02 y H-03.
+
 ---
 
 ## Fase 0 — Preparación
@@ -135,6 +145,7 @@ flowchart LR
 | F1-06 | Librería de gráficos | Dashboard | F1-02 | 2 | S | Esencial |
 | F1-07 | Vista Hoy mínima | Dashboard | F1-05, F1-06 | 2 | M | Esencial |
 | F1-08 | Base de pruebas del motor | Motor | F0-06 | 2 | S | Esencial |
+| F1-09 | Contratos del motor | Motor | F1-08 | 3 | M | Esencial |
 
 - [x] **F1-01 · Esqueleto y navegación**
   - Objetivo: `index.html` con menú y rutas con `#`: hoy, horas, horario, cumplimiento, simulador, clasificacion, diario y ajustes. Cada vista en su propio archivo.
@@ -150,18 +161,24 @@ flowchart LR
   - Objetivo: para un día, eventos de ventana sin AFK, categorizados con `classes`, más los eventos del navegador.
   - Hecho cuando: los totales por categoría de un día coinciden con la vista Actividad de AW (±1 min).
   - Notas: partir de `canonicalEvents` y `classes_for_query` de aw-webui (§14); cuidado con el escape de las regex; pedir día por día.
-- [ ] **F1-05 · Segmentos (Clasificador)**
+- [x] **F1-05 · Segmentos (Clasificador)**
   - Objetivo: convertir eventos en segmentos (inicio, fin, clase, subcategoría, app, título) y rellenar los huecos como AFK o Sin PC.
   - Hecho cuando: un día queda cubierto sin solapes ni huecos (la suma da la duración del rango) y las pruebas pasan.
+  - Resultado (2026-11-04): `web/motor/segmentos.js` (segmentar, recortarSegmentos, unirSegmentos, sumarPorEstado; huecos AFK / Sin PC; URL del navegador). Cobertura exacta probada. Revisión: la hizo el coordinador (sin subagente revisor por presupuesto).
 - [x] **F1-06 · Librería de gráficos**
   - Objetivo: ECharts en `web/lib/` con un tema propio que lee los tokens.
   - Hecho cuando: un gráfico de prueba usa los colores de `tokens.css` y cambia con el modo oscuro.
 - [ ] **F1-07 · Vista Hoy mínima**
   - Objetivo: tiempo activo de hoy y barra apilada por clase.
   - Hecho cuando: coincide con AW y se actualiza cada minuto sin recargar.
-- [ ] **F1-08 · Base de pruebas del motor**
+- [x] **F1-08 · Base de pruebas del motor**
   - Objetivo: carpeta `pruebas/` con el test runner de Node y los datos de `datos-ejemplo/`.
   - Hecho cuando: un solo comando corre todas las pruebas.
+  - Resultado (2026-11-04): `npm test` corre todo `pruebas/**/*.test.js`; `pruebas/ayudantes/ejemplo.js` lee los buckets, el plan y `verdad.json` de `datos-ejemplo/` (siempre como copias).
+- [x] **F1-09 · Contratos del motor**
+  - Objetivo: fijar las firmas de las funciones del motor y la forma de los datos entre el motor y el dashboard (evento clasificado, resumen del día, resumen del período), para poder programar los módulos en paralelo.
+  - Hecho cuando: `arquitectura.md` §6.7 tiene las firmas con JSDoc y las formas; `web/motor/tipos.js` tiene las constantes y los `@typedef`; las fechas puras pasan a `web/motor/fechas.js` (con días de la semana, horas del plan y períodos) y las regex de AW se traducen a JS en `web/motor/regex.js`; la consulta canónica devuelve también los periodos AFK; `web/js/dom.js` y `web/js/formato.js` dan los ayudantes comunes de las vistas; todo con pruebas.
+  - Resultado (2026-11-04): commits `a9d2ddd` y el de la revisión. Un subagente revisor encontró 28 puntos (3 graves: `afk` en el AW falso, bordes y elección del hueco en el día lógico, días sin datos y `no_medible`); se corrigieron en §6.7 ("Reglas entre módulos"), §9, §10, §12, `tipos.js`, `regex.js` y `fechas.js`, y se avisó a cada subagente afectado.
 
 ---
 
@@ -179,10 +196,12 @@ flowchart LR
 | F2-06 | Reloj de 24 h | Dashboard | F2-04 | 3 | M | Extra |
 | F2-07 | Más usados y sin clasificar | Dashboard | F1-05 | 2 | M | Importante |
 | F2-08 | Selector de fecha y caché | Dashboard | F1-04 | 3 | M | Esencial |
+| F2-09 | Servicio de datos del dashboard | Dashboard | F2-08, F2-01, F3-03, V-01 | 3 | M | Esencial |
 
-- [ ] **F2-01 · Día lógico estimado**
-  - Objetivo: inicio y fin del día según §10, todavía sin check-ins.
-  - Hecho cuando: la actividad de la 1:00 a. m. cuenta para el día anterior, y hay pruebas con trasnoche y con días sin datos.
+- [x] **F2-01 · Día lógico estimado**
+  - Objetivo: inicio y fin del día según §10 (algoritmo en §6.7), con los check-ins de despertar y dormir (lo de F5-02).
+  - Hecho cuando: la actividad de la 1:00 a. m. cuenta para el día anterior, y hay pruebas con trasnoche, con días sin datos y con check-ins (el de despertar manda sobre la estimación).
+  - Resultado (2026-11-04): `web/motor/checkins.js` y `web/motor/dia-logico.js` (con lo de F5-02): en los 14 días de ejemplo, inicio y fin coinciden al milisegundo con `verdad.json`; 10-13 sin datos; trasnoches hasta las 03:10, 02:30 y 04:30 del 19; los check-ins de despertar mandan. Pruebas aleatorias: 24 000 días sin solaparse. Revisión: la hizo el coordinador (presupuesto).
 - [ ] **F2-02 · Horas despierto y su reparto**
   - Objetivo: "Despierto desde HH:MM · X h" y una barra con el reparto (estudio, distracción, neutral, IA, sin clasificar, AFK, sin PC).
   - Hecho cuando: el reparto suma exactamente las horas despierto.
@@ -205,6 +224,10 @@ flowchart LR
 - [x] **F2-08 · Selector de fecha y caché**
   - Objetivo: elegir día o rango; los días terminados se guardan en caché.
   - Hecho cuando: volver a un día ya visto es instantáneo y hoy siempre se refresca.
+- [x] **F2-09 · Servicio de datos del dashboard**
+  - Objetivo: `web/js/datos.js`, lo único que usan las vistas (§6.7): día completo (día lógico, segmentos con contexto, plan del día y resumen), resúmenes de un rango con caché, plan, niveles, check-ins y reglas.
+  - Hecho cuando: con el AW falso, `datos.dia()` de cada día de ejemplo da el resumen del motor; un día terminado sale de la caché; guardar el plan o un check-in vacía la caché.
+  - Resultado (2026-11-04): `web/js/datos.js` (`crearServicioDatos` + `datos`): día completo, resúmenes y segmentos de un rango sin días futuros, plan validado, niveles, check-ins, intervenciones, reglas y estado de AW; caché de días terminados y cerrados. 7 pruebas contra el AW falso con reloj fijo (`pruebas/datos.test.js`).
 
 ---
 
@@ -223,16 +246,18 @@ flowchart LR
 | F3-07 | Cargar tu horario 2026-2 | Tú | F3-04 | 1 | S | Esencial |
 | F3-08 | Empezar bloque ahora | Dashboard | F3-02, F3-03 | 2 | S | Importante |
 
-- [ ] **F3-01 · Modelo del plan y validación**
+- [x] **F3-01 · Modelo del plan y validación**
   - Objetivo: el modelo de §8, con validación de campos obligatorios, horas válidas y solapes.
   - Hecho cuando: un plan inválido da mensajes claros y las pruebas pasan.
+  - Resultado (2026-11-04): `web/motor/plan.js` (normalizarPlan, validarPlan con mensajes claros y avisos de solapes, planVacio, UMBRALES_INICIALES); `plan-ejemplo.json` válido. Revisión: aprobado con cambios menores.
 - [ ] **F3-02 · Guardar el plan en AW y respaldo**
   - Objetivo: leer y escribir el ajuste `rastreador-plan`; exportar e importar JSON.
   - Hecho cuando: el plan sobrevive a reiniciar AW, y exportar → importar lo deja idéntico.
-- [ ] **F3-03 · Expansor de horario**
+- [x] **F3-03 · Expansor de horario**
   - Objetivo: plantilla semanal + bloques únicos + excepciones → bloques concretos de un día lógico.
   - Hecho cuando: hay pruebas para feriado, semana de exámenes, bloque que cruza la medianoche y fin de ciclo.
   - Notas: zona America/Lima.
+  - Resultado (2026-11-04): `web/motor/horario.js` (expandirDia, expandirRango, itemsEnCurso, proximoItem): feriado, exámenes, bloque que cruza la medianoche, madrugada, fin de ciclo, bloque único y terminado antes probados. Los bloques únicos no se cancelan con excepciones (§8, por confirmar con Dremy). Revisión: aprobado con cambios menores.
 - [ ] **F3-04 · Vista Horario: editor**
   - Objetivo: formularios para ciclo, cursos (color, meta semanal, categoría), clases, rutinas, bloques (nivel, objetivo, por qué) y excepciones.
   - Hecho cuando: todo el horario de un ciclo se carga solo desde el dashboard.
@@ -262,39 +287,48 @@ flowchart LR
 | F4-01 | Contexto de cada segmento | Motor | F3-03, F1-05 | 3 | M | Esencial |
 | F4-02 | Cumplimiento por bloque | Motor | F4-01 | 4 | L | Esencial |
 | F4-03 | Cumplimiento diario, semanal y por curso | Motor | F4-02 | 3 | M | Esencial |
-| F4-04 | Configuración de niveles | Dashboard | F3-02 | 2 | M | Esencial |
+| F4-04 | Configuración de niveles | Motor | F3-01 | 2 | M | Esencial |
 | F4-05 | Decisor | Motor | F4-01, F4-04 | 4 | L | Esencial |
 | F4-06 | Simulador | Motor | F4-05 | 4 | L | Esencial |
 | F4-07 | Vista Simulador | Dashboard | F4-06, F2-03 | 3 | M | Esencial |
 | F4-08 | Vista Cumplimiento | Dashboard | F4-03, F1-06 | 3 | L | Esencial |
+| F4-09 | Niveles y umbrales en Ajustes | Dashboard | F4-04, F3-02 | 2 | M | Esencial |
 
-- [ ] **F4-01 · Contexto de cada segmento**
+- [x] **F4-01 · Contexto de cada segmento**
   - Objetivo: marcar cada segmento como en bloque, en clase, en rutina o libre.
   - Hecho cuando: la distracción en tiempo libre no cuenta como fallo, y hay pruebas en los bordes de los bloques.
-- [ ] **F4-02 · Cumplimiento por bloque**
+  - Resultado (2026-11-04): `web/motor/contexto.js` (asignarContexto: parte los segmentos en los bordes; bloque > clase > rutina > libre). Revisión: aprobado (comparado con una referencia de fuerza bruta en 400 días aleatorios; 0,7 ms con 3000 segmentos).
+- [x] **F4-02 · Cumplimiento por bloque**
   - Objetivo: estado cumplido, parcial, fallido o no medible según §9, con los umbrales del plan.
-  - Hecho cuando: hay pruebas para cada tipo de bloque y de rutina.
-  - Notas: el estudio en papel se completa en F5-03, porque necesita check-ins.
-- [ ] **F4-03 · Cumplimiento diario, semanal y por curso**
+  - Hecho cuando: hay pruebas para cada tipo de bloque y de rutina, incluidos el estudio en papel y las rutinas con check-in (lo de F5-03).
+  - Resultado (2026-11-04): `web/motor/cumplimiento.js` (evaluarBloque y evaluarRutina según §9, con estudio en papel y rutinas con check-in: lo de F5-03). Revisión: aprobado con cambios menores.
+- [x] **F4-03 · Cumplimiento diario, semanal y por curso**
   - Objetivo: % del día y de la semana con la fórmula de §9; horas por curso contra su meta (Estudio dentro de los bloques del curso) y horas por área (§9).
   - Hecho cuando: un día armado a mano en las pruebas da el % esperado.
-- [ ] **F4-04 · Configuración de niveles**
-  - Objetivo: ajuste `rastreador-niveles` y su sección en Ajustes, con la regla de asimetría de §11.
-  - Hecho cuando: bajar un nivel muestra "se aplica mañana" y subirlo es inmediato.
-  - Notas: cada cambio pendiente se guarda con `aplica_desde`; la configuración vigente la calcula el motor (§11).
-- [ ] **F4-05 · Decisor**
+  - Resultado (2026-11-04): `web/motor/porcentajes.js` (porcentajeDia, porcentajeVarios ponderados; horasPorCurso con papel = bloque hecho menos actividad en la PC; horasPorArea). Días armados a mano: 10-12 = 71,4 %, 10-16 = 75 %. Revisión: aprobado con cambios menores.
+- [x] **F4-04 · Configuración de niveles**
+  - Objetivo: modelo del ajuste `rastreador-niveles` en el motor (`web/motor/niveles.js`), con la regla de asimetría de §11.
+  - Hecho cuando: hay pruebas de que endurecer aplica hoy y aflojar desde el día lógico siguiente, y de la configuración vigente en cada fecha.
+  - Notas: cada cambio pendiente se guarda con `aplica_desde`; la configuración vigente la calcula el motor (§11). La interfaz pasó a F4-09.
+  - Resultado (2026-11-04): `web/motor/niveles.js` (configuración vigente por fecha, asimetría endurecer hoy / aflojar mañana, cambios pendientes, nivel de cada bloque). Revisión cruzada: aprobado con cambios menores (anotados en la bitácora).
+- [x] **F4-05 · Decisor**
   - Objetivo: actividad + bloque activo + nivel + pases + avisos acumulados → permitir, aviso, fricción o bloqueo, con escalamiento.
   - Hecho cuando: hay pruebas para cada nivel, para el escalamiento tras 3 avisos, para `nunca_bloquear` y para lo sin clasificar en total.
   - Notas: no conoce el reloj ni la red; así sirve igual para el simulador y para el agente.
-- [ ] **F4-06 · Simulador**
+  - Resultado (2026-11-04): `web/motor/decisor.js` (decidir, registrarDecision, concederPase; protegidos, IA, nunca_bloquear, escalamiento solo en bloques, sin_extension en total). Revisión: requería cambios; corregidos (nunca_bloquear solo con app y URL; un pase vale solo en su bloque o clase).
+- [x] **F4-06 · Simulador**
   - Objetivo: correr el Decisor sobre los segmentos de un día con un nivel elegido → intervenciones simuladas y minutos que se habrían cortado.
   - Hecho cuando: el mismo día con el mismo nivel siempre da el mismo resultado, y se pueden comparar los 3 niveles.
+  - Resultado (2026-11-04): `web/motor/simulador.js` (simular con la misma máquina de estados que el agente; compararNiveles). Revisión: aprobado con cambios menores; determinista e independiente de cómo se cortan los segmentos.
 - [ ] **F4-07 · Vista Simulador**
   - Objetivo: carril Intervenciones en la línea de tiempo, lista de intervenciones y resumen por nivel.
   - Hecho cuando: cambiar de día o de nivel actualiza todo en menos de 1 s.
 - [ ] **F4-08 · Vista Cumplimiento**
   - Objetivo: calendario de días cumplidos, puntualidad, % de foco por bloque y horas por curso contra la meta.
   - Hecho cuando: un clic en un día del calendario abre ese día en Hoy.
+- [ ] **F4-09 · Niveles y umbrales en Ajustes**
+  - Objetivo: sección de Ajustes para los valores de cada nivel, las listas y los umbrales del plan, con la asimetría de §11.
+  - Hecho cuando: bajar un nivel muestra "se aplica mañana" y subirlo es inmediato.
 
 ---
 
@@ -313,11 +347,13 @@ flowchart LR
 - [ ] **F5-01 · Registro de check-ins**
   - Objetivo: crear `rastreador-checkins_<host>` y registrar despertar, dormir, rutina hecha, estudio en papel y asistencia desde el dashboard.
   - Hecho cuando: cada check-in aparece en el Timeline de AW y en la vista Diario.
-- [ ] **F5-02 · Día lógico con check-ins**
+- [x] **F5-02 · Día lógico con check-ins**
   - Objetivo: usar los check-ins de despertar y dormir en el cálculo del día lógico.
   - Hecho cuando: el check-in de despertar manda sobre la estimación y se puede corregir un día pasado.
-- [ ] **F5-03 · Estudio en papel y rutinas con check-in**
+  - Notas: el motor se hace dentro de F2-01; corregir un día pasado llega con la vista Diario (F5-04).
+- [x] **F5-03 · Estudio en papel y rutinas con check-in**
   - Objetivo: completar las reglas de §9 que dependen de check-ins.
+  - Notas: se hace dentro de F4-02 (hecha ahí).
   - Hecho cuando: un bloque en papel con la PC en AFK y check-in "hecho" sale cumplido; con distracción en la PC sale parcial.
 - [ ] **F5-04 · Vista Diario**
   - Objetivo: por día, check-ins e intervenciones con su motivo; editar o borrar errores.
@@ -460,25 +496,30 @@ flowchart LR
 | V-08 | Explorador de actividad | Dashboard | V-02, F1-06 | 3 | L | Importante |
 | V-09 | Vista Comparar | Dashboard | V-05 | 2 | M | Importante |
 | V-10 | Tres temas de estilo y página de muestra | Dashboard | F1-02 | 2 | M | Importante |
+| V-11 | Navegación y diseño general | Dashboard | F1-01, F1-02 | 2 | M | Importante |
 
 No hay V-07: [visualizaciones.md](visualizaciones.md) salta de V-06 a V-08.
 
 **Para todas:** las cifras de cada vista coinciden con `datos-ejemplo/verdad.json` cuando aplica (`minutos_por_clase_y_area`); las funciones del motor tienen pruebas; las vistas tienen capturas con los datos de ejemplo en modo claro y oscuro, con estado vacío, de carga y detalle al pasar el mouse, y se ven bien a 1366×768 y a 1920×1080 (visualizaciones §5).
 
-- [ ] **V-01 · Resumen diario y su caché**
+- [x] **V-01 · Resumen diario y su caché**
   - Objetivo: `resumirDia(segmentos, plan, checkins, dia)` → un objeto con todas las métricas de un día lógico (visualizaciones §3); los resúmenes de días terminados quedan en caché y hoy siempre se recalcula.
-  - Hecho cuando: con los datos de ejemplo, los minutos por clase y área de cada día coinciden con `minutos_por_clase_y_area` de `verdad.json`; las pruebas cubren trasnoche, día sin datos (10-13) y feriado (10-08).
+  - Hecho cuando: con los datos de ejemplo, los minutos por clase y área de cada día coinciden con `minutos_por_clase_y_area` de `verdad.json` dentro de la tolerancia de H-01 (sin contar `(afk)` ni `Estudio (sin teclado)`; las diferencias explicadas de H-01 valen aquí); las pruebas cubren trasnoche, día sin datos (10-13) y feriado (10-08).
   - Notas: función pura del motor. La caché vive en la memoria del navegador, como la de días de F2-08; no se guarda en AW. Cumplimiento, puntualidad y racha se suman al resumen cuando existan F4-03; estudio en papel y asistencia, cuando existan los check-ins (F5-01, F5-03).
-- [ ] **V-02 · Agregado por período**
+  - Resultado (2026-11-04): `web/motor/resumen.js` (`resumirDia` compone horario, contexto, cumplimiento y porcentajes; porHora, tramos, foco más largo, cambios de app…) y `web/motor/agrupar.js`. Con los 14 días de ejemplo, Estudio por área, IA y papel coinciden con `verdad.json` (±2 min) salvo lo explicado (video con audio del 10-10, título raro del 10-15). La caché vive en `web/js/datos.js` (F2-09). Revisión: la hizo el coordinador (presupuesto).
+- [x] **V-02 · Agregado por período**
   - Objetivo: `agregarPeriodo(resumenes, desde, hasta)` → totales, promedio por día (con datos o incluyendo los días vacíos), mediana, máximo y mínimo con su fecha, desviación estándar, rachas, día de la semana promedio y comparación con el período anterior del mismo largo.
   - Hecho cuando: una semana y un rango armados a mano en las pruebas dan los valores esperados, con y sin días vacíos.
-- [ ] **V-03 · Tiempo en clases**
+  - Resultado (2026-11-04): `agregarPeriodo` y `compararPeriodos` en `web/motor/resumen.js`: totales, promedio (con y sin días vacíos), mediana, máximo y mínimo con fecha, desviación, día de la semana, rachas y comparación; probado con una semana y rangos armados a mano.
+- [x] **V-03 · Tiempo en clases**
   - Objetivo: tiempo en clases de un día según el plan, menos las excepciones; si hay check-in de asistencia, solo cuentan las clases marcadas.
   - Hecho cuando: hay pruebas con feriado, con asistencia marcada y sin check-ins, usando `plan-ejemplo.json`.
-- [ ] **V-04 · Selector de período compartido**
+  - Resultado (2026-11-04): `tiempoEnClases` en `web/motor/resumen.js` (clases del día menos excepciones; asistencia clase por clase). Probado con plan-ejemplo: lunes, feriado y asistencia.
+- [x] **V-04 · Selector de período compartido**
   - Objetivo: Día · Semana (lunes a domingo) · Mes · Rango, con flechas de anterior y siguiente, que usan todas las vistas.
   - Hecho cuando: cambiar el período en una vista lo mantiene al pasar a otra y al recargar.
   - Notas: amplía el selector de fecha de F2-08 en lugar de crear otro.
+  - Resultado (2026-11-04): `web/js/periodo.js` (período en la dirección y en localStorage, compartido entre vistas) y `web/js/componentes/selector-periodo.js` (Día · Semana · Mes · Rango, ‹ › Hoy, atajos ← →); el selector de F2-08 pasa a usarlo. Además, componentes para las vistas: `linea-tiempo.js` (carriles Plan, Real, Intervenciones y Cortes; detalle con la URL completa; zoom) y ayudantes de `graficos.js` (estados vacío y cargando, tokens nuevos). Revisión: la hizo el coordinador (presupuesto); comprobado en el navegador con el AW falso.
 - [ ] **V-05 · Vista Resumen del período**
   - Objetivo: fila de KPIs con comparación; barras apiladas por día (clase, área o curso) con línea de meta; línea de estudio con media móvil de 7 días; horas por curso contra su meta; calendario mensual; día de la semana promedio (visualizaciones §4.2).
   - Hecho cuando: con la semana de ejemplo, los KPIs y las barras coinciden con `verdad.json`, y la vista dice si los promedios incluyen los días sin datos.
@@ -491,10 +532,15 @@ No hay V-07: [visualizaciones.md](visualizaciones.md) salta de V-06 a V-08.
 - [ ] **V-09 · Vista Comparar**
   - Objetivo: dos períodos lado a lado con las mismas métricas y sus diferencias (visualizaciones §4.5).
   - Hecho cuando: comparar dos semanas de ejemplo da diferencias que coinciden con restar sus resúmenes.
-- [ ] **V-10 · Tres temas de estilo y página de muestra**
+- [x] **V-10 · Tres temas de estilo y página de muestra**
   - Objetivo: tres propuestas de estilo intercambiables, mostradas en la página de muestra con datos de ejemplo, para que Dremy elija una o las mezcle (visualizaciones §5).
   - Hecho cuando: cambiar de tema en la página de muestra cambia todo el dashboard, en modo claro y oscuro, sin tocar otro CSS.
   - Notas: cada tema es un archivo que redefine **las mismas** variables de `tokens.css`; el resto del CSS sigue leyendo solo esas variables. Ninguno es la paleta final: la decide Dremy (§17 de la arquitectura).
+  - Resultado (2026-11-04): tres temas (`web/css/temas/sereno.css`, `cuaderno.css`, `tablero.css`) que solo redefinen variables de tokens.css, en claro y oscuro, con contraste AA y colores de clase y curso distinguibles (también con daltonismo); `web/js/temas.js` (elegir y recordar el tema; app.js lo aplica); `muestra.html` con selector de tema y modo, una vista de ejemplo y todos los componentes; componentes base en `componentes.css` y `web/js/componentes/ui.js`. Ninguno es la paleta final. Revisión: la hizo el coordinador (presupuesto); comprobado en el navegador sin errores de consola.
+- [x] **V-11 · Navegación y diseño general**
+  - Objetivo: con 12 vistas, el menú de arriba no entra a 1366 px: menú lateral agrupado (Día, Períodos, Plan, Datos), cabecera de cada vista con su selector de período, y estados comunes de carga, vacío y error.
+  - Hecho cuando: todas las vistas se alcanzan desde el menú a 1366×768 y a 1920×1080, en claro y oscuro, y el menú marca la vista actual.
+  - Resultado (2026-11-04): commits `cd1b2ce` y el de la revisión; cabecera común en `web/js/componentes/vista.js`; los estados de carga, vacío y error vienen de `ui.js` (V-10).
 
 ---
 
@@ -505,14 +551,27 @@ No hay V-07: [visualizaciones.md](visualizaciones.md) salta de V-06 a V-08.
 | ID | Tarea | Dónde | Depende de | Dif. | Tamaño | Prioridad |
 |---|---|---|---|---|---|---|
 | H-01 | AW falso | Repo | F0-06, F1-03, F1-04 | 4 | L | Importante |
+| H-02 | Reloj de prueba | Dashboard | F2-08 | 1 | S | Importante |
+| H-03 | Capturas automáticas | Repo | H-01, H-02 | 2 | S | Importante |
 
-- [ ] **H-01 · AW falso**
+- [x] **H-01 · AW falso**
   - Objetivo: un servidor Node sin dependencias (`node:http`) que responde las rutas de `/api/0` que usa el dashboard (`GET /info`, `GET /buckets/`, `GET /buckets/<id>/events`, `POST /query/`, `GET /settings`, `GET` y `POST /settings/<clave>`) con los datos de `datos-ejemplo/`, y que sirve `web/` en `/pages/rastreador/` para que el dashboard siga en el mismo origen.
   - Pasos, en orden:
     1. **Reglas de ejemplo.** Crear `datos-ejemplo/clases-ejemplo.json` con el formato del ajuste `classes` de AW y la taxonomía v3 (§7): clases Estudio (áreas Programación, Matemáticas, Inglés y Humanidades), Distracción, Neutral e IA (prioridad 30), con regex que reconozcan las apps, los títulos y las URLs inventados de `generar.mjs`. No copiar reglas de `datos-reales/`.
     2. **Categorizar en JS.** Una función pura en `web/motor/` que aplica `classes` a un evento con el criterio de §7: regex contra todos los campos de texto de `data` salvo `select_keys`; gana el mayor rango (prioridad, o profundidad × 10) y en empate la regla posterior. F6-02 la reutiliza.
     3. **Prueba contra la verdad.** Clasificar los eventos de ejemplo (ventana ∩ no AFK) con `clases-ejemplo.json` y comparar los minutos por clase y área de cada día con `minutos_por_clase_y_area` de `verdad.json`, sin contar los tramos sin teclado (`(afk)`, `Estudio (sin teclado)`).
-    4. **Consulta canónica.** `/query/` reconoce la consulta que arma `web/js/consultas.js` y la resuelve en JS: ventana ∩ no AFK, pestañas con audio cuentan como actividad, buckets web del hostname, `categorize` con el paso 2, y devuelve `eventos`, `navegador` y `no_afk` con la misma forma que AW. No interpreta el lenguaje de consultas de AW: cualquier otra consulta recibe un error claro.
+    4. **Consulta canónica.** `/query/` reconoce la consulta que arma `web/js/consultas.js` y la resuelve en JS: ventana ∩ no AFK, pestañas con audio cuentan como actividad, buckets web del hostname, `categorize` con el paso 2, y devuelve `eventos`, `navegador`, `no_afk` y `afk` con la misma forma que AW. No interpreta el lenguaje de consultas de AW: cualquier otra consulta recibe un error claro.
     5. **Servidor.** Rutas de `/api/0`, `classes` servido desde `clases-ejemplo.json`, `startOfDay` = 04:00, `POST` de ajustes solo en memoria y `web/` en `/pages/rastreador/`. Puerto 5600 por defecto, configurable.
   - Hecho cuando: la prueba del paso 3 da al menos 95 % del tiempo con teclado de cada día en la clase correcta, y cada diferencia que quede está explicada en la prueba (por ejemplo, un tutorial con título que no nombra un área); con AW cerrado, `node herramientas/aw-falso.js` arranca y el dashboard muestra Hoy y Horas del día para los días de ejemplo (por ejemplo `#/hoy?fecha=2026-10-05`) sin avisos de error; hay pruebas de cada ruta; por comprobar con Dremy: los totales por clase coinciden (±1 min) con un AW real que tenga los mismos datos y reglas importados.
   - Notas: `verdad.json` registra la intención (un tutorial de YouTube cuenta como estudio), así que no se le exige una coincidencia exacta: la prueba mide qué tan bien clasifican las reglas. La herramienta no está en la arquitectura: al implementarla, registrarla en §15 y §19.
+  - Resultado (2026-11-04): clasificador (`web/motor/clasificador.js`), reglas `datos-ejemplo/clases-ejemplo.json` y AW falso (`node herramientas/aw-falso.js`). Precisión contra `verdad.json`: 99,7–100 % por día descontando lo explicado (YouTube de entretenimiento en Neutral por la decisión v3; un título raro del 10-15). Un día responde en ~15 ms. Por comprobar con Dremy: totales ±1 min contra un AW real con los mismos datos y reglas. Revisión: la hizo el coordinador (presupuesto).
+- [x] **H-02 · Reloj de prueba**
+  - Objetivo: con `?ahora=AAAA-MM-DDTHH:MM` en la dirección (antes del `#`), el dashboard arranca en esa hora de Lima y el reloj sigue corriendo (arquitectura §6.8), para ver los días de ejemplo como si fueran hoy.
+  - Hecho cuando: con `?ahora=2026-10-14T16:20` el reloj del dashboard arranca el 14-oct a las 16:20 y avanza, y el almacén de días lo usa para saber qué días terminaron; sin el parámetro, todo sigue con la hora real; hay pruebas.
+  - Notas: que Hoy muestre ese día con su bloque actual se comprueba en F3-06.
+  - Resultado (2026-11-04): commits `52ff93e` y el de la revisión (Hoy y Horas usan el reloj; acepta segundos; un `?ahora=` inválido o en el futuro se ignora con aviso en el pie y en la consola).
+- [x] **H-03 · Capturas automáticas**
+  - Objetivo: `herramientas/capturas.mjs` arranca el AW falso y toma capturas de cada vista en claro y oscuro, a 1366×768 y a 1920×1080 (arquitectura §6.8).
+  - Hecho cuando: un solo comando deja las capturas de todas las vistas en una carpeta.
+  - Notas: usa Playwright si está instalado; no es una dependencia del proyecto.
+  - Resultado (2026-11-04): `node herramientas/capturas.mjs` arranca el AW falso y deja en una carpeta las capturas de las vistas (y de páginas sueltas como muestra.html) por tema de estilo, modo y tamaño, con los errores de consola en `informe.json`. Las del PR están en `capturas/`.

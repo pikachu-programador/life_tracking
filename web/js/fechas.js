@@ -7,59 +7,9 @@
 // Las fechas se manejan como texto "AAAA-MM-DD": es fácil de guardar en la dirección (#/hoy?fecha=...)
 // y de comparar (el orden alfabético es el orden de las fechas).
 
-/** Diferencia de Lima con UTC, en minutos (UTC−5, sin horario de verano; arquitectura §10). */
-export const DESFASE_LIMA_MIN = -5 * 60;
-
-const MS_MIN = 60 * 1000;
-const MS_DIA = 24 * 60 * MS_MIN;
-
-/** "04:00" → 240 (minutos desde la medianoche). */
-export function minutosDeHora(hora = '04:00') {
-  const [h, m] = hora.split(':').map(Number);
-  return h * 60 + m;
-}
-
-/** ¿Es un texto "AAAA-MM-DD" válido? */
-export function esFechaValida(texto) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(texto ?? '')) return false;
-  const d = new Date(texto + 'T00:00:00Z');
-  return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === texto;
-}
-
-/**
- * Periodo [inicio, fin) del día de AW `fecha`.
- * @param {string} fecha "AAAA-MM-DD"
- * @param {string} [inicioDia="04:00"] el `startOfDay` de AW
- * @returns {[Date, Date]}
- */
-export function periodoDelDia(fecha, inicioDia = '04:00') {
-  // Medianoche de esa fecha en UTC, + hora de inicio, − desfase de Lima (restar −5 h = sumar 5 h).
-  const inicio = new Date(Date.parse(fecha + 'T00:00:00Z') + (minutosDeHora(inicioDia) - DESFASE_LIMA_MIN) * MS_MIN);
-  return [inicio, new Date(inicio.getTime() + MS_DIA)];
-}
-
-/** Día de AW ("AAAA-MM-DD") al que pertenece un instante. */
-export function diaDe(instante, inicioDia = '04:00') {
-  const corrido = instante.getTime() + (DESFASE_LIMA_MIN - minutosDeHora(inicioDia)) * MS_MIN;
-  return new Date(corrido).toISOString().slice(0, 10);
-}
-
-/** Suma (o resta) días a una fecha "AAAA-MM-DD". */
-export function sumarDias(fecha, dias) {
-  return new Date(Date.parse(fecha + 'T00:00:00Z') + dias * MS_DIA).toISOString().slice(0, 10);
-}
-
-/** Lista de fechas desde `desde` hasta `hasta`, ambas incluidas. */
-export function diasDelRango(desde, hasta) {
-  const dias = [];
-  for (let f = desde; f <= hasta; f = sumarDias(f, 1)) dias.push(f);
-  return dias;
-}
-
-/** ¿El día ya terminó? (Solo los días terminados se pueden guardar en caché.) */
-export function diaTerminado(fecha, ahora, inicioDia = '04:00') {
-  return periodoDelDia(fecha, inicioDia)[1].getTime() <= ahora.getTime();
-}
+// (F1-09) Las funciones puras se mudaron a web/motor/fechas.js para que el motor y el agente las usen;
+// aquí se reexportan, así los módulos del dashboard las siguen importando desde este archivo.
+export * from '../motor/fechas.js';
 
 /** "2026-10-31" → "sáb, 31 oct" (para listas y tablas). */
 export function fechaCorta(fecha) {
@@ -73,4 +23,30 @@ export function fechaLegible(fecha) {
   return new Intl.DateTimeFormat('es-PE', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC',
   }).format(new Date(fecha + 'T12:00:00Z'));
+}
+
+/** "2026-10-05" → "5 oct" (ejes de gráficos). */
+export function fechaMuyCorta(fecha) {
+  return new Intl.DateTimeFormat('es-PE', { day: 'numeric', month: 'short', timeZone: 'UTC' })
+    .format(new Date(fecha + 'T12:00:00Z'))
+    .replace(/\./g, '');
+}
+
+/** "2026-10-05" → "octubre de 2026". */
+export function mesLegible(fecha) {
+  return new Intl.DateTimeFormat('es-PE', { month: 'long', year: 'numeric', timeZone: 'UTC' })
+    .format(new Date(fecha + 'T12:00:00Z'));
+}
+
+/**
+ * Texto de un período (V-04): "lunes, 5 de octubre de 2026" · "5 – 11 oct 2026" · "octubre de 2026" · "28 sep – 4 oct 2026".
+ * @param {{tipo: string, desde: string, hasta: string}} periodo
+ */
+export function periodoLegible({ tipo, desde, hasta }) {
+  if (tipo === 'dia' || desde === hasta) return fechaLegible(desde);
+  if (tipo === 'mes') return mesLegible(desde);
+  const anio = hasta.slice(0, 4);
+  const mismoMes = desde.slice(0, 7) === hasta.slice(0, 7);
+  const ini = mismoMes ? String(Number(desde.slice(8))) : fechaMuyCorta(desde) + (desde.slice(0, 4) !== anio ? ' ' + desde.slice(0, 4) : '');
+  return `${ini} – ${fechaMuyCorta(hasta)} ${anio}`;
 }
