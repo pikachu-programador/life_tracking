@@ -161,9 +161,10 @@ Cambios en las tareas: F5-02 se hace dentro de F2-01 y F5-03 dentro de F4-02, po
   - Objetivo: para un día, eventos de ventana sin AFK, categorizados con `classes`, más los eventos del navegador.
   - Hecho cuando: los totales por categoría de un día coinciden con la vista Actividad de AW (±1 min).
   - Notas: partir de `canonicalEvents` y `classes_for_query` de aw-webui (§14); cuidado con el escape de las regex; pedir día por día.
-- [ ] **F1-05 · Segmentos (Clasificador)**
+- [x] **F1-05 · Segmentos (Clasificador)**
   - Objetivo: convertir eventos en segmentos (inicio, fin, clase, subcategoría, app, título) y rellenar los huecos como AFK o Sin PC.
   - Hecho cuando: un día queda cubierto sin solapes ni huecos (la suma da la duración del rango) y las pruebas pasan.
+  - Resultado (2026-11-04): `web/motor/segmentos.js` (segmentar, recortarSegmentos, unirSegmentos, sumarPorEstado; huecos AFK / Sin PC; URL del navegador). Cobertura exacta probada. Revisión: la hizo el coordinador (sin subagente revisor por presupuesto).
 - [x] **F1-06 · Librería de gráficos**
   - Objetivo: ECharts en `web/lib/` con un tema propio que lee los tokens.
   - Hecho cuando: un gráfico de prueba usa los colores de `tokens.css` y cambia con el modo oscuro.
