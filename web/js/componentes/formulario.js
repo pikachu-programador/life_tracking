@@ -20,7 +20,7 @@
 
 import { el } from '../dom.js';
 import { crearCampo } from './ui.js';
-import { DIAS_SEMANA, NOMBRE_DIA } from '../../motor/tipos.js';
+import { DIAS_SEMANA, NOMBRE_DIA, COLORES_CURSO } from '../../motor/tipos.js';
 
 let contador = 0;
 
@@ -38,11 +38,25 @@ function crearCampoDias({ etiqueta, valor = [], ayuda, id }) {
 }
 
 /**
+ * Campo "color de curso": ocho botones de radio, cada uno con su muestra de color (data-curso) y su número.
+ * El color nunca va solo: cada muestra dice "Color 3".
+ * @returns {HTMLElement}
+ */
+function crearCampoColores({ etiqueta, valor, ayuda, id }) {
+  return el('fieldset', { class: 'campo', id },
+    el('legend', { class: 'campo-etiqueta' }, etiqueta),
+    el('div', { class: 'opciones campo-colores' }, COLORES_CURSO.map((color, i) => el('label', { class: 'opcion', 'data-curso': color, title: `Color ${i + 1}` },
+      el('input', { type: 'radio', name: id, value: color, checked: color === valor }),
+      el('span', { class: 'muestra-curso', 'aria-hidden': 'true' }), String(i + 1)))),
+    ayuda && el('p', { class: 'campo-ayuda' }, ayuda));
+}
+
+/**
  * @typedef {Object} CampoFormulario
  * @property {string} clave
  * @property {string} etiqueta
- * @property {string} [tipo]  'text' | 'number' | 'time' | 'date' | 'select' | 'textarea' | 'checkbox' | 'dias' | 'lineas'
- *   dias: lista de días (lun…dom). lineas: un <textarea> donde cada renglón es un elemento de una lista.
+ * @property {string} [tipo]  'text' | 'number' | 'time' | 'date' | 'select' | 'textarea' | 'checkbox' | 'dias' | 'colores' | 'lineas'
+ *   dias: lista de días (lun…dom). colores: un color de curso ('curso-1' … 'curso-8'). lineas: un <textarea> donde cada renglón es un elemento de una lista.
  * @property {Array<{valor: string, texto: string}|string>} [opciones]  para select
  * @property {string} [ayuda]
  * @property {boolean} [requerido]
@@ -72,6 +86,8 @@ export function abrirFormulario({ titulo, descripcion, campos = [], valores = {}
     let nodo;
     if (campo.tipo === 'dias') {
       nodo = crearCampoDias({ etiqueta: campo.etiqueta, valor: Array.isArray(inicial) ? inicial : [], ayuda: campo.ayuda, id });
+    } else if (campo.tipo === 'colores') {
+      nodo = crearCampoColores({ etiqueta: campo.etiqueta, valor: inicial, ayuda: campo.ayuda, id });
     } else {
       nodo = crearCampo({
         etiqueta: campo.etiqueta,
@@ -92,6 +108,7 @@ export function abrirFormulario({ titulo, descripcion, campos = [], valores = {}
     if (campo.tipo === 'dias') {
       return [...nodo.querySelectorAll('input[type="checkbox"]')].filter((c) => c.checked).map((c) => c.value);
     }
+    if (campo.tipo === 'colores') return nodo.querySelector('input:checked')?.value ?? '';
     const control = nodo.querySelector('input, select, textarea');
     if (campo.tipo === 'checkbox') return control.checked;
     if (campo.tipo === 'number') return control.value.trim() === '' ? null : Number(control.value);

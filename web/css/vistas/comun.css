@@ -13,13 +13,16 @@
 .lista-errores { margin: var(--espacio-2) 0; padding-left: var(--espacio-5); display: grid; gap: var(--espacio-1); }
 
 /* ── Formulario en un diálogo (js/componentes/formulario.js) ── */
-.dialogo-formulario { width: min(36rem, calc(100vw - 2 * var(--espacio-4))); }
-.dialogo-formulario form { display: flex; flex-direction: column; max-height: calc(100vh - 2 * var(--espacio-8)); }
+.dialogo-formulario { width: min(36rem, calc(100vw - 2 * var(--espacio-4))); overflow: hidden; }
+/* El título y los botones quedan fijos; solo se desplaza el cuerpo (una sola barra, no dos). */
+.dialogo-formulario form { display: flex; flex-direction: column; max-height: calc(100vh - 2 * var(--espacio-8) - 2px); }
 .formulario-cuerpo {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--espacio-4);
   overflow-y: auto;
+  min-height: 0;
+  align-content: start;
   color: var(--color-texto);
 }
 .formulario-campo { grid-column: 1 / -1; min-width: 0; }
@@ -43,3 +46,21 @@
 /* Un texto largo (título de ventana, URL, motivo) se corta con "…" en vez de ensanchar la tabla. */
 .cortar { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .envolver { overflow-wrap: anywhere; }
+
+/* Muestras de color de curso en un formulario (campo "colores"). */
+.campo-colores { gap: var(--espacio-2) var(--espacio-3); }
+.muestra-curso {
+  width: 1rem;
+  height: 1rem;
+  border-radius: var(--radio-s);
+  background: var(--color-clase);
+  border: 1px solid var(--borde-clase);
+}
+
+/* Avisos del plan: una alerta que se despliega. */
+.avisos-plan summary { cursor: pointer; font-weight: var(--peso-medio); }
+.avisos-plan summary:focus-visible { outline: 2px solid var(--color-foco); outline-offset: 2px; border-radius: var(--radio-s); }
+
+/* Celda con un texto largo: ancho máximo, y el resto se corta con "…" (el texto entero va en title). */
+.celda-larga { max-width: 18rem; }
+.tabla code { font-size: var(--texto-xs); color: var(--color-texto-suave); }
