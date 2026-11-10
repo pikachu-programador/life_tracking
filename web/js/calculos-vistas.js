@@ -70,3 +70,14 @@ export function rutinasDelPeriodo(resumenes) {
     dias: resumenes.map((resumen) => ({ fecha: resumen.fecha, estado: porFecha.get(resumen.fecha) ?? null })),
   }));
 }
+
+// ── Simulador (F4-07) ──
+
+/**
+ * Objetivo de una intervención en texto: 'web:youtube.com' → 'youtube.com (web)'; 'app:Discord.exe' → 'Discord.exe (app)'.
+ * Lo que no tenga ese prefijo se devuelve igual.
+ */
+export function textoObjetivo(objetivo) {
+  const m = /^(web|app):(.*)$/.exec(String(objetivo ?? ''));
+  return m ? `${m[2] || 'desconocido'} (${m[1]})` : String(objetivo ?? '');
+}

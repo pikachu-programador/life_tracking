@@ -64,3 +64,7 @@
 /* Celda con un texto largo: ancho máximo, y el resto se corta con "…" (el texto entero va en title). */
 .celda-larga { max-width: 18rem; }
 .tabla code { font-size: var(--texto-xs); color: var(--color-texto-suave); }
+
+/* Controles del Simulador: el nivel y las dos casillas en una fila que se acomoda. */
+.simulador-controles { display: flex; flex-wrap: wrap; align-items: center; gap: var(--espacio-3) var(--espacio-6); }
+.simulador-controles .campo + .campo { margin-top: 0; }

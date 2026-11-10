@@ -63,3 +63,14 @@ test('rutinasDelPeriodo: un estado por día (null si no tocaba) y la cuenta de d
   assert.deepEqual(ejercicio.dias.map((d) => d.estado), ['fallido', null, 'cumplido', null]);
   assert.deepEqual(rutinasDelPeriodo([]), []);
 });
+
+// ── Simulador (F4-07) ──
+
+test('textoObjetivo: web y app en texto; lo demás, igual', async () => {
+  const { textoObjetivo } = await import('../web/js/calculos-vistas.js');
+  assert.equal(textoObjetivo('web:youtube.com'), 'youtube.com (web)');
+  assert.equal(textoObjetivo('app:Discord.exe'), 'Discord.exe (app)');
+  assert.equal(textoObjetivo('app:'), 'desconocido (app)');
+  assert.equal(textoObjetivo('otra cosa'), 'otra cosa');
+  assert.equal(textoObjetivo(null), '');
+});

@@ -323,9 +323,10 @@ Cambios en las tareas: F5-02 se hace dentro de F2-01 y F5-03 dentro de F4-02, po
   - Objetivo: correr el Decisor sobre los segmentos de un día con un nivel elegido → intervenciones simuladas y minutos que se habrían cortado.
   - Hecho cuando: el mismo día con el mismo nivel siempre da el mismo resultado, y se pueden comparar los 3 niveles.
   - Resultado (2026-11-04): `web/motor/simulador.js` (simular con la misma máquina de estados que el agente; compararNiveles). Revisión: aprobado con cambios menores; determinista e independiente de cómo se cortan los segmentos.
-- [ ] **F4-07 · Vista Simulador**
+- [x] **F4-07 · Vista Simulador**
   - Objetivo: carril Intervenciones en la línea de tiempo, lista de intervenciones y resumen por nivel.
   - Hecho cuando: cambiar de día o de nivel actualiza todo en menos de 1 s.
+  - Resultado (2026-11-10): `web/js/vistas/simulador.js`: selector de día, nivel simulado (Como en el plan · Aviso · Fricción · Total) y la reacción de la persona simulada (continuar tras un aviso, usar pases); KPIs (intervenciones, tiempo cortado, pases y comodines), línea de tiempo con los carriles Plan, Real, Intervenciones y Cortes (y "Reales" cuando el agente las registre), comparación de los 3 niveles (`compararNiveles`), detalle por bloque (con escalamiento) y la lista de intervenciones con su motivo. Cambiar de nivel no vuelve a pedir datos: recalcula el Simulador del motor en memoria. Comprobado en el navegador con el AW falso: el 2026-10-06 da 13 min cortados como en el plan, 8 con aviso, 17 con fricción y 45 con total; cambiar de nivel tarda ~130–190 ms y cambiar de día ~1 s (conserva el nivel); el día sin datos (10-13) muestra su estado vacío; sin errores de consola. Depende de F2-03 (la línea de tiempo en Hoy), que sigue pendiente: aquí se usa el componente `linea-tiempo.js`, que ya existe desde V-04. Pendiente (F7-07): la espera de 60 s de la fricción no se simula.
 - [x] **F4-08 · Vista Cumplimiento**
   - Objetivo: calendario de días cumplidos, puntualidad, % de foco por bloque y horas por curso contra la meta.
   - Hecho cuando: un clic en un día del calendario abre ese día en Hoy.
