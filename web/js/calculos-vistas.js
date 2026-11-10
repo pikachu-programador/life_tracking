@@ -1,6 +1,9 @@
 // Cálculos de las vistas (funciones PURAS, con pruebas en pruebas/calculos-vistas.test.js).
 // Aquí va lo que una vista calcula a partir de los resúmenes y segmentos del motor y que conviene probar sin navegador.
 
+import { agruparPor } from '../motor/agrupar.js';
+import { CLASES } from '../motor/tipos.js';
+
 /** Estados de cumplimiento que entran al % (§9). */
 export const MEDIDOS = ['cumplido', 'parcial', 'fallido'];
 
@@ -80,4 +83,69 @@ export function rutinasDelPeriodo(resumenes) {
 export function textoObjetivo(objetivo) {
   const m = /^(web|app):(.*)$/.exec(String(objetivo ?? ''));
   return m ? `${m[2] || 'desconocido'} (${m[1]})` : String(objetivo ?? '');
+}
+
+// ── Clasificación (F2-07) ──
+
+/** Clase con más tiempo en un grupo de agruparPor (en empate, la primera en el orden de CLASES). */
+function claseDominante(porEstado) {
+  let mejor = CLASES[0];
+  for (const clase of CLASES) if ((porEstado[clase] ?? 0) > (porEstado[mejor] ?? 0)) mejor = clase;
+  return mejor;
+}
+
+/**
+ * Lo más usado por app, dominio, título o URL, con su clase dominante.
+ * @param {import('../motor/tipos.js').Segmento[]} segmentos
+ * @param {('app'|'dominio'|'titulo'|'url')} clave
+ * @param {{clase?: string|null, limite?: number, filtro?: (s: object) => boolean}} [opciones]
+ *   clase: solo los segmentos de esa clase ('estudio', 'distraccion'…); null o 'todas' = todas
+ * @returns {{filas: Array<{nombre: string, segundos: number, clase: string, porEstado: Object<string, number>}>,
+ *            total: number, otros: number}}  total: segundos de todos los grupos; otros: los que no entraron en `limite`
+ */
+export function masUsados(segmentos, clave, { clase = null, limite = 15, filtro } = {}) {
+  const porClase = clase && clase !== 'todas' ? (s) => s.clase === clase : null;
+  const grupos = agruparPor(segmentos, clave, {
+    filtro: (s) => (!porClase || porClase(s)) && (!filtro || filtro(s)),
+  });
+  const total = grupos.reduce((suma, g) => suma + g.segundos, 0);
+  const filas = grupos.slice(0, limite).map((g) => ({ nombre: g.clave, segundos: g.segundos, clase: claseDominante(g.porEstado), porEstado: g.porEstado }));
+  return { filas, total, otros: total - filas.reduce((suma, f) => suma + f.segundos, 0) };
+}
+
+/**
+ * Árbol de tiempo por categoría de AW, para un gráfico de rectángulos (treemap): primer nivel = la clase
+ * (Estudio, Distracción…), debajo sus subcategorías. Solo cuenta la actividad.
+ * @param {import('../motor/tipos.js').Segmento[]} segmentos
+ * @returns {Array<{nombre: string, clase: string, segundos: number, hijos: Array<{nombre: string, ruta: string, segundos: number}>}>}
+ *   de mayor a menor (también los hijos)
+ */
+export function arbolDeCategorias(segmentos) {
+  const raices = new Map();
+  for (const grupo of agruparPor(segmentos, 'categoria')) {
+    const partes = grupo.clave.split(' > ');
+    const nombre = partes[0] === 'Uncategorized' ? 'Sin clasificar' : partes[0];
+    if (!raices.has(nombre)) raices.set(nombre, { nombre, clase: claseDominante(grupo.porEstado), segundos: 0, hijos: [] });
+    const raiz = raices.get(nombre);
+    raiz.segundos += grupo.segundos;
+    raiz.hijos.push({ nombre: partes.length > 1 ? partes.slice(1).join(' > ') : `${nombre} (sin subcategoría)`, ruta: grupo.clave, segundos: grupo.segundos });
+  }
+  return [...raices.values()].sort((a, b) => b.segundos - a.segundos);
+}
+
+/**
+ * Qué se bloquea en cada nivel con una configuración (§11), en frases para mostrar.
+ * @param {import('../motor/tipos.js').ConfigNiveles} config
+ * @returns {{aviso: string[], friccion: string[], total: string[], nunca: string[]}}
+ */
+export function queBloquea(config) {
+  const patrones = config.patrones_url ?? [];
+  const base = ['La clase Distracción (todas sus subcategorías)'];
+  if (patrones.length) base.push(`${patrones.length === 1 ? 'El patrón de URL extra' : `Los ${patrones.length} patrones de URL extra`}: ${patrones.join(' · ')}`);
+  const total = [...base];
+  if (config.total?.bloquear_sin_clasificar !== false) total.push('Lo Sin clasificar');
+  total.push('Los navegadores sin la extensión');
+  const nunca = ['La IA', 'El dashboard y las páginas de bloqueo', 'ActivityWatch y el agente', 'Los procesos del sistema'];
+  for (const patron of config.nunca_bloquear ?? []) nunca.push(`"${patron}" (lista "nunca bloquear")`);
+  return { aviso: [...base], friccion: [...base], total, nunca };
 }

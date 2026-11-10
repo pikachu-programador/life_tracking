@@ -218,9 +218,10 @@ Cambios en las tareas: F5-02 se hace dentro de F2-01 y F5-03 dentro de F4-02, po
 - [ ] **F2-06 · Reloj de 24 h**
   - Objetivo: vista radial del día; la vista Timespiral de AW sirve de referencia.
   - Hecho cuando: muestra el día lógico con los mismos colores que la línea de tiempo.
-- [ ] **F2-07 · Más usados y sin clasificar**
+- [x] **F2-07 · Más usados y sin clasificar**
   - Objetivo: apps y sitios más usados por clase, y lo más usado sin clasificar, con enlace al Asistente de categorización de AW. Los sitios se agrupan por dominio y cada dominio se despliega en sus URLs completas.
   - Hecho cuando: cada fila muestra app o sitio, tiempo y clase, y cada dominio muestra sus URLs con su tiempo.
+  - Resultado (2026-11-10): `web/js/vistas/clasificacion.js`, con el selector de período: reparto por clase y mapa de rectángulos por categoría (ECharts), apps y sitios más usados con filtro por clase (cada fila dice su clase; cada dominio se despliega en sus URLs completas con su tiempo), lo más usado sin clasificar con enlace al Asistente de AW, qué bloquea cada nivel con la configuración vigente, reglas que no compilan en JS y un probador de reglas (app, título y URL → categoría). Cálculos en `web/js/calculos-vistas.js` (`masUsados`, `arbolDeCategorias`, `queBloquea`; 3 pruebas). Comprobado en el navegador con el AW falso (semana del 12 al 18 de oct): cada fila muestra app o sitio, tiempo y clase; youtube.com muestra 9 URLs con su tiempo; el probador da `Distracción > Video > Shorts` para una URL de Shorts; sin errores de consola. Incluye lo de la vista que §13 asigna a las fases 4 y 6 (niveles y reglas que no compilan). Sin pasar por break-ui ni revisar a 820 px o en modo claro (la sesión se pausó): por comprobar. Por comprobar (Dremy): que el enlace `/#/category-builder` abra el Asistente en el AW real.
 - [x] **F2-08 · Selector de fecha y caché**
   - Objetivo: elegir día o rango; los días terminados se guardan en caché.
   - Hecho cuando: volver a un día ya visto es instantáneo y hoy siempre se refresca.

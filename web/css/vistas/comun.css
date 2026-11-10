@@ -57,6 +57,10 @@
   border: 1px solid var(--borde-clase);
 }
 
+/* Lista simple dentro de una celda o tarjeta (Clasificación). */
+.lista-simple { margin: 0; padding-left: var(--espacio-4); display: grid; gap: var(--espacio-1); font-size: var(--texto-s); }
+.resultado-prueba { margin: var(--espacio-3) 0 0; font-size: var(--texto-s); color: var(--color-texto-suave); }
+
 /* Avisos del plan: una alerta que se despliega. */
 .avisos-plan summary { cursor: pointer; font-weight: var(--peso-medio); }
 .avisos-plan summary:focus-visible { outline: 2px solid var(--color-foco); outline-offset: 2px; border-radius: var(--radio-s); }

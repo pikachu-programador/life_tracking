@@ -74,3 +74,62 @@ test('textoObjetivo: web y app en texto; lo demás, igual', async () => {
   assert.equal(textoObjetivo('otra cosa'), 'otra cosa');
   assert.equal(textoObjetivo(null), '');
 });
+
+// ── Clasificación (F2-07) ──
+
+test('masUsados: por app y por dominio, con su clase dominante, el filtro por clase y el resto en "otros"', async () => {
+  const { masUsados } = await import('../web/js/calculos-vistas.js');
+  const seg = (min, clase, app, dominio = null, url = null, titulo = 't') => ({
+    inicio: 0, fin: min * 60000, clase, categoria: ['X'], area: null, app, titulo, url, dominio, audible: false, incognito: false,
+  });
+  const segmentos = [
+    seg(60, 'estudio', 'Code.exe'),
+    seg(30, 'neutral', 'chrome.exe', 'youtube.com', 'https://youtube.com/watch?v=1'),
+    seg(50, 'estudio', 'chrome.exe', 'youtube.com', 'https://youtube.com/watch?v=2'),
+    seg(20, 'distraccion', 'chrome.exe', 'reddit.com', 'https://reddit.com/r/x'),
+    seg(10, 'sin-clasificar', 'raro.exe'),
+    seg(500, 'afk', null),
+  ];
+  const apps = masUsados(segmentos, 'app');
+  assert.deepEqual(apps.filas.map((f) => [f.nombre, f.segundos / 60, f.clase]), [['chrome.exe', 100, 'estudio'], ['Code.exe', 60, 'estudio'], ['raro.exe', 10, 'sin-clasificar']]);
+  assert.equal(apps.total, 170 * 60);     // AFK no cuenta
+  assert.equal(apps.otros, 0);
+  const sitios = masUsados(segmentos, 'dominio');
+  assert.deepEqual(sitios.filas.map((f) => [f.nombre, f.segundos / 60, f.clase]), [['youtube.com', 80, 'estudio'], ['reddit.com', 20, 'distraccion']]);
+  // Solo una clase.
+  assert.deepEqual(masUsados(segmentos, 'dominio', { clase: 'neutral' }).filas.map((f) => [f.nombre, f.segundos / 60]), [['youtube.com', 30]]);
+  assert.deepEqual(masUsados(segmentos, 'app', { clase: 'todas' }).filas.length, 3);
+  // Límite: lo que no entra va a "otros".
+  const corto = masUsados(segmentos, 'app', { limite: 1 });
+  assert.deepEqual([corto.filas.length, corto.otros / 60], [1, 70]);
+  // URLs de un dominio (filtro propio).
+  assert.deepEqual(masUsados(segmentos, 'url', { filtro: (s) => s.dominio === 'youtube.com' }).filas.map((f) => f.segundos / 60), [50, 30]);
+  assert.deepEqual(masUsados([], 'app'), { filas: [], total: 0, otros: 0 });
+});
+
+test('arbolDeCategorias: clases arriba, subcategorías debajo, de mayor a menor', async () => {
+  const { arbolDeCategorias } = await import('../web/js/calculos-vistas.js');
+  const seg = (min, clase, categoria) => ({ inicio: 0, fin: min * 60000, clase, categoria, app: 'a', titulo: 't', url: null, dominio: null });
+  const arbol = arbolDeCategorias([
+    seg(30, 'estudio', ['Estudio', 'Inglés']), seg(90, 'estudio', ['Estudio', 'Programación']), seg(5, 'estudio', ['Estudio']),
+    seg(40, 'distraccion', ['Distracción', 'Video', 'Shorts']), seg(15, 'sin-clasificar', ['Uncategorized']), seg(99, 'afk', null),
+  ]);
+  assert.deepEqual(arbol.map((r) => [r.nombre, r.clase, r.segundos / 60]), [['Estudio', 'estudio', 125], ['Distracción', 'distraccion', 40], ['Sin clasificar', 'sin-clasificar', 15]]);
+  assert.deepEqual(arbol[0].hijos.map((h) => [h.nombre, h.segundos / 60]), [['Programación', 90], ['Inglés', 30], ['Estudio (sin subcategoría)', 5]]);
+  assert.deepEqual(arbol[1].hijos, [{ nombre: 'Video > Shorts', ruta: 'Distracción > Video > Shorts', segundos: 2400 }]);
+});
+
+test('queBloquea: aviso y fricción bloquean Distracción y los patrones; total suma lo Sin clasificar (si está activo)', async () => {
+  const { queBloquea } = await import('../web/js/calculos-vistas.js');
+  const { NIVELES_INICIALES, configuracionVigente } = await import('../web/motor/niveles.js');
+  const base = configuracionVigente(NIVELES_INICIALES, '2026-10-14');
+  const inicial = queBloquea(base);
+  assert.equal(inicial.aviso.length, 1);
+  assert.deepEqual(inicial.friccion, inicial.aviso);
+  assert.ok(inicial.total.includes('Lo Sin clasificar'));
+  assert.equal(inicial.nunca.includes('La IA'), true);
+  const otra = queBloquea({ ...base, patrones_url: ['youtube\\.com/shorts'], nunca_bloquear: ['spotify'], total: { ...base.total, bloquear_sin_clasificar: false } });
+  assert.match(otra.aviso[1], /El patrón de URL extra: youtube/);
+  assert.equal(otra.total.includes('Lo Sin clasificar'), false);
+  assert.match(otra.nunca.at(-1), /spotify/);
+});
