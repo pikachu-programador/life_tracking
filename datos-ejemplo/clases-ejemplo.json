@@ -1,6 +1,7 @@
 [
   { "id": 0, "name": ["Distracción"], "rule": { "type": "none" }, "data": {} },
   { "id": 1, "name": ["Distracción", "Video"], "rule": { "type": "regex", "regex": "Netflix|Twitch|Prime Video|Disney\\+|Crunchyroll|HBO Max", "ignore_case": true }, "data": {} },
+  { "id": 15, "name": ["Distracción", "Video", "Shorts"], "rule": { "type": "regex", "regex": "youtube\\.com/shorts/", "ignore_case": true }, "data": {} },
   { "id": 2, "name": ["Distracción", "Redes"], "rule": { "type": "regex", "regex": "Instagram|TikTok|Reddit|Facebook|Twitter|Pinterest", "ignore_case": true }, "data": {} },
   { "id": 3, "name": ["Distracción", "Juegos"], "rule": { "type": "regex", "regex": "Skullgirls|LDPlayer|dnplayer\\.exe|steam\\.exe|Minecraft|Roblox|League of Legends|Epic Games", "ignore_case": true }, "data": {} },
   { "id": 4, "name": ["Distracción", "Otros"], "rule": { "type": "regex", "regex": "9GAG|Tumblr|Wattpad|AliExpress", "ignore_case": true }, "data": {} },

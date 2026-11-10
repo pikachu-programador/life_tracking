@@ -5,6 +5,7 @@ import {
   segmentar, recortarSegmentos, unirSegmentos, sumarPorEstado, esNavegador, dominioDe, duracionSeg,
 } from '../web/motor/segmentos.js';
 import { ESTADOS, SIN_AREA } from '../web/motor/tipos.js';
+import { compilarReglas } from '../web/motor/clasificador.js';
 import { horaLocal, inicioDelDia, instanteLocal, sumarDias } from '../web/motor/fechas.js';
 import { eventosEjemplo } from './ayudantes/ejemplo.js';
 
@@ -193,6 +194,35 @@ test('segmentar: en un navegador, url, dominio, audible e incognito de la pesta�
   assert.equal(youtube.titulo, 'Video - YouTube'); // el título es el de la ventana
   assert.deepEqual([sinWeb.url, sinWeb.dominio, sinWeb.audible, sinWeb.incognito], [null, null, false, false]);
   assert.deepEqual([code.url, code.dominio, code.audible], [null, null, false]);
+});
+
+test('segmentar: con reglas, un navegador con URL se vuelve a categorizar con app, título y URL', () => {
+  const reglas = compilarReglas([
+    { name: ['Neutral', 'Otros'], rule: { type: 'regex', regex: 'YouTube' } },
+    { name: ['Distracción', 'Video', 'Shorts'], rule: { type: 'regex', regex: 'youtube\\.com/shorts/', ignore_case: true } },
+  ]);
+  const datos = {
+    eventos: [
+      ventana(h('10:00'), h('10:10'), 'chrome.exe', 'Shorts - YouTube'),
+      ventana(h('10:10'), h('10:20'), 'chrome.exe', 'Video - YouTube'),
+      ventana(h('10:20'), h('10:30'), 'chrome.exe', 'Shorts - YouTube'),   // sin evento web: vale la categoría de AW
+      ventana(h('10:30'), h('10:40'), 'Code.exe', 'youtube.com/shorts/ en un título', ['Estudio', 'Programación']),
+    ],
+    navegador: [
+      pestaña(h('10:00'), h('10:10'), 'https://www.youtube.com/shorts/abc'),
+      pestaña(h('10:10'), h('10:20'), 'https://www.youtube.com/watch?v=1'),
+    ],
+  };
+  const rango = { inicio: h('10:00'), fin: h('10:40') };
+  const con = segmentar(datos, { ...rango, reglas });
+  assert.deepEqual(con.map((s) => [s.clase, s.categoria.join(' > ')]), [
+    ['distraccion', 'Distracción > Video > Shorts'],
+    ['neutral', 'Neutral > Otros'],
+    ['neutral', 'Neutral > Otros'],
+    ['estudio', 'Estudio > Programación'],
+  ]);
+  // Sin reglas todo queda como lo categorizó AW (por la ventana).
+  assert.deepEqual(segmentar(datos, rango).map((s) => s.clase), ['neutral', 'neutral', 'neutral', 'estudio']);
 });
 
 test('segmentar: segmentos iguales que se tocan se unen; con otro título u otra url, no', () => {

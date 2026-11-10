@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "test": "node --test",
-    "test:aw": "node --test pruebas/integracion/*.integracion.js"
+    "test:aw": "node --test pruebas/integracion/*.integracion.js",
+    "aw-falso": "node herramientas/aw-falso.js --puerto 5655"
   },
   "engines": {
     "node": ">=22"

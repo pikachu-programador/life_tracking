@@ -205,7 +205,8 @@ export const CLAVES_METRICAS = ['estudio', 'estudioTotal', 'papel', 'clases', 'i
  * @property {('checkin'|'actividad'|'inicio_dia')} fuenteInicio
  * @property {('checkin'|'actividad'|'ahora'|'inicio_dia'|'sin_datos')} fuenteFin
  * @property {boolean} cerrado          el fin ya no cambia con datos nuevos
- * @property {boolean} sinDatos         ninguna actividad en el día (entonces fin = inicio)
+ * @property {boolean} sinDatos         ninguna actividad en la PC ese día (entonces fin = inicio, salvo que haya
+ *                                      check-ins de despertar y dormir: el día va de uno a otro)
  * @property {number} despiertoSeg      (fin − inicio) / 1000
  */
 

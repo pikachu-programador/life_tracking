@@ -2,7 +2,7 @@
 proyecto: Rastreador de tiempo + modo meta
 documento: Tareas
 version: 5
-actualizado: 2026-11-04
+actualizado: 2026-11-10
 ---
 
 # Tareas — Rastreador de tiempo + modo meta
@@ -257,7 +257,7 @@ Cambios en las tareas: F5-02 se hace dentro de F2-01 y F5-03 dentro de F4-02, po
   - Objetivo: plantilla semanal + bloques únicos + excepciones → bloques concretos de un día lógico.
   - Hecho cuando: hay pruebas para feriado, semana de exámenes, bloque que cruza la medianoche y fin de ciclo.
   - Notas: zona America/Lima.
-  - Resultado (2026-11-04): `web/motor/horario.js` (expandirDia, expandirRango, itemsEnCurso, proximoItem): feriado, exámenes, bloque que cruza la medianoche, madrugada, fin de ciclo, bloque único y terminado antes probados. Los bloques únicos no se cancelan con excepciones (§8, por confirmar con Dremy). Revisión: aprobado con cambios menores.
+  - Resultado (2026-11-04): `web/motor/horario.js` (expandirDia, expandirRango, itemsEnCurso, proximoItem): feriado, exámenes, bloque que cruza la medianoche, madrugada, fin de ciclo, bloque único y terminado antes probados. Los bloques únicos no se cancelan con excepciones (§8; confirmado por Dremy el 2026-11-10). Revisión: aprobado con cambios menores.
 - [ ] **F3-04 · Vista Horario: editor**
   - Objetivo: formularios para ciclo, cursos (color, meta semanal, categoría), clases, rutinas, bloques (nivel, objetivo, por qué) y excepciones.
   - Hecho cuando: todo el horario de un ciclo se carga solo desde el dashboard.

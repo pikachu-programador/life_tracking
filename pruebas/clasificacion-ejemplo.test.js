@@ -150,7 +150,7 @@ test('clases-ejemplo.json sigue la taxonomía v3 (§7) y todas sus regex compila
 
   const { reglas, errores } = compilarReglas(classes);
   assert.deepEqual(errores, []);
-  assert.equal(reglas.length, 12);
+  assert.equal(reglas.length, 13);
 });
 
 test('las reglas de ejemplo respetan las decisiones de Dremy (§7)', () => {
@@ -161,6 +161,13 @@ test('las reglas de ejemplo respetan las decisiones de Dremy (§7)', () => {
   // YouTube en Neutral > Otros; con palabras de un área, Estudio de esa área.
   assert.equal(chrome('Top 10 combos imposibles - YouTube'), 'Neutral > Otros');
   assert.equal(chrome('Shorts - YouTube'), 'Neutral > Otros');
+  // Shorts (decisión de Dremy, 2026-11-10): Distracción por una regla de URL; solo coincide cuando hay URL.
+  const conUrl = (title, url) => categorizar({ app: 'chrome.exe', title, url }, c).join(' > ');
+  assert.equal(conUrl('Shorts - YouTube - Google Chrome', 'https://www.youtube.com/shorts/ejSH01'), 'Distracción > Video > Shorts');
+  assert.equal(conUrl('SQL en 60 segundos - YouTube - Google Chrome', 'https://www.youtube.com/shorts/abc'), 'Distracción > Video > Shorts');
+  assert.equal(conUrl('SQL JOIN explicado - YouTube - Google Chrome', 'https://www.youtube.com/watch?v=1'), 'Estudio > Programación');
+  // La IA (prioridad 30, va después en la lista) sigue ganando siempre.
+  assert.equal(conUrl('Claude - Google Chrome', 'https://www.youtube.com/shorts/abc'), 'IA');
   assert.equal(chrome('SQL JOIN explicado con ejemplos - YouTube'), 'Estudio > Programación');
   assert.equal(chrome('Variación de parámetros - Ecuaciones diferenciales - YouTube'), 'Estudio > Matemáticas');
   assert.equal(chrome('English listening practice A1 - YouTube'), 'Estudio > Inglés');

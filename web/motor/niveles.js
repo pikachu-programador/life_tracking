@@ -211,7 +211,8 @@ export function configuracionVigente(niveles, fecha) {
  * - bloquear_sin_clasificar: pasar a false afloja.
  * - patrones_url: quitar alguno afloja (aunque también agregue otros); solo agregar endurece.
  * - nunca_bloquear: agregar alguno afloja; solo quitar endurece.
- * - frase_salida: siempre 'igual' (ni endurece ni afloja).
+ * - frase_salida: cambiarla afloja (decisión de Dremy, 2026-11-10: una frase más corta facilita la salida de
+ *   emergencia, y el motor no puede saber si la nueva es más fácil; aplica al día lógico siguiente).
  * - Mismo valor → 'igual'.
  * @param {string} ruta
  * @param {*} antes    valor vigente
@@ -242,8 +243,10 @@ export function tipoDeCambio(ruta, antes, despues) {
       if (despues === previo) return 'igual';
       return despues === false ? 'afloja' : 'endurece';
     }
-    case 'texto':
-      return 'igual';
+    case 'texto': {
+      const previo = typeof antes === 'string' ? antes : leer(NIVELES_INICIALES.base, ruta);
+      return despues === previo ? 'igual' : 'afloja';
+    }
     case 'lista': {
       // Se comparan como conjuntos: el orden de los patrones no importa.
       const previos = new Set(Array.isArray(antes) ? antes : []);
@@ -259,7 +262,7 @@ export function tipoDeCambio(ruta, antes, despues) {
 }
 
 /**
- * Agrega un cambio al ajuste con la regla de asimetría: endurecer (o un cambio 'igual', como la frase)
+ * Agrega un cambio al ajuste con la regla de asimetría: endurecer (o un cambio 'igual')
  * aplica desde `hoy`; aflojar, desde el día lógico siguiente.
  * - El tipo se compara contra el valor vigente HOY (no contra un cambio pendiente).
  * - Si había un cambio pendiente (aplica_desde > hoy) de la misma ruta, el nuevo lo reemplaza. Así, volver

@@ -144,7 +144,8 @@ function hayActividad(actividad, desde, hasta) {
  * - Fin: check-in de dormir de la fecha (el primer instante con esa hora después del inicio) → límite de
  *   S(fecha + 1).finAnterior → si el día sigue en curso (ahora < S(fecha + 1)): ahora → S(fecha + 1) ('inicio_dia').
  * - Sin datos: si no queda actividad en [inicio, fin) (o fin ≤ inicio): sinDatos, fuenteFin 'sin_datos' e
- *   inicio = fin = S(fecha), o la hora del check-in de despertar si lo hay. Si el inicio cayó en S, la actividad
+ *   inicio = fin = S(fecha), o la hora del check-in de despertar si lo hay. Con check-ins de despertar Y de dormir,
+ *   el día sin PC va de despertar a dormir (sigue siendo sinDatos, con sus horas despierto, todas 'sin-pc'). Si el inicio cayó en S, la actividad
  *   anterior al borde izquierdo del límite de S no cuenta: es del día anterior (así dos días seguidos no se pisan).
  * - Siempre inicio ≤ fin ≤ inicio + 24 h; despiertoSeg = (fin − inicio) / 1000.
  * - cerrado: el inicio y el fin ya no cambian con datos nuevos de AW (un check-in nuevo sí los cambia).
@@ -226,6 +227,15 @@ export function calcularDiaLogico({ fecha, segmentos, checkins = [], inicioDia =
   // abierto no es actividad de este día. (Con check-in de despertar, el check-in manda.)
   const desde = fuenteInicio === 'inicio_dia' && limiteInicio ? Math.max(inicio, limiteInicio.finAnterior) : inicio;
   if (!(fin > desde) || !hayActividad(actividad, desde, fin)) {
+    // Día sin PC pero con check-ins de despertar y dormir (decisión de Dremy, 2026-11-10): va de despertar a dormir.
+    // Sigue siendo sinDatos (no hubo actividad en la PC), pero las horas despierto son reales (todo 'sin-pc').
+    if (despertar && dormir && fin > inicio) {
+      fin = Math.min(fin, inicio + MS_DIA);
+      return {
+        fecha, inicio, fin, fuenteInicio: 'checkin', fuenteFin: 'checkin',
+        cerrado, sinDatos: true, despiertoSeg: (fin - inicio) / 1000,
+      };
+    }
     const inicioSinDatos = despertar ? inicio : S0;
     return {
       fecha,

@@ -1,9 +1,9 @@
 ---
 proyecto: Rastreador de tiempo + modo meta
 documento: Arquitectura
-version: 6
+version: 6.3
 estado: borrador por validar
-actualizado: 2026-11-04
+actualizado: 2026-11-10
 ---
 
 # Arquitectura — Rastreador de tiempo + modo meta
@@ -193,7 +193,8 @@ export function claseDeCategoria(categoria)
  *  - En un navegador se copian url, dominio, audible e incognito del evento web con más solape.
  *  - Huecos: dentro de `afk` → 'afk'; dentro de `no_afk` sin ventana → 'sin-clasificar' (app null); si no → 'sin-pc'.
  *  - Los segmentos contiguos con el mismo estado, categoría, app, título y url se unen.
- *  @param {DatosDiaAW} datos  @param {{inicio: number, fin: number, ahora?: number}} rango  @returns {Segmento[]} */
+ *  - Con `rango.reglas`, los segmentos de navegador con URL se vuelven a categorizar con app, título y URL.
+ *  @param {DatosDiaAW} datos  @param {{inicio: number, fin: number, ahora?: number, reglas?: ReglasCompiladas}} rango  @returns {Segmento[]} */
 export function segmentar(datos, rango)
 
 /** Recorta a [inicio, fin) y rellena con 'sin-pc' lo que falte.  @returns {Segmento[]} */
@@ -385,7 +386,7 @@ Las demás formas (`EventoAW`, `DatosDiaAW`, `ReglaAW`, `ReglasCompiladas`, `Che
 - **Límite de un inicio de día de AW** `S` (las 04:00 de una fecha): de los huecos de al menos `huecoMin` que tocan la ventana [`S` − 8 h, `S` + 8 h], el que **contiene** `S`; si ninguno lo contiene, el más cercano a `S`; si empatan, el más largo. Su borde izquierdo es el fin del día anterior y el derecho, el inicio del día. Así la actividad de la 1:00 a. m. es del día anterior, una trasnoche que pasa de las 04:00 sin hueco de 3 h también, y el hueco de una clase presencial a media mañana no le gana a una noche corta.
 - **Inicio:** check-in de despertar → límite de `S(fecha)` (si su inicio cae antes de `S(fecha + 1)`) → `S` (`fuenteInicio` = `'inicio_dia'`).
 - **Fin:** check-in de dormir → límite de `S(fecha + 1)` → si el día sigue (hoy): `ahora`, o la última actividad si ya pasaron `huecoMin` → `S(fecha + 1)`.
-- **Sin datos:** si con esos dos límites no queda actividad en [inicio, fin) (o fin ≤ inicio), el día es `sinDatos`, con `inicio` = `fin` = `S` (o la hora del check-in de despertar). El día nunca dura más de 24 h.
+- **Sin datos:** si con esos dos límites no queda actividad en [inicio, fin) (o fin ≤ inicio), el día es `sinDatos`, con `inicio` = `fin` = `S` (o la hora del check-in de despertar). Si ese día tiene check-ins de despertar **y** de dormir, va de despertar a dormir: sigue siendo `sinDatos` (no hubo PC), pero con sus horas despierto, todas Sin PC. El día nunca dura más de 24 h.
 - `huecoMin` lo calcula quien llama: `plan.umbrales.hueco_sueno_h × 60`.
 
 **Flujo de un día en el dashboard** (`web/js/datos.js`, F2-09)
@@ -421,13 +422,13 @@ Las vistas **leen y guardan** datos solo con `web/js/datos.js`; para calcular pu
 - **`METRICAS`:** claves `estudio`, `estudioTotal`, `papel`, `clases`, `ia`, `neutral`, `distraccion`, `sinClasificar`, `activo`, `afk`, `sinPc`, `despierto`, `cumplimiento`, `retraso`, `cambiosPorHora`, `focoMasLargo`, `despertar` y `dormir` (minutos locales; `dormir` suma 1440 si pasa la medianoche). "Con datos" = día sin `sinDatos` y valor distinto de `null`. El cumplimiento de un período es el ponderado de §9 con todos sus días, no el promedio de los %.
 - **Clases:** id `c-<curso>-<días unidos>-<HHMM>`, con `-2`, `-3`… si se repite. **Asistencia** clase por clase: una clase con check-in `falto` no cuenta como tiempo en clases; con `asistio` o sin check-in, sí.
 - **Excepciones superpuestas:** cancelar gana a subir a total.
-- **Categoría de las webs:** `segmentar` usa la categoría del evento de ventana (app y título), como la vista Actividad de AW; el agente también probará la URL. Una regla que solo coincide por URL puede dar distinto en el simulador y en el bloqueo real: se acepta y se revisa en F7-07.
+- **Categoría de las webs:** AW categoriza el evento de ventana (app y título), como su vista Actividad. Cuando un segmento de navegador tiene URL, `segmentar` (con `rango.reglas`, que `datos.js` le pasa) vuelve a categorizarlo con app, título **y URL**, igual que hará el agente: así una regla de URL (por ejemplo `youtube\.com/shorts/` → Distracción > Video > Shorts) cuenta en el dashboard y en el simulador. Sin URL (navegador sin `aw-watcher-web`) vale la categoría de la ventana. Por eso los totales del dashboard pueden diferir de la vista Actividad de AW en lo que cambian las reglas de URL.
 - **Navegadores sin la extensión:** `Actividad` puede traer `esNavegador` y `conExtension`; en el simulador, un navegador con `url = null` cuenta como sin extensión. En nivel total se bloquea con el motivo `'sin_extension'` (§11).
 - **Nombres:** lo que se guarda en AW (plan, niveles, check-ins, intervenciones) va en snake_case, como en §8 y §12; lo que calcula el motor, en camelCase.
 
 ### 6.8 Herramientas de desarrollo
 
-- **AW falso** (`herramientas/aw-falso.js`, H-01): `node herramientas/aw-falso.js [--puerto 5600]`. Sirve las rutas de `/api/0` que usa el dashboard con los datos de `datos-ejemplo/` y `web/` en `/pages/rastreador/` (mismo origen, como el AW real). `classes` sale de `datos-ejemplo/clases-ejemplo.json` y `rastreador-plan` arranca con `plan-ejemplo.json`. Lo que se guarda (ajustes, check-ins) vive solo en la memoria del proceso. No interpreta el lenguaje de consultas: reconoce la consulta canónica de `web/js/consultas.js` y la resuelve en JS.
+- **AW falso** (`herramientas/aw-falso.js`, H-01): `node herramientas/aw-falso.js [--puerto 5600]`, o `npm run aw-falso` (puerto 5655, para no chocar con el AW real). Sirve las rutas de `/api/0` que usa el dashboard con los datos de `datos-ejemplo/` y `web/` en `/pages/rastreador/` (mismo origen, como el AW real). `classes` sale de `datos-ejemplo/clases-ejemplo.json` y `rastreador-plan` arranca con `plan-ejemplo.json`. Lo que se guarda (ajustes, check-ins) vive solo en la memoria del proceso. No interpreta el lenguaje de consultas: reconoce la consulta canónica de `web/js/consultas.js` y la resuelve en JS.
 - **Reloj de prueba** (`web/js/reloj.js`, H-02): con `?ahora=AAAA-MM-DDTHH:MM` antes del `#` (hora de Lima), el dashboard arranca en ese momento y el reloj sigue corriendo; por ejemplo, `http://localhost:5600/pages/rastreador/?ahora=2026-10-14T16:20#/hoy`. Solo para probar con los datos de ejemplo.
 - **Capturas** (`herramientas/capturas.mjs`, H-03): con Playwright (opcional, no es una dependencia del proyecto), toma capturas de cada vista en claro y oscuro, a 1366×768 y a 1920×1080, contra el AW falso.
 
@@ -446,6 +447,7 @@ Las vistas **leen y guardan** datos solo con `web/js/datos.js`; para calcular pu
 - **Áreas, no cursos.** Los cursos cambian cada ciclo; las áreas no. Los cursos viven en el plan (§8) y cada uno apunta a un área. Así, cambiar de ciclo no obliga a tocar las categorías de AW.
 - **IA** es una clase aparte para medir el uso de IA. No cuenta como foco (§9) y no se bloquea en ningún nivel (§11). Su regla lleva prioridad 30, así que gana siempre, aunque el título tenga palabras de un área (por ejemplo, una conversación sobre integrales cuenta como IA).
 - **YouTube** está en Neutral porque se usa para todo (música, clases, inglés, ejercicios, distraerse). Si el título trae palabras de un área, gana Estudio: tiene el mismo rango (20) y va después en la lista.
+- **Shorts de YouTube** son Distracción (decisión de Dremy, 2026-11-10): una regla de URL `youtube\.com/shorts/` en `Distracción > Video > Shorts` (profundidad 3 → rango 30; la IA va después en la lista y sigue ganando). Solo coincide donde hay URL (ver "Categoría de las webs" en §6.7). En el repo está en `datos-ejemplo/clases-ejemplo.json`; las reglas reales las carga Dremy en AW.
 - Las terminales (Warp, Windows Terminal, PowerShell…) van en Estudio > Programación.
 
 **Estados** (no son categorías): **AFK** = PC encendida sin uso; **Sin PC** = no hay datos (apagada o suspendida).
@@ -558,7 +560,7 @@ Se guarda en el ajuste `rastreador-plan` de AW y se puede exportar e importar en
 - **Nunca se bloquea:** el dashboard y las páginas de bloqueo (en `localhost:5600` y en `127.0.0.1:5600`), el agente, ActivityWatch, los procesos del sistema y la lista `nunca_bloquear`.
 - **Navegadores sin la extensión:** un navegador abierto cuyo latido (§6.4) no llegó en el último minuto cuenta como "sin extensión".
 - **Escalamiento:** 3 avisos en un mismo bloque de estudio lo suben a fricción. En las clases no hay escalamiento: siempre aviso.
-- **Asimetría:** endurecer es inmediato; aflojar (bajar un nivel, quitar algo de una lista, sumar comodines) queda pendiente hasta el día lógico siguiente.
+- **Asimetría:** endurecer es inmediato; aflojar (bajar un nivel, quitar algo de una lista, sumar comodines, **cambiar la frase de la salida de emergencia**) queda pendiente hasta el día lógico siguiente.
 - **Cambios pendientes:** cada cambio se guarda en `rastreador-niveles` con `aplica_desde` (fecha del día lógico en que entra en vigor). Nadie lo "activa": el motor calcula la configuración vigente a partir de "ahora" y del día lógico. Así el dashboard y el agente no se pisan escribiendo el mismo ajuste.
 - **Nivel de cada bloque:** el plan guarda el nivel inicial; los cambios posteriores van a `rastreador-niveles` (`bloques.<id del bloque>`), con la misma asimetría. Una excepción que sube los bloques a total gana siempre.
 - Los valores (5 min, 60 s, 10 min, 5 comodines) viven en el ajuste `rastreador-niveles`.
@@ -708,3 +710,4 @@ Todas las vistas usan un **selector de período** común (Día, Semana, Mes o Ra
 | 2026-11-04 | v6 (sesión en la nube; decisiones tomadas sin Dremy, ver la bitácora `2026-11-04-nube`): contratos del motor con firmas y formas de los datos (§6.7, `web/motor/tipos.js`); instantes en ms y duraciones en segundos; algoritmo del día lógico con ventana de ±8 h alrededor del inicio de día y tope de 24 h (§6.7); la consulta canónica devuelve también los periodos AFK para distinguir AFK de Sin PC; `REGEX_APP_NAVEGADOR` y las fechas pasan al motor (`tipos.js`, `fechas.js`); regex de AW traducidas a JS con `\b` y `\w` Unicode (`regex.js`); check-ins con `fecha` opcional (§12); clases con `id`, rutinas `dia_logico` con `evento`, bloques con `terminados_antes` y cursos con color de token (§8); el nivel de cada bloque cambia por `rastreador-niveles` (§11); servicio de datos del dashboard `web/js/datos.js` (§6.7); herramientas de desarrollo: AW falso, reloj de prueba `?ahora=` y capturas (§6.8, §15) |
 | 2026-11-04 | v6.1 (revisión cruzada de F1-09): algoritmo del día lógico con huecos abiertos en los bordes y el hueco que contiene las 04:00 (o el más cercano) en vez del más largo; día sin datos y `no_medible`; instante de los check-ins de dormir; bloques terminados antes con duración planificada; `compararPeriodos` y `umbrales` en `agregarPeriodo`; claves de `METRICAS`; asistencia clase por clase; navegadores sin extensión en el Decisor; las vistas pueden importar funciones puras del motor (§6.7, §9, §10, §12) |
 | 2026-11-04 | v6.2 (integración de F3 y F4): los bloques únicos no se cancelan con las excepciones (§8); `validarPlan(plan, {inicioDia})`; un pase vale solo en el bloque o la clase donde se dio; `nunca_bloquear` solo con app y URL; `papelSeg` = duración del bloque de papel hecho menos la actividad en la PC (§6.7, §8) |
+| 2026-11-10 | v6.3 (decisiones de Dremy sobre las preguntas de la sesión en la nube): el criterio del día lógico queda como está; los Shorts de YouTube son Distracción por una regla de URL, y `segmentar` vuelve a categorizar con la URL los segmentos de navegador (§6.7, §7); los colores de curso siguen provisionales; confirmado que los bloques únicos no se cancelan en feriados (§8); un día sin PC con check-ins de despertar y dormir va de uno a otro (§6.7); cambiar la frase de la salida de emergencia cuenta como aflojar (§11); el tema de estilo sigue pendiente; script `npm run aw-falso` (§6.8) |

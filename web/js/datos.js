@@ -41,6 +41,7 @@ export function crearServicioDatos({ aw, almacen, ahora }) {
   let planGuardado = null;      // Plan normalizado
   let nivelesGuardados = null;  // Niveles
   let infoAW = null;            // {hostname, version…}
+  let reglasGuardadas = null;   // {classes, compiladas}
   const diasCompletos = new Map(); // fecha → DiaCompleto (solo días terminados y cerrados)
 
   const inicioDia = () => almacen.inicioDia();
@@ -141,6 +142,18 @@ export function crearServicioDatos({ aw, almacen, ahora }) {
       .sort((a, b) => a.instante - b.instante);
   }
 
+  // ── Reglas de categorías ──
+
+  /** Reglas de categorías de AW y las que no compilan en JS. Se leen una vez (solo cambian desde AW; recargar las relee). */
+  async function reglas() {
+    if (!reglasGuardadas) {
+      const crudo = await aw.ajuste('classes').catch(() => null);
+      const classes = Array.isArray(crudo) ? crudo : [];
+      reglasGuardadas = { classes, compiladas: compilarReglas(classes) };
+    }
+    return reglasGuardadas;
+  }
+
   // ── Días completos ──
 
   /**
@@ -156,17 +169,21 @@ export function crearServicioDatos({ aw, almacen, ahora }) {
     if (faltan.length) {
       const necesarias = [...new Set(faltan.flatMap((f) => [sumarDias(f, -1), f, sumarDias(f, 1)]))]
         .filter((f) => f <= fechaHoy).sort();
-      const [datosAW, p, n, cks, ints] = await Promise.all([
+      const [datosAW, p, n, cks, ints, reglasAW] = await Promise.all([
         necesarias.length ? almacen.rango(necesarias[0], necesarias.at(-1)) : [],
         plan(), niveles(),
         checkins(sumarDias(faltan[0], -1), sumarDias(faltan.at(-1), 1)),
         intervenciones(faltan[0], faltan.at(-1)),
+        reglas(),
       ]);
       // Segmentos de cada día de AW (de 04:00 a 04:00), recortados en "ahora" si es hoy.
       const segmentosAW = new Map();
       for (const { fecha, datos } of datosAW) {
         const [inicio, fin] = periodoDelDia(fecha, ini);
-        segmentosAW.set(fecha, segmentar(datos, { inicio: inicio.getTime(), fin: fin.getTime(), ahora: t }));
+        segmentosAW.set(fecha, segmentar(datos, {
+          inicio: inicio.getTime(), fin: fin.getTime(), ahora: t,
+          reglas: reglasAW.compiladas, // con URL se vuelve a categorizar (reglas de URL como la de Shorts; §6.7)
+        }));
       }
       for (const fecha of faltan) {
         const alrededor = [sumarDias(fecha, -1), fecha, sumarDias(fecha, 1)].map((f) => segmentosAW.get(f) ?? []);
@@ -214,11 +231,7 @@ export function crearServicioDatos({ aw, almacen, ahora }) {
     },
     plan, guardarPlan, niveles, guardarNiveles,
     checkins, registrarCheckin, borrarCheckin, intervenciones,
-    /** Reglas de categorías de AW y las que no compilan en JS. */
-    async reglas() {
-      const classes = (await aw.ajuste('classes').catch(() => null)) ?? [];
-      return { classes, compiladas: compilarReglas(classes) };
-    },
+    reglas,
     /** Estado de AW para Ajustes y el pie del menú. */
     async estadoAW() {
       try {

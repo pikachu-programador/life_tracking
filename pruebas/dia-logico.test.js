@@ -101,6 +101,19 @@ test('día sin datos: inicio = fin = S, aunque el mismo hueco sea el límite de 
     [true, 'checkin', '2026-10-20 07:30', true]);
 });
 
+test('día sin PC con check-ins de despertar y dormir: va de despertar a dormir (decisión de Dremy)', () => {
+  const actividad = [[h(A, '09:00'), h(A, '23:30')], [h(M, '07:00'), h(M, '20:00')]];
+  const d = dia(F, actividad, { checkins: [checkin('despertar', F, '07:30'), checkin('dormir', F, '23:15')] });
+  assert.deepEqual([d.sinDatos, d.fuenteInicio, d.fuenteFin, local(d.inicio), local(d.fin), d.despiertoSeg],
+    [true, 'checkin', 'checkin', '2026-10-20 07:30', '2026-10-20 23:15', 15.75 * 3600]);
+  // Dormir pasada la medianoche: es la madrugada siguiente.
+  const tarde = dia(F, actividad, { checkins: [checkin('despertar', F, '10:00'), checkin('dormir', F, '01:30')] });
+  assert.deepEqual([local(tarde.inicio), local(tarde.fin), tarde.despiertoSeg], ['2026-10-20 10:00', '2026-10-21 01:30', 15.5 * 3600]);
+  // Solo con dormir (sin despertar) no se sabe cuándo empezó: sigue en 0 h.
+  const soloDormir = dia(F, actividad, { checkins: [checkin('dormir', F, '23:15')] });
+  assert.deepEqual([soloDormir.sinDatos, soloDormir.despiertoSeg], [true, 0]);
+});
+
 test('solo AFK y sin PC no es actividad: el día queda sin datos', () => {
   const segmentos = segmentosDe(F, [[h(A, '09:00'), h(A, '23:00')]], { afk: [[h(F, '09:00'), h(F, '18:00')]] });
   assert.ok(segmentos.some((s) => s.clase === 'afk'));

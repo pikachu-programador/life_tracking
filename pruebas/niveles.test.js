@@ -7,6 +7,7 @@ import {
 
 const HOY = '2026-10-06';
 const MANANA = '2026-10-07';
+const sumarDias = (fecha, n) => (n === 1 && fecha === HOY ? MANANA : fecha);
 const AHORA = Date.parse('2026-10-06T22:00:00Z'); // 17:00 en Lima
 
 /** Congela un objeto entero: si el código lo modifica, la prueba falla con TypeError. */
@@ -145,7 +146,8 @@ test('tipoDeCambio: bloquear_sin_clasificar, frase y listas', () => {
   assert.equal(tipoDeCambio('total.bloquear_sin_clasificar', true, false), 'afloja');
   assert.equal(tipoDeCambio('total.bloquear_sin_clasificar', false, true), 'endurece');
   assert.equal(tipoDeCambio('total.bloquear_sin_clasificar', true, true), 'igual');
-  assert.equal(tipoDeCambio('total.frase_salida', 'una', 'otra'), 'igual');
+  assert.equal(tipoDeCambio('total.frase_salida', 'una', 'otra'), 'afloja');
+  assert.equal(tipoDeCambio('total.frase_salida', 'una', 'una'), 'igual');
 
   assert.equal(tipoDeCambio('patrones_url', ['a'], ['a', 'b']), 'endurece');
   assert.equal(tipoDeCambio('patrones_url', ['a', 'b'], ['a']), 'afloja');
@@ -233,11 +235,13 @@ test('el mismo valor sin nada pendiente no agrega un cambio', () => {
   assert.deepEqual(r.niveles.cambios, []);
 });
 
-test('la frase de salida cambia hoy (es "igual")', () => {
+test('cambiar la frase de salida cuenta como aflojar: aplica mañana', () => {
   const r = proponer(null, 'total.frase_salida', 'Dejo el bloque');
-  assert.equal(r.tipo, 'igual');
-  assert.equal(r.aplicaDesde, HOY);
-  assert.equal(configuracionVigente(r.niveles, HOY).total.frase_salida, 'Dejo el bloque');
+  assert.equal(r.tipo, 'afloja');
+  assert.equal(r.inmediato, false);
+  assert.equal(r.aplicaDesde, sumarDias(HOY, 1));
+  assert.equal(configuracionVigente(r.niveles, HOY).total.frase_salida, NIVELES_INICIALES.base.total.frase_salida);
+  assert.equal(configuracionVigente(r.niveles, sumarDias(HOY, 1)).total.frase_salida, 'Dejo el bloque');
 });
 
 test('listas: agregar un patrón de URL endurece; agregar a nunca_bloquear afloja', () => {

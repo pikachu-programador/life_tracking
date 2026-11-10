@@ -18,6 +18,7 @@
 
 import { ESTADOS, CLASE_DE_AW, SIN_AREA, REGEX_APP_NAVEGADOR } from './tipos.js';
 import { regexDeAW } from './regex.js';
+import { categorizar } from './clasificador.js';
 
 const MS_SEG = 1000;
 
@@ -167,15 +168,22 @@ function claseDe(categoria) {
   return Object.hasOwn(CLASE_DE_AW, primera) ? CLASE_DE_AW[primera] : 'sin-clasificar';
 }
 
-/** Tramo de ventana (+ evento web elegido, o null) → Segmento. */
-function segmentoDeVentana(tramo, web) {
+/**
+ * Tramo de ventana (+ evento web elegido, o null) → Segmento.
+ * Con `reglas` y una URL, la categoría se vuelve a calcular con app, título y URL (así una regla de URL como
+ * "youtube.com/shorts/" sí cuenta, igual que en el agente). Sin URL o sin reglas, vale la categoría que puso AW.
+ */
+function segmentoDeVentana(tramo, web, reglas = null) {
   const { data } = tramo;
-  const categoria = Array.isArray(data.$category) && data.$category.length > 0
-    ? data.$category.map(String)
-    : [SIN_CATEGORIA];
-  const clase = claseDe(categoria);
   const datosWeb = web?.data ?? null;
   const url = typeof datosWeb?.url === 'string' && datosWeb.url !== '' ? datosWeb.url : null;
+  let categoria = Array.isArray(data.$category) && data.$category.length > 0
+    ? data.$category.map(String)
+    : [SIN_CATEGORIA];
+  if (url !== null && reglas) {
+    categoria = categorizar({ app: textoONull(data.app) ?? '', title: textoONull(data.title) ?? '', url }, reglas);
+  }
+  const clase = claseDe(categoria);
   return {
     inicio: tramo.inicio,
     fin: tramo.fin,
@@ -195,7 +203,7 @@ function segmentoDeVentana(tramo, web) {
  * Eventos de ventana → segmentos ordenados y sin solapes, con los datos web en los navegadores.
  * Solapes: manda el que empezó antes; el otro empieza donde termina el primero (o se descarta si queda vacío).
  */
-function segmentosDeVentana(eventos, navegador, desde, hasta) {
+function segmentosDeVentana(eventos, navegador, desde, hasta, reglas = null) {
   const limpios = [];
   let cursor = -Infinity; // fin del último tramo aceptado
   for (const tramo of tramosRecortados(eventos, desde, hasta)) {
@@ -223,7 +231,7 @@ function segmentosDeVentana(eventos, navegador, desde, hasta) {
         elegido = w;
       }
     }
-    return segmentoDeVentana(tramo, elegido);
+    return segmentoDeVentana(tramo, elegido, reglas);
   });
 }
 
@@ -289,10 +297,13 @@ function ordenarSinSolapes(segmentos) {
  *   Si un hueco está en los dos tipos de periodo, gana 'afk'. Si `afk` o `no_afk` faltan, cuentan como [].
  * - Los segmentos contiguos con el mismo estado, categoría, app, título y url (y audible e incognito) se unen.
  * @param {import('./tipos.js').DatosDiaAW} datos
- * @param {{inicio: number, fin: number, ahora?: number}} rango  instantes en ms (también se aceptan Date)
+ * - Con `rango.reglas` (ReglasCompiladas), los segmentos de navegador que tienen URL se vuelven a categorizar con
+ *   app, título y URL (§6.7, "Categoría de las webs"): una regla que solo coincide por URL también cuenta.
+ * @param {{inicio: number, fin: number, ahora?: number, reglas?: import('./tipos.js').ReglasCompiladas}} rango
+ *   instantes en ms (también se aceptan Date)
  * @returns {import('./tipos.js').Segmento[]}  [] si ahora ≤ inicio o el rango está vacío
  */
-export function segmentar(datos, { inicio, fin, ahora = Infinity } = {}) {
+export function segmentar(datos, { inicio, fin, ahora = Infinity, reglas = null } = {}) {
   const desde = Number(inicio);
   const hasta = Math.min(Number(fin), Number(ahora));
   if (!(hasta > desde)) return []; // también descarta NaN
@@ -301,7 +312,7 @@ export function segmentar(datos, { inicio, fin, ahora = Infinity } = {}) {
     unionDePeriodos(datos?.afk, desde, hasta),
     unionDePeriodos(datos?.no_afk, desde, hasta),
     desde, hasta);
-  const ventana = segmentosDeVentana(datos?.eventos, datos?.navegador, desde, hasta);
+  const ventana = segmentosDeVentana(datos?.eventos, datos?.navegador, desde, hasta, reglas);
 
   // Se intercalan las ventanas con los pedazos del fondo que caen entre ellas.
   const salida = [];
