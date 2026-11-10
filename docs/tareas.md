@@ -326,9 +326,10 @@ Cambios en las tareas: F5-02 se hace dentro de F2-01 y F5-03 dentro de F4-02, po
 - [ ] **F4-07 · Vista Simulador**
   - Objetivo: carril Intervenciones en la línea de tiempo, lista de intervenciones y resumen por nivel.
   - Hecho cuando: cambiar de día o de nivel actualiza todo en menos de 1 s.
-- [ ] **F4-08 · Vista Cumplimiento**
+- [x] **F4-08 · Vista Cumplimiento**
   - Objetivo: calendario de días cumplidos, puntualidad, % de foco por bloque y horas por curso contra la meta.
   - Hecho cuando: un clic en un día del calendario abre ese día en Hoy.
+  - Resultado (2026-11-10): `web/js/vistas/cumplimiento.js` (estilos en `web/css/vistas/cumplimiento.css`), con el selector de período (Semana · Mes · Rango): KPIs (% del período ponderado, días cumplidos y racha, bloques cumplidos, retraso medio), calendario de días (cada día dice su % y enlaza a Hoy), horas por curso contra la meta (meta semanal × semanas del período) y horas por área, % de foco por bloque y puntualidad por día (ECharts, con las líneas de los umbrales) y la tabla de bloques con su motivo. Todo sale de `datos.resumenes` + `agregarPeriodo`; los cálculos propios de la vista están en `web/js/calculos-vistas.js` (3 pruebas). `prepararPeriodo` (en `componentes/vista.js`) arma el selector para las vistas nuevas. Comprobado en el navegador con el AW falso (reloj en 2026-10-18): el 12-oct da 71 % como en la prueba del motor, un clic en ese día abre `#/hoy?fecha=2026-10-12`, cambiar a Semana redibuja en menos de 1 s, sin errores de consola (solo el 404 esperado del bucket de intervenciones, que no existe hasta el agente). Para Dremy: los días anteriores al primer dato de AW salen como fallidos (0 %), porque el motor cuenta "no empezó" en un día sin datos ya terminado (§6.7).
 - [ ] **F4-09 · Niveles y umbrales en Ajustes**
   - Objetivo: sección de Ajustes para los valores de cada nivel, las listas y los umbrales del plan, con la asimetría de §11.
   - Hecho cuando: bajar un nivel muestra "se aplica mañana" y subirlo es inmediato.

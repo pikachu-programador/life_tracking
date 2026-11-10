@@ -2,6 +2,9 @@
 // Los estados de carga, vacío y error (con su dibujo) están en componentes/ui.js (V-10).
 
 import { el } from '../dom.js';
+import { datos } from '../datos.js';
+import { leerPeriodo, irAPeriodo } from '../periodo.js';
+import { crearSelectorPeriodo } from './selector-periodo.js';
 
 /**
  * Cabecera de una vista: título y subtítulo a la izquierda; selector de período y acciones a la derecha.
@@ -29,4 +32,23 @@ export function textoDeError(error) {
   if (error?.name === 'ErrorAW' && error.estado === 404) return 'ActivityWatch no tiene esos datos (respondió 404).';
   if (error?.name === 'ErrorPlan') return 'El plan tiene errores: revísalo en Horario.';
   return 'No se pudieron cargar los datos: ' + (error?.message ?? String(error));
+}
+
+// ── Período de una vista (F4-08 en adelante) ──
+
+/**
+ * Lo que casi todas las vistas hacen al empezar: averiguar "hoy", leer el período (de la dirección o el último
+ * elegido) y armar el selector, que al cambiar pone el período nuevo en la dirección (el router redibuja la vista).
+ * @param {URLSearchParams} parametros  los que el router le pasa a la vista
+ * @param {{tipoPorDefecto?: string, tipos?: string[], rapidos?: number[]}} [opciones]
+ * @returns {Promise<{hoy: string, periodo: import('../../motor/fechas.js').Periodo, selector: HTMLElement & {limpiar: () => void}}>}
+ */
+export async function prepararPeriodo(parametros, { tipoPorDefecto = 'semana', tipos, rapidos = [] } = {}) {
+  const hoy = await datos.hoy();
+  const periodo = leerPeriodo(parametros, { hoy, tipoPorDefecto, ...(tipos ? { tipos } : {}) });
+  const selector = crearSelectorPeriodo({
+    periodo, hoy, ...(tipos ? { tipos } : {}), rapidos,
+    alCambiar: (nuevo) => irAPeriodo(nuevo, { hoy, parametros }),
+  });
+  return { hoy, periodo, selector };
 }
