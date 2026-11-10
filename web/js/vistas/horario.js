@@ -1,12 +1,12 @@
 // Vista "Horario" (arquitectura §13). Editor del plan y planificador semanal.
 // F3-02: lee el plan del ajuste `rastreador-plan` de AW y permite exportarlo e importarlo en JSON.
 // F3-04: editor con pestañas (cursos, clases, rutinas, bloques, excepciones y ciclo); cada cambio se valida y se guarda en el acto.
-// El planificador semanal llega con F3-05.
+// F3-05: planificador semanal (pestaña Semana; vistas/horario-semana.js).
 
 import { el, reemplazar } from '../dom.js';
 import { datos } from '../datos.js';
 import { reloj } from '../reloj.js';
-import { fechaLegible } from '../fechas.js';
+import { fechaLegible, esFechaValida } from '../fechas.js';
 import { crearCabecera, textoDeError } from '../componentes/vista.js';
 import { crearTarjeta, crearCargando, crearError, crearAviso, crearPestanas, abrirDialogo } from '../componentes/ui.js';
 import { exportarRespaldo, importarRespaldo } from '../componentes/respaldo.js';
@@ -14,6 +14,7 @@ import { normalizarPlan, validarPlan } from '../../motor/plan.js';
 import { configuracionVigente, proponerCambio, cambiosPendientes } from '../../motor/niveles.js';
 import { NOMBRE_NIVEL } from '../../motor/tipos.js';
 import { SECCIONES, editarCiclo } from './horario-editor.js';
+import { crearPlanificador } from './horario-semana.js';
 import { textoCategoria } from '../textos-plan.js';
 
 export const titulo = 'Horario';
@@ -21,11 +22,21 @@ export const titulo = 'Horario';
 /** Áreas de Estudio por defecto (§7), por si AW todavía no tiene categorías. */
 const AREAS_POR_DEFECTO = ['Estudio > Programación', 'Estudio > Matemáticas', 'Estudio > Inglés', 'Estudio > Humanidades'];
 
-/** Dibuja la vista dentro de `contenedor`. `parametros.pestana` elige la pestaña. */
+/** Dibuja la vista dentro de `contenedor`. `parametros.pestana` elige la pestaña y `parametros.semana`, la semana del planificador. */
 export function render(contenedor, parametros) {
   const mensajes = el('div', { class: 'vista-mensajes' });
   const cuerpo = el('div', { class: 'vista-cuerpo' }, crearCargando({ filas: 5 }));
-  let pestanaActiva = parametros.get('pestana') ?? 'cursos';
+  let pestanaActiva = parametros.get('pestana') ?? 'semana';
+  let semana = esFechaValida(parametros.get('semana')) ? parametros.get('semana') : null; // null = la semana de hoy
+
+  /**
+   * Deja la pestaña y la semana en la dirección, para que se mantengan al recargar.
+   * replaceState cambia la dirección sin avisar al router: no se redibuja toda la vista.
+   */
+  function anotarDireccion() {
+    const consulta = new URLSearchParams({ pestana: pestanaActiva, ...(semana ? { semana } : {}) });
+    history.replaceState(null, '', `#/horario?${consulta}`);
+  }
   let ctx = null; // contexto del editor (ver horario-editor.js)
 
   const botonExportar = el('button', { class: 'boton', type: 'button', onclick: () => exportarRespaldo().catch(mostrarError) }, 'Exportar');
@@ -129,7 +140,15 @@ export function render(contenedor, parametros) {
       ? `Ciclo ${plan.ciclo.nombre} · del ${plan.ciclo.inicio} al ${plan.ciclo.fin}` : 'Todavía no hay un ciclo: defínelo en la pestaña Ciclo';
     pintarAvisos();
 
-    const pestanas = SECCIONES.map((seccion) => ({
+    const planificador = {
+      id: 'semana',
+      texto: 'Semana',
+      contenido: () => crearPlanificador(ctx, {
+        semana: semana ?? ctx.hoy,
+        alCambiarSemana: (lunes) => { semana = lunes; anotarDireccion(); pintar(); },
+      }),
+    };
+    const pestanas = [planificador, ...SECCIONES.map((seccion) => ({
       id: seccion.id,
       texto: `${seccion.nombre} (${plan[seccion.id].length})`,
       contenido: () => {
@@ -145,7 +164,7 @@ export function render(contenedor, parametros) {
           contenido: seccion.tabla(ctx),
         });
       },
-    }));
+    }))];
     pestanas.push({
       id: 'ciclo',
       texto: 'Ciclo',
@@ -155,15 +174,11 @@ export function render(contenedor, parametros) {
         acciones: el('button', { class: 'boton boton-primario', type: 'button', onclick: () => editarCiclo(ctx) }, plan.ciclo.nombre ? 'Editar ciclo' : 'Definir ciclo'),
       }),
     });
-    if (!pestanas.some((p) => p.id === pestanaActiva)) pestanaActiva = 'cursos';
+    if (!pestanas.some((p) => p.id === pestanaActiva)) pestanaActiva = 'semana';
 
     reemplazar(cuerpo, crearPestanas({
       pestanas, activa: pestanaActiva, etiqueta: 'Partes del plan',
-      alCambiar: (id) => {
-        pestanaActiva = id;
-        // replaceState cambia la dirección sin avisar al router: la pestaña queda en la dirección (y al recargar) sin redibujar la vista.
-        history.replaceState(null, '', `#/horario?pestana=${id}`);
-      },
+      alCambiar: (id) => { pestanaActiva = id; anotarDireccion(); },
     }));
   }
 

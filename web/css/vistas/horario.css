@@ -1,0 +1,173 @@
+/*
+  Planificador semanal de la vista Horario (F3-05). Solo usa variables de tokens.css.
+
+  Estructura (js/vistas/horario-semana.js):
+    .planificador                 cuadrícula: 1 columna de horas + 7 días
+      .plan-esquina  .plan-cabeza × 7        fila de arriba (día y botón "+")
+      .plan-eje      .plan-dia × 7           las horas y las columnas; dentro de cada día:
+        .plan-caja[data-tipo]                bloque, clase o rutina (posición absoluta: top y height en px)
+        .plan-marca                          despertar o dormir (una hora, sin duración)
+        .plan-ahora                          línea de la hora actual
+        .plan-fantasma                       "+ 15:00" bajo el mouse
+*/
+/* overflow-y: hidden: las etiquetas de los bordes (medio renglón fuera) no deben crear una barra vertical. */
+.planificador-contenedor { overflow-x: auto; overflow-y: hidden; padding-bottom: var(--espacio-2); }
+.planificador {
+  display: grid;
+  grid-template-columns: 3.25rem repeat(7, minmax(6.5rem, 1fr));
+  min-width: 50rem;
+  font-size: var(--texto-xs);
+}
+
+/* Fila de arriba */
+.plan-cabeza {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--espacio-1);
+  padding: var(--espacio-1) var(--espacio-2) var(--espacio-2);
+  border-bottom: 1px solid var(--color-borde-fuerte);
+  font-size: var(--texto-s);
+  font-weight: var(--peso-medio);
+  color: var(--color-texto-suave);
+}
+.plan-cabeza[data-hoy] { color: var(--color-texto); box-shadow: inset 0 -2px 0 var(--color-acento); }
+.plan-cabeza-dia { flex: 1 1 auto; }
+.plan-excepcion {
+  flex: 1 1 100%;
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-normal);
+  color: var(--color-aviso);
+}
+.plan-esquina { border-bottom: 1px solid var(--color-borde-fuerte); }
+
+/* Eje de horas */
+.plan-eje { position: relative; }
+.plan-hora {
+  position: absolute;
+  right: var(--espacio-2);
+  transform: translateY(-50%);
+  font-family: var(--fuente-numeros);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-texto-suave);
+}
+.plan-hora:first-child { transform: none; }
+.plan-hora:last-child { transform: translateY(-100%); }
+
+/* Columna de un día: una línea suave por hora (degradado repetido, sin elementos extra). */
+.plan-dia {
+  position: relative;
+  border-left: 1px solid var(--color-borde);
+  background-image: repeating-linear-gradient(to bottom, var(--color-borde) 0 1px, transparent 1px var(--alto-hora));
+  cursor: copy;
+}
+.plan-dia[data-hoy] { background-color: var(--color-acento-suave); }
+
+/* Cajas */
+.plan-caja {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  min-width: 0;
+  padding: 3px var(--espacio-2);
+  overflow: hidden;
+  font: inherit;
+  text-align: left;
+  color: var(--color-texto);
+  background: var(--fondo-clase, var(--color-superficie-2));
+  border: 1px solid var(--borde-clase, var(--color-borde-fuerte));
+  border-left: 3px solid var(--color-clase, var(--color-plan-bloque));
+  border-radius: var(--radio-s);
+  cursor: pointer;
+  transition: box-shadow var(--duracion-rapida) var(--curva-salida);
+}
+/* Sin color de curso: el del tipo. */
+.plan-caja[data-tipo="bloque"]:not([data-curso]) { --color-clase: var(--color-plan-bloque); }
+.plan-caja[data-tipo="rutina"] {
+  --color-clase: var(--color-plan-rutina);
+  --fondo-clase: color-mix(in srgb, var(--color-plan-rutina) 12%, var(--color-superficie));
+  --borde-clase: color-mix(in srgb, var(--color-plan-rutina) 45%, var(--color-superficie));
+}
+/* Clase: mismo color del curso, pero hueca y con borde punteado (se distingue del bloque sin depender del color). */
+.plan-caja[data-tipo="clase"] {
+  background: var(--color-superficie);
+  border-style: dashed;
+  border-left-style: solid;
+}
+.plan-caja:focus-visible { outline: 2px solid var(--color-foco); outline-offset: 1px; z-index: 2; }
+@media (hover: hover) and (pointer: fine) {
+  .plan-caja:hover { box-shadow: var(--sombra-emergente); z-index: 2; }
+}
+.plan-caja-titulo { max-width: 100%; font-weight: var(--peso-medio); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.plan-caja-detalle { max-width: 100%; color: var(--color-texto-suave); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.plan-caja[data-corta] { flex-direction: row; align-items: center; gap: var(--espacio-2); padding-top: 0; padding-bottom: 0; }
+.plan-caja[data-corta] .plan-caja-titulo { flex: none; max-width: 60%; }
+.plan-caja .chip { margin-top: 2px; transform-origin: left top; scale: 0.85; }
+
+/* Marca de despertar o dormir: una línea con su texto. */
+.plan-marca {
+  position: absolute;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  padding: 0 var(--espacio-1);
+  font: inherit;
+  font-size: 0.6875rem;
+  text-align: right;
+  color: var(--color-texto-suave);
+  background: none;
+  border: 0;
+  border-top: 1px dashed var(--color-plan-rutina);
+  cursor: pointer;
+}
+.plan-marca:focus-visible { outline: 2px solid var(--color-foco); }
+
+.plan-ahora {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-acento);
+  pointer-events: none;
+  z-index: 3;
+}
+.plan-fantasma {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  height: calc(var(--alto-hora) / 2);
+  padding: 2px var(--espacio-2);
+  color: var(--color-acento);
+  border: 1px dashed var(--color-acento);
+  border-radius: var(--radio-s);
+  pointer-events: none;
+}
+.plan-fantasma[hidden] { display: none; }
+
+/* Pie: leyenda y rutinas sin franja */
+.plan-pie { display: grid; gap: var(--espacio-2); margin-top: var(--espacio-4); }
+.plan-pie p { margin: 0; }
+.plan-leyenda { display: inline-flex; align-items: center; gap: var(--espacio-2); }
+.plan-leyenda::before {
+  content: "";
+  width: 1rem;
+  height: 0.75rem;
+  border: 1px solid var(--color-borde-fuerte);
+  border-left: 3px solid var(--color-plan-bloque);
+  border-radius: var(--radio-s);
+  background: color-mix(in srgb, var(--color-plan-bloque) 14%, var(--color-superficie));
+}
+.plan-leyenda[data-tipo="clase"]::before { background: var(--color-superficie); border-style: dashed; border-left-style: solid; border-left-color: var(--color-plan-clase); }
+.plan-leyenda[data-tipo="rutina"]::before { border-left-color: var(--color-plan-rutina); background: color-mix(in srgb, var(--color-plan-rutina) 12%, var(--color-superficie)); }
+.plan-enlace {
+  padding: 0;
+  font: inherit;
+  color: var(--color-acento);
+  background: none;
+  border: 0;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.plan-enlace:focus-visible { outline: 2px solid var(--color-foco); outline-offset: 2px; border-radius: var(--radio-s); }
