@@ -1,0 +1,45 @@
+/*
+  Estilos comunes de las vistas (F3-04 en adelante): mensajes, cuerpo y formularios en diálogo.
+  Solo usa variables de tokens.css.
+*/
+
+/* Zona de mensajes de una vista (resultado de guardar, avisos del plan) y cuerpo. */
+.vista-mensajes { display: grid; gap: var(--espacio-3); }
+.vista-mensajes:not(:empty) { margin-bottom: var(--espacio-4); }
+.vista-cuerpo { display: grid; gap: var(--espacio-4); min-width: 0; }
+.vista-cuerpo > * { min-width: 0; }
+
+/* Lista de errores dentro de un diálogo (por ejemplo, al importar un plan inválido). */
+.lista-errores { margin: var(--espacio-2) 0; padding-left: var(--espacio-5); display: grid; gap: var(--espacio-1); }
+
+/* ── Formulario en un diálogo (js/componentes/formulario.js) ── */
+.dialogo-formulario { width: min(36rem, calc(100vw - 2 * var(--espacio-4))); }
+.dialogo-formulario form { display: flex; flex-direction: column; max-height: calc(100vh - 2 * var(--espacio-8)); }
+.formulario-cuerpo {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--espacio-4);
+  overflow-y: auto;
+  color: var(--color-texto);
+}
+.formulario-campo { grid-column: 1 / -1; min-width: 0; }
+.formulario-campo[hidden] { display: none; }
+.formulario-mitad { grid-column: span 1; }
+.formulario-descripcion, .formulario-error-general { grid-column: 1 / -1; margin: 0; }
+.formulario-descripcion { color: var(--color-texto-suave); }
+.campo-error[hidden] { display: none; }
+.campo-dias { gap: var(--espacio-2) var(--espacio-3); }
+@media (max-width: 30rem) {
+  .formulario-mitad { grid-column: 1 / -1; }
+}
+
+/* Acciones al final de una fila de tabla (Editar, Borrar). */
+.tabla .acciones-fila { text-align: right; white-space: nowrap; }
+.acciones-fila .boton + .boton { margin-left: var(--espacio-1); }
+
+/* Texto secundario dentro de una celda o una fila. */
+.texto-suave { color: var(--color-texto-suave); }
+.texto-xs { font-size: var(--texto-xs); }
+/* Un texto largo (título de ventana, URL, motivo) se corta con "…" en vez de ensanchar la tabla. */
+.cortar { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.envolver { overflow-wrap: anywhere; }

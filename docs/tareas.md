@@ -250,9 +250,10 @@ Cambios en las tareas: F5-02 se hace dentro de F2-01 y F5-03 dentro de F4-02, po
   - Objetivo: el modelo de §8, con validación de campos obligatorios, horas válidas y solapes.
   - Hecho cuando: un plan inválido da mensajes claros y las pruebas pasan.
   - Resultado (2026-11-04): `web/motor/plan.js` (normalizarPlan, validarPlan con mensajes claros y avisos de solapes, planVacio, UMBRALES_INICIALES); `plan-ejemplo.json` válido. Revisión: aprobado con cambios menores.
-- [ ] **F3-02 · Guardar el plan en AW y respaldo**
+- [x] **F3-02 · Guardar el plan en AW y respaldo**
   - Objetivo: leer y escribir el ajuste `rastreador-plan`; exportar e importar JSON.
   - Hecho cuando: el plan sobrevive a reiniciar AW, y exportar → importar lo deja idéntico.
+  - Resultado (2026-11-10): `web/js/respaldo.js` (crearRespaldo, textoDeRespaldo, leerRespaldo: acepta un respaldo o un plan suelto y lo valida) y `web/js/componentes/respaldo.js` (botones Exportar e Importar con sus diálogos; los usa Horario). Exportar → importar deja el plan idéntico (6 pruebas en `pruebas/respaldo.test.js` y comprobado en el navegador contra el AW falso: lo guardado en `rastreador-plan` es igual a lo exportado). Los niveles del respaldo solo se restauran si aquí siguen siendo los iniciales (importar no debe servir para aflojar en el acto). Por comprobar (Dremy): que el plan sobreviva a reiniciar el AW real, y la descarga y el selector de archivos en su navegador.
 - [x] **F3-03 · Expansor de horario**
   - Objetivo: plantilla semanal + bloques únicos + excepciones → bloques concretos de un día lógico.
   - Hecho cuando: hay pruebas para feriado, semana de exámenes, bloque que cruza la medianoche y fin de ciclo.
