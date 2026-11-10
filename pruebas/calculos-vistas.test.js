@@ -39,3 +39,27 @@ test('focoPorBloque: junta por bloque del plan, promedia foco y retraso, y deja 
   assert.deepEqual(papel, { bloqueId: 'b-papel', curso: 'bd1', tipo: 'estudio_papel', veces: 1, cumplido: 1, parcial: 0, fallido: 0, foco: null, retrasoMin: null });
   assert.deepEqual(focoPorBloque([]), []);
 });
+
+// ── Rachas por rutina (F5-05) ──
+
+test('rutinasDelPeriodo: un estado por día (null si no tocaba) y la cuenta de días medidos', async () => {
+  const { rutinasDelPeriodo } = await import('../web/js/calculos-vistas.js');
+  const r = (rutinaId, estado, nombre = rutinaId) => ({ rutinaId, nombre, medicion: 'checkin', estado });
+  const resumenes = [
+    { fecha: '2026-10-12', rutinas: [r('ingles', 'cumplido'), r('ejercicio', 'fallido')] },
+    { fecha: '2026-10-13', rutinas: [r('ingles', 'parcial')] },
+    { fecha: '2026-10-14', rutinas: [r('ingles', 'pendiente'), r('ejercicio', 'cumplido')] },
+    { fecha: '2026-10-15' },
+  ];
+  const [ingles, ejercicio] = rutinasDelPeriodo(resumenes);
+  assert.deepEqual(ingles, {
+    rutinaId: 'ingles', nombre: 'ingles', medicion: 'checkin', medidos: 2, cumplido: 1, parcial: 1, fallido: 0,
+    dias: [
+      { fecha: '2026-10-12', estado: 'cumplido' }, { fecha: '2026-10-13', estado: 'parcial' },
+      { fecha: '2026-10-14', estado: 'pendiente' }, { fecha: '2026-10-15', estado: null },
+    ],
+  });
+  assert.deepEqual([ejercicio.medidos, ejercicio.cumplido, ejercicio.fallido], [2, 1, 1]);
+  assert.deepEqual(ejercicio.dias.map((d) => d.estado), ['fallido', null, 'cumplido', null]);
+  assert.deepEqual(rutinasDelPeriodo([]), []);
+});

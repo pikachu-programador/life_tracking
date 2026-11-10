@@ -362,9 +362,10 @@ Cambios en las tareas: F5-02 se hace dentro de F2-01 y F5-03 dentro de F4-02, po
 - [ ] **F5-04 · Vista Diario**
   - Objetivo: por día, check-ins e intervenciones con su motivo; editar o borrar errores.
   - Hecho cuando: borrar un check-in actualiza el cumplimiento.
-- [ ] **F5-05 · Rachas por rutina**
+- [x] **F5-05 · Rachas por rutina**
   - Objetivo: racha de días cumplidos por rutina en la vista Cumplimiento.
   - Hecho cuando: cada rutina muestra su racha actual y la mejor.
+  - Resultado (2026-11-10): tarjeta "Rachas por rutina" en la vista Cumplimiento: racha actual y mejor racha de cada rutina (de `agregarPeriodo().rachas.rutinas`, contadas hasta hoy en los últimos 60 días o desde el inicio del ciclo, no solo en el período elegido), cuántos días medidos cumplió en el período y una tira con los últimos 14 días (✓ cumplido, ~ parcial, ✕ fallido, · no tocaba). `rutinasDelPeriodo` en `web/js/calculos-vistas.js`, con su prueba. Comprobado en el navegador con el AW falso (reloj en 2026-10-18): Dormir lleva 9 días seguidos, Despertar 5, Ejercicio 0 (mejor 1).
 
 ---
 

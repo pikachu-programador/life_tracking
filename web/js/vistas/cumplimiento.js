@@ -1,5 +1,5 @@
 // Vista "Cumplimiento" (arquitectura §13, F4-08): calendario de días cumplidos, puntualidad, % de foco por bloque
-// y horas por curso contra la meta. Las rachas por rutina llegan con F5-05.
+// y horas por curso contra la meta. F5-05: rachas por rutina (actual y mejor).
 //
 // Todo sale de los resúmenes diarios (datos.resumenes) sumados con agregarPeriodo (motor): la vista no relee eventos.
 
@@ -10,17 +10,21 @@ import { duracionLegible, porcentajeLegible, horasLegibles } from '../formato.js
 import { crearCabecera, textoDeError, prepararPeriodo } from '../componentes/vista.js';
 import {
   crearTarjeta, crearCargando, crearError, crearVacio, crearFilaKpis, crearProgreso, crearTabla, crearChipEstado,
-  crearEtiqueta, crearListaProporcional, crearLeyenda,
+  crearEtiqueta, crearListaProporcional, crearLeyenda, nombreDe,
 } from '../componentes/ui.js';
 import { crearGrafico, tooltipHtml } from '../graficos.js';
 import { agregarPeriodo } from '../../motor/resumen.js';
 import { DIAS_SEMANA, NOMBRE_DIA, NOMBRE_TIPO_BLOQUE } from '../../motor/tipos.js';
 import { nombreCurso, colorCurso, textoRepeticion } from '../textos-plan.js';
-import { MEDIDOS, estadoDelDia, estadoDeFoco, focoPorBloque } from '../calculos-vistas.js';
+import { MEDIDOS, estadoDelDia, estadoDeFoco, focoPorBloque, rutinasDelPeriodo } from '../calculos-vistas.js';
+import { NOMBRE_MEDICION } from '../textos-plan.js';
 
 export const titulo = 'Cumplimiento';
 
 const MAX_FILAS = 150; // filas de la tabla de bloques (un mes tiene unas 40)
+const DIAS_RACHA = 60; // las rachas se cuentan en los últimos 60 días (o desde el inicio del ciclo), no solo en el período
+const DIAS_TIRA = 14;  // cuadritos de "últimos días" de cada rutina
+const MARCA_ESTADO = { cumplido: '✓', parcial: '~', fallido: '✕' };
 
 /** Dibuja la vista dentro de `contenedor`. */
 export function render(contenedor, parametros) {
@@ -36,15 +40,20 @@ export function render(contenedor, parametros) {
       limpiezas.push(() => selector.limpiar());
       cabecera.subtitulo.textContent = periodoLegible(periodo);
 
-      const [plan, resumenes] = await Promise.all([datos.plan(), datos.resumenes(periodo.desde, periodo.hasta)]);
+      const plan = await datos.plan();
+      // Rachas (F5-05): no dependen del período elegido; se cuentan hasta hoy, en los últimos DIAS_RACHA días del ciclo.
+      let desdeRachas = sumarDias(hoy, -(DIAS_RACHA - 1));
+      if (plan.ciclo.inicio && plan.ciclo.inicio > desdeRachas && plan.ciclo.inicio <= hoy) desdeRachas = plan.ciclo.inicio;
+      const [resumenes, paraRachas] = await Promise.all([datos.resumenes(periodo.desde, periodo.hasta), datos.resumenes(desdeRachas, hoy)]);
       const agregado = agregarPeriodo(resumenes, periodo.desde, periodo.hasta, { umbrales: plan.umbrales });
-      pintar({ hoy, periodo, plan, resumenes, agregado });
+      const rachas = agregarPeriodo(paraRachas, desdeRachas, hoy, { umbrales: plan.umbrales }).rachas;
+      pintar({ hoy, periodo, plan, resumenes, agregado, rachas, desdeRachas });
     } catch (error) {
       reemplazar(cuerpo, crearError(textoDeError(error), { reintentar: cargar }));
     }
   }
 
-  function pintar({ hoy, periodo, plan, resumenes, agregado }) {
+  function pintar({ hoy, periodo, plan, resumenes, agregado, rachas, desdeRachas }) {
     const { umbrales } = plan;
     const bloques = resumenes.flatMap((r) => (r.bloques ?? []).map((b) => ({ ...b, fecha: r.fecha })));
     const medidos = bloques.filter((b) => MEDIDOS.includes(b.estado));
@@ -173,7 +182,32 @@ export function render(contenedor, parametros) {
       }),
     });
 
-    reemplazar(cuerpo, kpis, el('div', { class: 'grilla' }, tarjetaCalendario, tarjetaCursos, tarjetaFoco, tarjetaRetraso), tarjetaBloques);
+    // ── Rachas por rutina (F5-05) ──
+    const rutinas = rutinasDelPeriodo(resumenes);
+    const racha = (n) => el('span', { class: 'racha' }, el('span', { class: 'racha-numero' }, String(n)), n === 1 ? 'día' : 'días');
+    const tarjetaRutinas = crearTarjeta({
+      titulo: 'Rachas por rutina',
+      subtitulo: `Días seguidos cumpliendo cada rutina, contados hasta hoy desde el ${fechaCorta(desdeRachas)}. Los días en que no toca no cortan la racha.`,
+      contenido: crearTabla({
+        descripcion: 'Racha actual y mejor racha de cada rutina',
+        vacio: plan.rutinas.length ? 'Ninguna rutina tocaba en este período.' : 'No hay rutinas en el plan.',
+        columnas: [
+          { clave: 'nombre', titulo: 'Rutina' },
+          { clave: 'medicion', titulo: 'Medición', formato: (v) => NOMBRE_MEDICION[v] ?? v },
+          { clave: 'actual', titulo: 'Racha actual', formato: (_, r) => racha(rachas.rutinas[r.rutinaId]?.actual ?? 0) },
+          { clave: 'mejor', titulo: 'Mejor racha', formato: (_, r) => racha(rachas.rutinas[r.rutinaId]?.mejor ?? 0) },
+          { clave: 'periodo', titulo: 'En el período', numerica: true, formato: (_, r) => (r.medidos ? `${r.cumplido} de ${r.medidos}` : '—') },
+          { clave: 'dias', titulo: `Últimos ${DIAS_TIRA} días`, formato: (v) => el('span', { class: 'tira-dias' },
+            v.slice(-DIAS_TIRA).map((d) => el('span', {
+              class: 'tira-dia', 'data-estado': MEDIDOS.includes(d.estado) ? d.estado : null,
+              title: `${fechaCorta(d.fecha)}: ${d.estado ? nombreDe(d.estado).toLowerCase() : 'no tocaba'}`,
+            }, MARCA_ESTADO[d.estado] ?? '·'))) },
+        ],
+        filas: rutinas,
+      }),
+    });
+
+    reemplazar(cuerpo, kpis, el('div', { class: 'grilla' }, tarjetaCalendario, tarjetaCursos, tarjetaFoco, tarjetaRetraso), tarjetaRutinas, tarjetaBloques);
 
     // Los gráficos se crean con sus contenedores ya en la página (ECharts necesita medirlos).
     const graficoFoco = crearGrafico(lienzoFoco, (c) => ({

@@ -44,3 +44,29 @@ export function focoPorBloque(resumenes) {
   const promedio = (lista) => (lista.length ? lista.reduce((a, x) => a + x, 0) / lista.length : null);
   return [...grupos.values()].map(({ focos, retrasos, ...g }) => ({ ...g, foco: promedio(focos), retrasoMin: promedio(retrasos) }));
 }
+
+/**
+ * Cada rutina en el período: cómo salió cada día y cuántos días medidos cumplió (F5-05).
+ * Un día en que la rutina no tocaba (o no hay resumen) va con estado null.
+ * @param {import('../motor/tipos.js').ResumenDia[]} resumenes  en orden de fecha
+ * @returns {Array<{rutinaId: string, nombre: string, medicion: string, medidos: number, cumplido: number, parcial: number,
+ *                  fallido: number, dias: Array<{fecha: string, estado: string|null}>}>}  en el orden en que aparecen
+ */
+export function rutinasDelPeriodo(resumenes) {
+  const porId = new Map();
+  for (const resumen of resumenes) {
+    for (const r of resumen.rutinas ?? []) {
+      if (!porId.has(r.rutinaId)) porId.set(r.rutinaId, { rutinaId: r.rutinaId, nombre: r.nombre, medicion: r.medicion, medidos: 0, cumplido: 0, parcial: 0, fallido: 0, porFecha: new Map() });
+      const g = porId.get(r.rutinaId);
+      g.porFecha.set(resumen.fecha, r.estado);
+      if (MEDIDOS.includes(r.estado)) {
+        g.medidos += 1;
+        g[r.estado] += 1;
+      }
+    }
+  }
+  return [...porId.values()].map(({ porFecha, ...g }) => ({
+    ...g,
+    dias: resumenes.map((resumen) => ({ fecha: resumen.fecha, estado: porFecha.get(resumen.fecha) ?? null })),
+  }));
+}
