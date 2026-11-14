@@ -87,7 +87,7 @@ export function render(contenedor, parametros) {
         detalle: medidos.length ? `${cumplidos} de ${medidos.length} bloques y rutinas cumplidos` : 'Nada medible este día' },
       { etiqueta: 'Horas despierto', valor: duracionLegible(dia.dia.despiertoSeg),
         detalle: dia.dia.sinDatos ? (dia.dia.despiertoSeg ? 'Sin PC: de despertar a dormir, por los check-ins' : 'Sin datos de la PC') : `De ${horaLocal(dia.dia.inicio)} a ${horaLocal(dia.dia.fin)}` },
-      { etiqueta: 'Check-ins', valor: String(checkins.length), detalle: 'Registrados para este día' },
+      { etiqueta: 'Check-ins', valor: String(checkins.length), detalle: checkins.length === 1 ? 'Registrado para este día' : 'Registrados para este día' },
       { etiqueta: 'Intervenciones', valor: String(dia.intervenciones.length), detalle: 'Reales, del agente (todavía no existe)' },
     ]);
 
