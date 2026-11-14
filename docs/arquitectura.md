@@ -1,9 +1,9 @@
 ---
 proyecto: Rastreador de tiempo + modo meta
 documento: Arquitectura
-version: 6.3
+version: 6.4
 estado: borrador por validar
-actualizado: 2026-11-10
+actualizado: 2026-11-14
 ---
 
 # Arquitectura — Rastreador de tiempo + modo meta
@@ -162,6 +162,7 @@ Las firmas y las formas de esta sección son el **contrato** entre el motor, el 
 | `cumplimiento.js` | `evaluarBloque`, `evaluarRutina` | F4-02 |
 | `porcentajes.js` | `porcentajeDia`, `porcentajeVarios`, `horasPorCurso`, `horasPorArea` | F4-03 |
 | `niveles.js` | `NIVELES_INICIALES`, `configuracionVigente`, `tipoDeCambio`, `proponerCambio`, `cambiosPendientes`, `nivelDeBloque` | F4-04 |
+| `rampa.js` | `RAMPA_FOCO_INICIAL`, `umbralFoco`, `umbralesDelDia`, `rampaVigente`, `rampaPendiente`, `proponerRampa`, `errorDeRampa`, `fechaDeMeta` | v6.4 |
 | `decisor.js` | `decidir`, `crearEstadoIntervencion`, `registrarDecision`, `concederPase` | F4-05 |
 | `simulador.js` | `simular`, `compararNiveles` | F4-06 |
 | `resumen.js` | `resumirDia`, `tiempoEnClases`, `agregarPeriodo`, `METRICAS` | V-01, V-02, V-03 |
@@ -289,6 +290,18 @@ export function concederPase(estado, pedido)
 export function simular(entrada)
 /** @returns {{aviso: ResultadoSimulacion, friccion: ResultadoSimulacion, total: ResultadoSimulacion}} */
 export function compararNiveles(entrada)
+
+// ── rampa.js (v6.4): rampa del foco ──
+
+/** Foco para "cumplido" en el día lógico `fecha`: valor_inicial + paso_por_semana × semanas completas desde `inicio`,
+ *  sin pasar de `meta`. Sin rampa vigente (o antes de su inicio), umbrales.foco_cumplido. Solo depende de la fecha.
+ *  @param {Umbrales} umbrales  @param {string} fecha  @returns {number} 0 a 1 */
+export function umbralFoco(umbrales, fecha)
+/** Umbrales con los que se evalúa ese día (foco_cumplido = umbralFoco). resumirDia lo usa.  @returns {Umbrales} */
+export function umbralesDelDia(umbrales, fecha)
+/** Endurecer vale hoy; aflojar, desde el día lógico siguiente. rampa null = quitarla.  @param {{hoy: string}} cuando
+ *  @returns {{umbrales: Umbrales, aplicaDesde: string, inmediato: boolean, tipo: 'endurece'|'afloja'|'igual'}} */
+export function proponerRampa(umbrales, rampa, cuando)
 
 // ── resumen.js (V-01, V-02, V-03) y agrupar.js ──
 
@@ -521,6 +534,13 @@ Se guarda en el ajuste `rastreador-plan` de AW y se puede exportar e importar en
 | Hueco que cuenta como sueño | 3 h |
 | Peso de despertar y de dormir | 30 min cada uno |
 
+**Rampa del foco** (opcional; propuesta de Dremy, v6.4). Para formar el hábito, el foco para "cumplido" puede empezar bajo y subir cada semana: `{inicio, valor_inicial, meta, paso_por_semana}`, por defecto 40 % → 70 % a +4 puntos por semana (llega en 8 semanas).
+
+- El umbral de un día = `valor_inicial` + `paso_por_semana` × semanas completas desde `inicio`, sin pasar de `meta` (`umbralFoco` en `web/motor/rampa.js`). **Solo depende de la fecha:** no retrocede si un día o una semana sale mal.
+- **Cada día se evalúa con el umbral de su fecha.** Por eso el plan no guarda una sola rampa sino sus versiones: `umbrales.rampas_foco` = lista de `{aplica_desde, rampa}` (`rampa` = `null` para quitarla); vale la última con `aplica_desde` ≤ fecha. Cambiar la rampa no reescribe los días pasados.
+- Sin rampa vigente, o antes de su `inicio`, vale el `foco_cumplido` fijo. Si la rampa deja el foco de "cumplido" por debajo del de "parcial", el de "parcial" baja con él ese día.
+- **Asimetría (como en §11):** un cambio que pide más foco algún día y nunca menos vale desde hoy; si pide menos algún día de aquí en adelante (activar una rampa más baja que el fijo, bajar el paso, empezar de nuevo), queda pendiente hasta el día lógico siguiente (`proponerRampa`). Se configura en Ajustes.
+
 ## 9. Reglas de cumplimiento
 
 | Tipo | Cumplido | Parcial | Fallido |
@@ -532,7 +552,7 @@ Se guarda en el ajuste `rastreador-plan` de AW y se puede exportar e importar en
 | Despertar y dormir | Hora real ≤ objetivo + tolerancia | Hasta el doble de la tolerancia | Más tarde |
 
 - **Clases:** no cuentan para el %; son contexto. Si `usa_pc` = sí, se aplican avisos, y en clase el nivel se queda siempre en aviso: no escala (§11).
-- **Foco** = minutos de Estudio (cualquier área) dentro del bloque ÷ duración del bloque. Los minutos de IA no cuentan como foco.
+- **Foco** = minutos de Estudio (cualquier área) dentro del bloque ÷ duración del bloque. Los minutos de IA no cuentan como foco. El 70 % de "cumplido" es el valor fijo; con la rampa del foco (§8) es el umbral de la fecha de ese día.
 - **Horas por curso** = minutos de Estudio dentro de los bloques de ese curso (el bloque sabe su curso). Fuera de los bloques solo hay **horas por área**, porque dos cursos pueden compartir área. La meta semanal de cada curso se mide con sus bloques.
 - **Puntualidad** = minutos entre el inicio planificado y el primer minuto de Estudio.
 - **% del día** = Σ(peso × duración planificada) ÷ Σ(duración planificada), con peso 1 (cumplido), 0,5 (parcial) y 0 (fallido). Solo entran bloques y rutinas medibles.
@@ -711,3 +731,4 @@ Todas las vistas usan un **selector de período** común (Día, Semana, Mes o Ra
 | 2026-11-04 | v6.1 (revisión cruzada de F1-09): algoritmo del día lógico con huecos abiertos en los bordes y el hueco que contiene las 04:00 (o el más cercano) en vez del más largo; día sin datos y `no_medible`; instante de los check-ins de dormir; bloques terminados antes con duración planificada; `compararPeriodos` y `umbrales` en `agregarPeriodo`; claves de `METRICAS`; asistencia clase por clase; navegadores sin extensión en el Decisor; las vistas pueden importar funciones puras del motor (§6.7, §9, §10, §12) |
 | 2026-11-04 | v6.2 (integración de F3 y F4): los bloques únicos no se cancelan con las excepciones (§8); `validarPlan(plan, {inicioDia})`; un pase vale solo en el bloque o la clase donde se dio; `nunca_bloquear` solo con app y URL; `papelSeg` = duración del bloque de papel hecho menos la actividad en la PC (§6.7, §8) |
 | 2026-11-10 | v6.3 (decisiones de Dremy sobre las preguntas de la sesión en la nube): el criterio del día lógico queda como está; los Shorts de YouTube son Distracción por una regla de URL, y `segmentar` vuelve a categorizar con la URL los segmentos de navegador (§6.7, §7); los colores de curso siguen provisionales; confirmado que los bloques únicos no se cancelan en feriados (§8); un día sin PC con check-ins de despertar y dormir va de uno a otro (§6.7); cambiar la frase de la salida de emergencia cuenta como aflojar (§11); el tema de estilo sigue pendiente; script `npm run aw-falso` (§6.8) |
+| 2026-11-14 | v6.4 (propuesta de Dremy: el umbral de foco sube con los días para formar el hábito): rampa del foco en el plan (`umbrales.rampas_foco`, versiones de `{inicio, valor_inicial, meta, paso_por_semana}` con `aplica_desde`; por defecto 40 % → 70 %, +4 puntos por semana); `web/motor/rampa.js` con `umbralFoco(umbrales, fecha)`, `umbralesDelDia` y `proponerRampa`; el umbral solo depende de la fecha (no retrocede al fallar) y `resumirDia` evalúa cada día con el de su fecha; endurecer la rampa vale hoy y aflojarla espera al día lógico siguiente; se configura en Ajustes (§6.7, §8, §9) |

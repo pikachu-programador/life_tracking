@@ -14,6 +14,7 @@ import {
 } from '../componentes/ui.js';
 import { crearGrafico, tooltipHtml } from '../graficos.js';
 import { agregarPeriodo } from '../../motor/resumen.js';
+import { umbralesDelDia, rampaVigente } from '../../motor/rampa.js';
 import { DIAS_SEMANA, NOMBRE_DIA, NOMBRE_TIPO_BLOQUE } from '../../motor/tipos.js';
 import { nombreCurso, colorCurso, textoRepeticion } from '../textos-plan.js';
 import { MEDIDOS, estadoDelDia, estadoDeFoco, focoPorBloque, rutinasDelPeriodo } from '../calculos-vistas.js';
@@ -54,7 +55,10 @@ export function render(contenedor, parametros) {
   }
 
   function pintar({ hoy, periodo, plan, resumenes, agregado, rachas, desdeRachas }) {
-    const { umbrales } = plan;
+    // Con la rampa del foco, cada día se evaluó con el umbral de su fecha (eso ya viene en los resúmenes).
+    // Para las líneas y los textos de esta vista se usan los umbrales de hoy.
+    const umbrales = umbralesDelDia(plan.umbrales, hoy);
+    const conRampa = rampaVigente(plan.umbrales, hoy) !== null;
     const bloques = resumenes.flatMap((r) => (r.bloques ?? []).map((b) => ({ ...b, fecha: r.fecha })));
     const medidos = bloques.filter((b) => MEDIDOS.includes(b.estado));
     const cuenta = (estado) => medidos.filter((b) => b.estado === estado).length;
@@ -147,7 +151,7 @@ export function render(contenedor, parametros) {
       'aria-label': `Foco promedio por bloque: ${grupos.map((g) => `${g.nombre}, ${porcentajeLegible(g.foco)}`).join('; ') || 'sin datos'}` });
     const tarjetaFoco = crearTarjeta({
       titulo: '% de foco por bloque', clase: 'ancho-7',
-      subtitulo: `Foco = Estudio ÷ duración del bloque (la IA no cuenta). Cumplido desde ${porcentajeLegible(umbrales.foco_cumplido)}; parcial desde ${porcentajeLegible(umbrales.foco_parcial)}.`,
+      subtitulo: `Foco = Estudio ÷ duración del bloque (la IA no cuenta). Cumplido desde ${porcentajeLegible(umbrales.foco_cumplido)}; parcial desde ${porcentajeLegible(umbrales.foco_parcial)}${conRampa ? ' (umbrales de hoy: con la rampa del foco, cada día se midió con el de su fecha)' : ''}.`,
       contenido: lienzoFoco,
     });
 

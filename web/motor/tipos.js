@@ -292,6 +292,17 @@ export const CLAVES_METRICAS = ['estudio', 'estudioTotal', 'papel', 'clases', 'i
  * @property {number} dia_cumplido                 0.8
  * @property {number} hueco_sueno_h                3
  * @property {number} peso_despertar_dormir_min    30
+ * @property {Array<{aplica_desde: string, rampa: (RampaFoco|null)}>} [rampas_foco]
+ *   versiones de la rampa del foco (rampa.js); vale la última con aplica_desde ≤ fecha; rampa null = sin rampa
+ */
+
+/**
+ * Rampa del foco: el foco para "cumplido" empieza en valor_inicial y sube paso_por_semana cada 7 días hasta meta.
+ * @typedef {Object} RampaFoco
+ * @property {string} inicio            'AAAA-MM-DD': día desde el que se cuentan las semanas
+ * @property {number} valor_inicial     0.4
+ * @property {number} meta              0.7
+ * @property {number} paso_por_semana   0.04 (4 puntos)
  */
 
 /**

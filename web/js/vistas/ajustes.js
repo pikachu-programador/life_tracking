@@ -13,6 +13,8 @@ import { crearTarjeta, crearCargando, crearError, crearAviso, crearTabla, crearC
 import { exportarRespaldo, importarRespaldo, resumenDePlan } from '../componentes/respaldo.js';
 import { configuracionVigente, proponerCambio, cambiosPendientes } from '../../motor/niveles.js';
 import { NIVELES, NOMBRE_NIVEL } from '../../motor/tipos.js';
+import { RAMPA_FOCO_INICIAL, umbralFoco, rampaVigente, rampaPendiente, proponerRampa, fechaDeMeta } from '../../motor/rampa.js';
+import { porcentajeLegible } from '../formato.js';
 import { CAMPOS_NIVELES, valorDeRuta, textoDeCambio } from '../calculos-vistas.js';
 import { nombreCurso, colorCurso, textoRepeticion } from '../textos-plan.js';
 import { nivelVigente } from './horario-editor.js';
@@ -22,7 +24,7 @@ export const titulo = 'Ajustes';
 /** Umbrales del plan (§8). `porcentaje`: se guarda de 0 a 1 y se muestra de 0 a 100. */
 const CAMPOS_UMBRALES = [
   { clave: 'tolerancia_inicio_min', nombre: 'Tolerancia de inicio (min)', ayuda: 'Minutos de margen antes de contar un bloque como "empezó tarde".' },
-  { clave: 'foco_cumplido', nombre: 'Foco para "cumplido" (%)', porcentaje: true, ayuda: 'Estudio ÷ duración del bloque.' },
+  { clave: 'foco_cumplido', nombre: 'Foco para "cumplido" (%)', porcentaje: true, ayuda: 'Estudio ÷ duración del bloque. Con la rampa del foco activa, manda la rampa.' },
   { clave: 'foco_parcial', nombre: 'Foco para "parcial" (%)', porcentaje: true, ayuda: 'Menor que el de "cumplido".' },
   { clave: 'dia_cumplido', nombre: 'Día cumplido (%)', porcentaje: true, ayuda: 'Desde qué % un día cuenta para la racha.' },
   { clave: 'hueco_sueno_h', nombre: 'Hueco que cuenta como sueño (h)', ayuda: 'Sin actividad durante este tiempo: ahí se corta el día lógico.' },
@@ -191,7 +193,8 @@ export function render(contenedor) {
             umbrales[u.clave] = u.porcentaje ? Number(texto) / 100 : Number(texto);
           }
           try {
-            await datos.guardarPlan({ ...structuredClone(plan), umbrales });
+            // Los demás datos de los umbrales (la rampa del foco) se conservan.
+            await datos.guardarPlan({ ...structuredClone(plan), umbrales: { ...structuredClone(plan.umbrales), ...umbrales } });
             await cargar();
             decir('exito', 'Umbrales guardados.');
           } catch (error) {
@@ -200,6 +203,62 @@ export function render(contenedor) {
         },
       }, 'Guardar umbrales'),
       contenido: el('div', { class: 'ajustes-rejilla' }, camposUmbral.map(({ campo }) => el('div', { class: 'ajuste' }, campo))),
+    });
+
+    // ── Rampa del foco (arquitectura §8, v6.4) ──
+    // El foco para "cumplido" empieza bajo y sube cada semana. Vive en el plan (umbrales.rampas_foco).
+    const hoy = estado.hoy;
+    const vigente = rampaVigente(plan.umbrales, hoy);
+    const pendiente = rampaPendiente(plan.umbrales, hoy);
+    const base = vigente ?? pendiente?.rampa ?? { inicio: hoy, ...RAMPA_FOCO_INICIAL };
+    const puntos = (proporcion) => Math.round(proporcion * 1000) / 10; // 0.44 → 44
+    const textoRampa = (r) => {
+      const llega = fechaDeMeta(r);
+      return `${porcentajeLegible(r.valor_inicial)} → ${porcentajeLegible(r.meta)}, +${String(puntos(r.paso_por_semana)).replace('.', ',')} ${puntos(r.paso_por_semana) === 1 ? 'punto' : 'puntos'} por semana desde el ${fechaCorta(r.inicio)}${llega ? ` (llega a la meta el ${fechaCorta(llega)})` : ' (con paso 0 no sube)'}`;
+    };
+    const camposRampa = {
+      inicio: crearCampo({ etiqueta: 'Empieza', tipo: 'date', valor: base.inicio, ayuda: 'Desde este día se cuentan las semanas.' }),
+      valor_inicial: crearCampo({ etiqueta: 'Foco inicial (%)', tipo: 'number', valor: puntos(base.valor_inicial), atributos: { min: 1, max: 100, step: 1 } }),
+      meta: crearCampo({ etiqueta: 'Meta (%)', tipo: 'number', valor: puntos(base.meta), atributos: { min: 1, max: 100, step: 1 } }),
+      paso_por_semana: crearCampo({ etiqueta: 'Sube por semana (puntos)', tipo: 'number', valor: puntos(base.paso_por_semana), atributos: { min: 0, max: 100, step: 0.5 } }),
+    };
+    /** Propone la rampa (o quitarla, con null), la guarda en el plan y dice si ya vale o si queda para mañana. */
+    async function guardarRampa(rampa) {
+      try {
+        const cambio = proponerRampa(plan.umbrales, rampa, { hoy });
+        await datos.guardarPlan({ ...structuredClone(plan), umbrales: cambio.umbrales });
+        await cargar();
+        const que = rampa ? 'La rampa' : 'Quitar la rampa';
+        if (cambio.tipo === 'afloja') decir('info', `${que} pide menos foco algún día, así que se aplica mañana (${fechaLegible(cambio.aplicaDesde)}). Hoy sigue como estaba.`);
+        else if (cambio.tipo === 'endurece') decir('exito', `${que} pide más foco, así que ya está aplicada. Hoy el foco para "cumplido" es ${porcentajeLegible(umbralFoco(cambio.umbrales, hoy))}.`);
+        else decir('exito', 'La rampa queda como está hoy (si había un cambio pendiente, se canceló).');
+      } catch (error) {
+        decir('error', error?.errores ? error.errores.map((e) => e.mensaje).join(' ') : `No se pudo cambiar la rampa: ${error?.message ?? error}`);
+      }
+    }
+    const tarjetaRampa = crearTarjeta({
+      titulo: 'Rampa del foco',
+      subtitulo: 'Para formar el hábito: el foco que pide un bloque para salir "cumplido" empieza bajo y sube cada semana. No baja si fallas, y cada día se mide con el umbral de su fecha.',
+      acciones: [
+        el('button', {
+          class: 'boton boton-primario', type: 'button',
+          onclick: () => {
+            const numero = (clave) => Number(camposRampa[clave].querySelector('input').value);
+            const texto = (clave) => camposRampa[clave].querySelector('input').value.trim();
+            if (['valor_inicial', 'meta', 'paso_por_semana'].some((c) => texto(c) === '' || Number.isNaN(numero(c)))) return decir('error', 'Faltan números en la rampa del foco.');
+            guardarRampa({ inicio: texto('inicio'), valor_inicial: numero('valor_inicial') / 100, meta: numero('meta') / 100, paso_por_semana: numero('paso_por_semana') / 100 });
+          },
+        }, vigente ? 'Guardar rampa' : 'Activar rampa'),
+        (vigente || pendiente?.rampa) && el('button', { class: 'boton', type: 'button', onclick: () => guardarRampa(null) }, 'Quitar la rampa'),
+      ],
+      contenido: [
+        crearAviso(vigente ? 'exito' : 'info',
+          vigente ? `Rampa activa: ${textoRampa(vigente)}.` : `Sin rampa: vale el foco fijo de los umbrales (${porcentajeLegible(plan.umbrales.foco_cumplido)}).`,
+          { titulo: `Hoy el foco para "cumplido" es ${porcentajeLegible(umbralFoco(plan.umbrales, hoy))}` }),
+        pendiente && el('p', { class: 'ajuste-pendiente' }, `Pendiente desde ${fechaCorta(pendiente.aplica_desde)}: ${pendiente.rampa ? textoRampa(pendiente.rampa) : 'quitar la rampa'}.`),
+        el('div', { class: 'ajustes-rejilla rampa-campos' }, Object.values(camposRampa).map((campo) => el('div', { class: 'ajuste' }, campo))),
+        el('p', { class: 'campo-ayuda' }, 'Subir la exigencia vale desde hoy. Bajarla (activar una rampa más baja que el foco fijo, un paso más lento o empezar de nuevo) queda para mañana.'),
+      ],
     });
 
     // ── Respaldo ──
@@ -238,7 +297,7 @@ export function render(contenedor) {
       el('div', { class: 'grilla' },
         tarjetaLista('patrones_url', 'Patrones de URL extra', 'Se bloquean en todos los niveles, además de la clase Distracción. Agregar endurece; quitar afloja.', 'reddit\\.com/r/'),
         tarjetaLista('nunca_bloquear', 'Nunca bloquear', 'Apps o URLs que no se bloquean nunca. Agregar afloja; quitar endurece.', 'spotify')),
-      tarjetaBloques, tarjetaPendientes, tarjetaUmbrales,
+      tarjetaBloques, tarjetaPendientes, tarjetaUmbrales, tarjetaRampa,
       el('div', { class: 'grilla' }, tarjetaRespaldo, tarjetaEstado));
   }
 

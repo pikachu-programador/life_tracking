@@ -13,6 +13,7 @@ import {
   TIPOS_EXCEPCION, EFECTOS_EXCEPCION, COLORES_CURSO,
 } from './tipos.js';
 import { esFechaValida, esHoraValida, minutosDeHora, diaSemana, diasEntre } from './fechas.js';
+import { errorDeRampa } from './rampa.js';
 
 /**
  * Umbrales iniciales de §8. Está congelado (Object.freeze): nadie puede cambiarlo por accidente;
@@ -237,6 +238,10 @@ export function normalizarPlan(plan) {
     const valor = esObjeto(plan.umbrales) ? plan.umbrales[clave] : undefined;
     umbrales[clave] = valor ?? inicial; // ?? usa el de la derecha solo si el de la izquierda es null o undefined
   }
+  // Rampa del foco (rampa.js): solo se guarda si hay alguna versión; sin rampa, los umbrales quedan como siempre.
+  // Si no es una lista se deja tal cual, para que validarPlan lo reporte.
+  const rampas = esObjeto(plan.umbrales) ? plan.umbrales.rampas_foco : undefined;
+  if (Array.isArray(rampas) ? rampas.length > 0 : rampas != null) umbrales.rampas_foco = structuredClone(rampas);
 
   return {
     version: typeof plan.version === 'number' ? plan.version : 1,
@@ -453,6 +458,22 @@ function revisarUmbrales(umbrales, resultado) {
   if (cumplidoBien && parcialBien && umbrales.foco_parcial >= umbrales.foco_cumplido) {
     r.error('foco_parcial', `el foco para "parcial" (${umbrales.foco_parcial}) tiene que ser menor que el foco para "cumplido" (${umbrales.foco_cumplido}).`);
   }
+  // Rampa del foco: una lista de versiones {aplica_desde, rampa} (rampa.js).
+  const rampas = umbrales.rampas_foco;
+  if (rampas === undefined) return;
+  if (!Array.isArray(rampas)) {
+    r.error('rampas_foco', `la rampa del foco (rampas_foco) tiene que ser una lista; ahora es ${mostrar(rampas)}.`);
+    return;
+  }
+  rampas.forEach((version, i) => {
+    const ruta = `rampas_foco[${i}]`;
+    if (!esObjeto(version) || !esFechaValida(version.aplica_desde)) {
+      r.error(`${ruta}.aplica_desde`, 'cada versión de la rampa del foco necesita la fecha desde la que vale (aplica_desde, AAAA-MM-DD).');
+    } else if (version.rampa !== null) {
+      const error = errorDeRampa(version.rampa);
+      if (error) r.error(`${ruta}.rampa`, error);
+    }
+  });
 }
 
 function revisarCurso(curso, r) {
@@ -725,7 +746,7 @@ function avisosGenerales(plan, resultado) {
  * Errores (impiden guardar): campos obligatorios; horas ('HH:MM') y fechas ('AAAA-MM-DD') inválidas;
  * ids que faltan, repetidos (dentro de cada lista) o con espacios, puntos o "@"; cursos que no existen;
  * valores fuera de las listas de tipos.js; inicio igual a fin; ciclo con inicio > fin; excepción con
- * desde > hasta; umbrales fuera de rango (focos y día cumplido entre 0 y 1, foco_parcial < foco_cumplido,
+ * desde > hasta; rampa del foco mal formada; umbrales fuera de rango (focos y día cumplido entre 0 y 1, foco_parcial < foco_cumplido,
  * tolerancias y peso ≥ 0, hueco de sueño > 0); rutina pc sin categoría o sin minutos_meta; rutina
  * dia_logico sin hora objetivo; rutina con solo una de sus dos horas; curso cuya área no empieza con
  * "Estudio"; bloque semanal sin días; bloque único sin fecha válida; "terminado antes" fuera del bloque.

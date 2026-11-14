@@ -23,6 +23,7 @@ import { asignarContexto } from './contexto.js';
 import { evaluarBloque, evaluarRutina } from './cumplimiento.js';
 import { porcentajeDia, porcentajeVarios, horasPorCurso, horasPorArea } from './porcentajes.js';
 import { UMBRALES_INICIALES } from './plan.js';
+import { umbralesDelDia } from './rampa.js';
 
 const MS_MIN = 60 * 1000;
 const MS_HORA = 60 * MS_MIN;
@@ -321,7 +322,8 @@ export function tiempoEnClases(items, checkins = []) {
  * @returns {import('./tipos.js').ResumenDia}
  */
 export function resumirDia(segmentos, plan, checkins, dia, { ahora = Infinity, inicioDia = '04:00', intervenciones = [], items: dados } = {}) {
-  const umbrales = plan?.umbrales ?? UMBRALES_INICIALES;
+  // Los umbrales de ESTE día: con la rampa del foco, el de "cumplido" depende de la fecha (rampa.js).
+  const umbrales = umbralesDelDia(plan?.umbrales ?? UMBRALES_INICIALES, dia.fecha);
   const delDia = (checkins ?? []).filter((c) => c.fecha === dia.fecha);
   const items = dados ?? expandirDia(plan, dia.fecha, { inicioDia });
   const conContexto = asignarContexto(segmentos ?? [], items);
