@@ -1,0 +1,22 @@
+/*
+  Vista Ajustes (F4-09). Solo usa variables de tokens.css.
+*/
+
+/* Un grupo por nivel (Aviso, Fricción, Total), con sus valores en una rejilla que se acomoda al ancho. */
+.ajuste-grupo + .ajuste-grupo { margin-top: var(--espacio-5); padding-top: var(--espacio-5); border-top: 1px solid var(--color-borde); }
+.ajuste-grupo-titulo { margin: 0 0 var(--espacio-3); font-size: var(--texto-s); }
+.ajustes-rejilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr)); gap: var(--espacio-4); }
+.ajuste { min-width: 0; }
+.ajuste-ancho { grid-column: 1 / -1; }
+
+/* "Pendiente: 20 min, desde jue, 15 oct": lo que aflojaste y todavía no vale. */
+.ajuste-pendiente {
+  margin: var(--espacio-1) 0 0;
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-medio);
+  color: var(--color-aviso);
+}
+.ajuste-pendiente::before { content: "⏳ "; }
+
+/* Desplegable dentro de una tabla. */
+.control-chico { width: auto; min-width: 8rem; min-height: 1.75rem; padding: 0 var(--espacio-2); }

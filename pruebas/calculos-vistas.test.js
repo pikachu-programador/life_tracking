@@ -112,6 +112,31 @@ test('checkinsVigentes: de cada cosa vale el último registrado; despertar y dor
   assert.equal(checkinsVigentes(null).size, 0);
 });
 
+// ── Ajustes (F4-09) ──
+
+test('CAMPOS_NIVELES: cada ruta existe en los niveles iniciales y el motor la acepta', async () => {
+  const { CAMPOS_NIVELES, valorDeRuta } = await import('../web/js/calculos-vistas.js');
+  const { NIVELES_INICIALES, tipoDeCambio } = await import('../web/motor/niveles.js');
+  for (const campo of CAMPOS_NIVELES) {
+    const valor = valorDeRuta(NIVELES_INICIALES.base, campo.ruta);
+    assert.notEqual(valor, undefined, campo.ruta);
+    assert.equal(tipoDeCambio(campo.ruta, valor, valor), 'igual', campo.ruta); // lanza si la ruta no existe
+  }
+  assert.equal(valorDeRuta({ bloques: { 'b-bd1-lun': 'total' } }, 'bloques.b-bd1-lun'), 'total');
+  assert.equal(valorDeRuta({}, 'friccion.pase_min'), undefined);
+});
+
+test('textoDeCambio: una frase por cada tipo de cambio pendiente', async () => {
+  const { textoDeCambio } = await import('../web/js/calculos-vistas.js');
+  assert.equal(textoDeCambio({ ruta: 'friccion.pase_min', valor: 20 }), 'Duración de un pase: 20 min');
+  assert.equal(textoDeCambio({ ruta: 'total.bloquear_sin_clasificar', valor: false }), 'Bloquear también lo Sin clasificar: no');
+  assert.equal(textoDeCambio({ ruta: 'total.frase_salida', valor: 'Me rindo' }), 'Frase de la salida de emergencia: "Me rindo"');
+  assert.equal(textoDeCambio({ ruta: 'patrones_url', valor: [] }), 'Patrones de URL extra: ninguno');
+  assert.equal(textoDeCambio({ ruta: 'nunca_bloquear', valor: ['spotify', 'zoom'] }), 'Nunca bloquear: spotify · zoom');
+  assert.equal(textoDeCambio({ ruta: 'bloques.b-bd1-lun', valor: 'aviso' }, { nombreBloque: () => 'BD I (lun)', nombreNivel: { aviso: 'Aviso' } }), 'Nivel del bloque BD I (lun): Aviso');
+  assert.equal(textoDeCambio({ ruta: 'otra.cosa', valor: 1 }), 'otra.cosa: 1');
+});
+
 // ── Clasificación (F2-07) ──
 
 test('masUsados: por app y por dominio, con su clase dominante, el filtro por clase y el resto en "otros"', async () => {

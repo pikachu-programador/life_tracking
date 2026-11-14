@@ -134,6 +134,47 @@ export function checkinsVigentes(checkins) {
   return new Set(ultimos.values());
 }
 
+// ── Ajustes (F4-09) ──
+
+/**
+ * Los valores de los niveles que se pueden cambiar en Ajustes (§11), en el orden en que se muestran.
+ * `afloja`: qué cambio es más permisivo (y por eso queda para mañana). `ruta` es la del ajuste rastreador-niveles.
+ */
+export const CAMPOS_NIVELES = Object.freeze([
+  { ruta: 'aviso.permiso_min', nivel: 'aviso', nombre: 'Permiso tras un aviso', unidad: 'min', tipo: 'numero', afloja: 'Subirlo afloja' },
+  { ruta: 'escalamiento.avisos_para_friccion', nivel: 'aviso', nombre: 'Avisos en un bloque antes de pasar a fricción', unidad: 'avisos', tipo: 'numero', minimo: 1, afloja: 'Subirlo afloja' },
+  { ruta: 'friccion.espera_s', nivel: 'friccion', nombre: 'Espera antes de pedir un pase', unidad: 's', tipo: 'numero', afloja: 'Bajarlo afloja' },
+  { ruta: 'friccion.pase_min', nivel: 'friccion', nombre: 'Duración de un pase', unidad: 'min', tipo: 'numero', afloja: 'Subirlo afloja' },
+  { ruta: 'friccion.comodines_semana', nivel: 'friccion', nombre: 'Comodines por semana', unidad: 'comodines', tipo: 'numero', afloja: 'Subirlo afloja' },
+  { ruta: 'total.espera_salida_min', nivel: 'total', nombre: 'Espera de la salida de emergencia', unidad: 'min', tipo: 'numero', afloja: 'Bajarlo afloja' },
+  { ruta: 'total.frase_salida', nivel: 'total', nombre: 'Frase de la salida de emergencia', tipo: 'texto', afloja: 'Cambiarla cuenta como aflojar' },
+  { ruta: 'total.bloquear_sin_clasificar', nivel: 'total', nombre: 'Bloquear también lo Sin clasificar', tipo: 'booleano', afloja: 'Desactivarlo afloja' },
+]);
+
+/** Valor de una ruta con puntos dentro de la configuración: 'friccion.pase_min' → config.friccion.pase_min. */
+export function valorDeRuta(config, ruta) {
+  if (ruta.startsWith('bloques.')) return config?.bloques?.[ruta.slice('bloques.'.length)];
+  return ruta.split('.').reduce((actual, parte) => (actual === null || actual === undefined ? undefined : actual[parte]), config);
+}
+
+/**
+ * Un cambio pendiente de los niveles en una frase: qué cambia y a qué valor.
+ * @param {{ruta: string, valor: *}} cambio
+ * @param {{nombreBloque?: (id: string) => string, nombreNivel?: Object<string, string>}} [opciones]
+ * @returns {string}
+ */
+export function textoDeCambio(cambio, { nombreBloque = (id) => id, nombreNivel = {} } = {}) {
+  const { ruta, valor } = cambio;
+  if (ruta.startsWith('bloques.')) return `Nivel del bloque ${nombreBloque(ruta.slice('bloques.'.length))}: ${nombreNivel[valor] ?? valor}`;
+  if (ruta === 'patrones_url') return `Patrones de URL extra: ${valor.length ? valor.join(' · ') : 'ninguno'}`;
+  if (ruta === 'nunca_bloquear') return `Nunca bloquear: ${valor.length ? valor.join(' · ') : 'nada'}`;
+  const campo = CAMPOS_NIVELES.find((c) => c.ruta === ruta);
+  if (!campo) return `${ruta}: ${JSON.stringify(valor)}`;
+  if (campo.tipo === 'booleano') return `${campo.nombre}: ${valor ? 'sí' : 'no'}`;
+  if (campo.tipo === 'texto') return `${campo.nombre}: "${valor}"`;
+  return `${campo.nombre}: ${valor} ${campo.unidad}`;
+}
+
 // ── Clasificación (F2-07) ──
 
 /** Clase con más tiempo en un grupo de agruparPor (en empate, la primera en el orden de CLASES). */
