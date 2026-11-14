@@ -1,15 +1,21 @@
 // Vista "Diario" (arquitectura §13). Check-ins e intervenciones con su motivo.
 // F5-01: registrar check-ins de un día (despertar, dormir, rutina hecha, estudio en papel y asistencia).
 //        Se guardan en el bucket rastreador-checkins_<host> de AW (§12) con datos.registrarCheckin().
+// F5-04: el día completo: su cumplimiento, los check-ins (se pueden borrar; para corregir uno basta marcar de nuevo:
+//        vale el último) y las intervenciones con su motivo. Borrar un check-in vuelve a calcular el cumplimiento.
 // La revisión semanal llega en la fase 8.
 
 import { el, reemplazar } from '../dom.js';
 import { datos } from '../datos.js';
 import { horaLocal, fechaLegible, fechaCorta, fechaLocal } from '../fechas.js';
 import { crearCabecera, textoDeError, prepararPeriodo } from '../componentes/vista.js';
-import { crearTarjeta, crearCargando, crearError, crearVacio, crearAviso, crearTabla, crearCampo, crearChipEstado } from '../componentes/ui.js';
-import { marcablesDelDia } from '../calculos-vistas.js';
-import { NOMBRE_TIPO_CHECKIN, NOMBRE_VALOR_CHECKIN, NOMBRE_TIPO_CLASE, nombreCurso } from '../textos-plan.js';
+import { duracionLegible, porcentajeLegible } from '../formato.js';
+import {
+  crearTarjeta, crearCargando, crearError, crearVacio, crearAviso, crearTabla, crearCampo, crearChipEstado, crearFilaKpis,
+  crearChipNivel, abrirDialogo,
+} from '../componentes/ui.js';
+import { marcablesDelDia, checkinsVigentes, estadoDelDia, textoObjetivo, MEDIDOS } from '../calculos-vistas.js';
+import { NOMBRE_TIPO_CHECKIN, NOMBRE_VALOR_CHECKIN, NOMBRE_TIPO_CLASE, NOMBRE_ACCION, NOMBRE_MOTIVO, nombreCurso } from '../textos-plan.js';
 
 export const titulo = 'Diario';
 
@@ -21,6 +27,7 @@ export function render(contenedor, parametros) {
   contenedor.append(cabecera, mensajes, cuerpo);
   const limpiezas = [];
   let fecha = null;
+  let nota = ''; // nota opcional para el próximo check-in
 
   const decir = (tipo, texto) => reemplazar(mensajes, crearAviso(tipo, texto));
 
@@ -42,7 +49,8 @@ export function render(contenedor, parametros) {
   /** Guarda un check-in y vuelve a leer el día (el cumplimiento cambia con él). */
   async function registrar(checkin, texto) {
     try {
-      await datos.registrarCheckin({ ...checkin, fecha });
+      await datos.registrarCheckin({ ...checkin, nota, fecha });
+      nota = '';
       await cargar();
       decir('exito', texto);
     } catch (error) {
@@ -50,8 +58,38 @@ export function render(contenedor, parametros) {
     }
   }
 
+  /** Pide confirmación y borra un check-in de AW; después vuelve a leer el día. */
+  async function borrar(checkin, descripcion) {
+    const respuesta = await abrirDialogo({
+      titulo: '¿Borrar este check-in?',
+      contenido: `${descripcion}. Se borra de AW y el cumplimiento del día se vuelve a calcular.`,
+      acciones: [{ valor: 'cancelar', texto: 'Cancelar' }, { valor: 'borrar', texto: 'Borrar', tipo: 'peligro' }],
+    });
+    if (respuesta !== 'borrar') return;
+    try {
+      await datos.borrarCheckin(checkin.id);
+      await cargar();
+      decir('exito', `Se borró el check-in (${descripcion}).`);
+    } catch (error) {
+      decir('error', 'No se pudo borrar el check-in: ' + (error?.message ?? error));
+    }
+  }
+
   function pintar(dia) {
     const { plan, items, checkins, resumen } = dia;
+
+    // ── El día en números (F5-04): cambian al registrar o borrar un check-in ──
+    const p = resumen.cumplimiento?.porcentaje ?? null;
+    const medidos = [...resumen.bloques, ...resumen.rutinas].filter((x) => MEDIDOS.includes(x.estado));
+    const cumplidos = medidos.filter((x) => x.estado === 'cumplido').length;
+    const kpis = crearFilaKpis([
+      { etiqueta: 'Cumplimiento del día', valor: porcentajeLegible(p), clave: estadoDelDia(p, plan.umbrales.dia_cumplido) ?? undefined,
+        detalle: medidos.length ? `${cumplidos} de ${medidos.length} bloques y rutinas cumplidos` : 'Nada medible este día' },
+      { etiqueta: 'Horas despierto', valor: duracionLegible(dia.dia.despiertoSeg),
+        detalle: dia.dia.sinDatos ? (dia.dia.despiertoSeg ? 'Sin PC: de despertar a dormir, por los check-ins' : 'Sin datos de la PC') : `De ${horaLocal(dia.dia.inicio)} a ${horaLocal(dia.dia.fin)}` },
+      { etiqueta: 'Check-ins', valor: String(checkins.length), detalle: 'Registrados para este día' },
+      { etiqueta: 'Intervenciones', valor: String(dia.intervenciones.length), detalle: 'Reales, del agente (todavía no existe)' },
+    ]);
 
     // ── Despertar y dormir ──
     // El valor es la hora ('HH:MM'). Dormir pasada la medianoche es la madrugada siguiente (lo resuelve el motor).
@@ -113,6 +151,11 @@ export function render(contenedor, parametros) {
         }))
         : crearVacio('Este día no tiene rutinas con check-in, estudio en papel ni clases.', { compacto: true }),
     });
+    // Nota opcional: se guarda con el próximo check-in que se registre (y después se vacía).
+    tarjetaMarcar.append(crearCampo({
+      etiqueta: 'Nota para el próximo check-in', opcional: true, valor: nota,
+      atributos: { maxlength: 200, placeholder: 'Por ejemplo: me quedé dormido', oninput: (e) => { nota = e.target.value.trim(); } },
+    }));
 
     // ── Check-ins registrados ──
     const aQue = (c) => {
@@ -123,26 +166,55 @@ export function render(contenedor, parametros) {
     };
     const tarjetaLista = crearTarjeta({
       titulo: 'Check-ins de este día',
-      subtitulo: 'Se guardan en AW, en el bucket rastreador-checkins (también se ven en el Timeline de AW).',
+      subtitulo: 'Se guardan en AW, en el bucket rastreador-checkins. Para corregir uno, marca de nuevo (vale el último) o bórralo.',
       contenido: crearTabla({
         descripcion: `${checkins.length} ${checkins.length === 1 ? 'check-in' : 'check-ins'}, del más reciente al más antiguo`,
         vacio: 'Todavía no hay check-ins de este día.',
-        columnas: columnasDeCheckins(aQue),
+        columnas: columnasDeCheckins(aQue, checkinsVigentes(checkins)),
         filas: [...checkins].sort((a, b) => b.instante - a.instante),
       }),
     });
 
-    reemplazar(cuerpo, el('div', { class: 'grilla' }, tarjetaHoras, tarjetaMarcar), tarjetaLista);
+    // ── Intervenciones reales (las escribe el agente desde la fase 6) ──
+    const itemDe = (i) => {
+      const bloque = items.bloques.find((b) => b.id === i.bloqueId);
+      const clase = items.clases.find((c) => c.id === i.claseId);
+      return bloque ? nombreCurso(plan, bloque.curso) : clase ? `Clase de ${nombreCurso(plan, clase.curso)}` : '—';
+    };
+    const tarjetaIntervenciones = crearTarjeta({
+      titulo: 'Intervenciones de este día',
+      subtitulo: 'Avisos, fricciones, bloqueos, pases y salidas de emergencia, con su motivo.',
+      contenido: crearTabla({
+        descripcion: `${dia.intervenciones.length} ${dia.intervenciones.length === 1 ? 'intervención' : 'intervenciones'}`,
+        vacio: 'Sin intervenciones: el agente todavía no existe (fase 6). Lo que habría pasado se ve en el Simulador.',
+        columnas: [
+          { clave: 'instante', titulo: 'Hora', numerica: true, formato: (v) => horaLocal(v) },
+          { clave: 'accion', titulo: 'Acción', formato: (v, i) => el('span', {}, NOMBRE_ACCION[v] ?? v, ' ', crearChipNivel(i.nivel)) },
+          { clave: 'objetivo', titulo: 'Sobre', formato: (v) => el('span', { class: 'cortar celda-larga', title: v }, textoObjetivo(v)) },
+          { clave: 'item', titulo: 'En', formato: (_, i) => itemDe(i) },
+          { clave: 'motivo', titulo: 'Motivo', formato: (v) => el('span', { class: 'cortar celda-larga', title: v ?? '' }, NOMBRE_MOTIVO[v] ?? (v || '—')) },
+        ],
+        filas: dia.intervenciones,
+      }),
+    });
+
+    reemplazar(cuerpo, kpis, el('div', { class: 'grilla' }, tarjetaHoras, tarjetaMarcar), tarjetaLista, tarjetaIntervenciones);
   }
 
-  /** Columnas de la tabla de check-ins. */
-  function columnasDeCheckins(aQue) {
+  /** Columnas de la tabla de check-ins. `vigentes`: los ids de los que valen (el último de cada cosa). */
+  function columnasDeCheckins(aQue, vigentes) {
+    const descripcion = (c) => `${NOMBRE_TIPO_CHECKIN[c.tipo] ?? c.tipo}${aQue(c) !== '—' ? ' de ' + aQue(c) : ''}: ${NOMBRE_VALOR_CHECKIN[c.valor] ?? c.valor}`;
     return [
       { clave: 'instante', titulo: 'Registrado', formato: (v) => `${fechaCorta(fechaLocal(v))}, ${horaLocal(v)}` },
       { clave: 'tipo', titulo: 'Tipo', formato: (v) => NOMBRE_TIPO_CHECKIN[v] ?? v },
       { clave: 'refId', titulo: 'De', formato: (_, c) => aQue(c) },
-      { clave: 'valor', titulo: 'Valor', formato: (v) => NOMBRE_VALOR_CHECKIN[v] ?? v },
+      { clave: 'valor', titulo: 'Valor', formato: (v, c) => el('span', {}, NOMBRE_VALOR_CHECKIN[v] ?? v,
+        !vigentes.has(c) && el('span', { class: 'texto-suave texto-xs' }, ' · reemplazado por uno posterior')) },
       { clave: 'nota', titulo: 'Nota', formato: (v) => el('span', { class: 'cortar celda-larga', title: v ?? '' }, v || '—') },
+      { clave: 'acciones', titulo: '', alinear: 'der', formato: (_, c) => el('span', { class: 'acciones-fila' }, el('button', {
+        class: 'boton boton-pequeno boton-fantasma', type: 'button', disabled: c.id === null || c.id === undefined,
+        'aria-label': `Borrar el check-in ${descripcion(c)}`, onclick: () => borrar(c, descripcion(c)),
+      }, 'Borrar')) },
     ];
   }
 

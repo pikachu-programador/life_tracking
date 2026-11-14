@@ -362,9 +362,10 @@ Cambios en las tareas: F5-02 se hace dentro de F2-01 y F5-03 dentro de F4-02, po
   - Objetivo: completar las reglas de §9 que dependen de check-ins.
   - Notas: se hace dentro de F4-02 (hecha ahí).
   - Hecho cuando: un bloque en papel con la PC en AFK y check-in "hecho" sale cumplido; con distracción en la PC sale parcial.
-- [ ] **F5-04 · Vista Diario**
+- [x] **F5-04 · Vista Diario**
   - Objetivo: por día, check-ins e intervenciones con su motivo; editar o borrar errores.
   - Hecho cuando: borrar un check-in actualiza el cumplimiento.
+  - Resultado (2026-11-10): la vista Diario queda completa para un día: KPIs (cumplimiento del día, horas despierto, check-ins e intervenciones), la tabla de check-ins con botón Borrar (pide confirmación y usa `datos.borrarCheckin`) y la marca "reemplazado por uno posterior" en los que ya no valen (`checkinsVigentes`, con su prueba), nota opcional para el próximo check-in, y la tabla de intervenciones reales con su motivo (vacía hasta que exista el agente). "Editar" un check-in es marcar de nuevo (vale el último) o borrarlo. Comprobado en el navegador con el AW falso (reloj en 2026-10-18, día 10-14): al borrar el check-in "hecho" del bloque de papel de EDO el día baja de 95 % a 65 % y el bloque pasa a fallido; al marcarlo otra vez (con nota) vuelve a 95 %; sin errores de consola; revisada en claro a 820 px. La revisión semanal de §13 es de la fase 8 (F8-01).
 - [x] **F5-05 · Rachas por rutina**
   - Objetivo: racha de días cumplidos por rutina en la vista Cumplimiento.
   - Hecho cuando: cada rutina muestra su racha actual y la mejor.

@@ -22,6 +22,8 @@
 .diario-marcables li:last-child { padding-bottom: 0; border-bottom: 0; }
 .diario-marcable-texto { display: grid; gap: 2px; min-width: 0; flex: 1 1 14rem; }
 .diario-marcable-nombre { font-size: var(--texto-s); font-weight: var(--peso-medio); overflow-wrap: anywhere; }
+/* La nota opcional va debajo de la lista, separada. */
+.diario-marcables + .campo, .estado + .campo { margin-top: var(--espacio-4); }
 /* El botón del valor elegido se ve "hundido" y lleva una marca: no depende solo del color. */
 .diario-marcables .boton[aria-pressed="true"] {
   background: var(--color-acento-suave);

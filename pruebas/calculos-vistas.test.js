@@ -98,6 +98,20 @@ test('marcablesDelDia: rutinas con check-in, bloques de papel y clases, con su v
   assert.deepEqual(marcablesDelDia(null, null), []);
 });
 
+test('checkinsVigentes: de cada cosa vale el último registrado; despertar y dormir no miran el refId', async () => {
+  const { checkinsVigentes } = await import('../web/js/calculos-vistas.js');
+  const ck = (tipo, refId, valor, instante) => ({ id: instante, instante, fecha: '2026-10-13', tipo, refId, valor, nota: '' });
+  const lista = [
+    ck('despertar', 'despertar', '07:00', 1), ck('despertar', 'otro', '08:10', 5),
+    ck('rutina', 'ejercicio', 'no_hecho', 2), ck('rutina', 'ejercicio', 'hecho', 3), ck('rutina', 'lectura', 'hecho', 4),
+    ck('dormir', 'dormir', '23:40', 6),
+  ];
+  const vigentes = checkinsVigentes(lista);
+  assert.deepEqual(lista.map((c) => vigentes.has(c)), [false, true, false, true, true, true]);
+  assert.equal(checkinsVigentes([]).size, 0);
+  assert.equal(checkinsVigentes(null).size, 0);
+});
+
 // ── Clasificación (F2-07) ──
 
 test('masUsados: por app y por dominio, con su clase dominante, el filtro por clase y el resto en "otros"', async () => {

@@ -117,6 +117,23 @@ export function marcablesDelDia(items, checkins) {
   ];
 }
 
+/**
+ * Los check-ins que valen: de cada cosa (despertar, dormir, o una rutina, un bloque de papel o una clase concreta),
+ * el último registrado. Los demás quedaron reemplazados (F5-04).
+ * @param {import('../motor/tipos.js').Checkin[]} checkins  los de un día
+ * @returns {Set<import('../motor/tipos.js').Checkin>}  los mismos objetos de la lista
+ */
+export function checkinsVigentes(checkins) {
+  const ultimos = new Map();
+  for (const c of checkins ?? []) {
+    // En despertar y dormir el refId no importa (§6.7).
+    const clave = c.tipo === 'despertar' || c.tipo === 'dormir' ? c.tipo : `${c.tipo}:${c.refId}`;
+    const previo = ultimos.get(clave);
+    if (!previo || c.instante >= previo.instante) ultimos.set(clave, c);
+  }
+  return new Set(ultimos.values());
+}
+
 // ── Clasificación (F2-07) ──
 
 /** Clase con más tiempo en un grupo de agruparPor (en empate, la primera en el orden de CLASES). */
