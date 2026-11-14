@@ -166,8 +166,10 @@ export function valorDeRuta(config, ruta) {
 export function textoDeCambio(cambio, { nombreBloque = (id) => id, nombreNivel = {} } = {}) {
   const { ruta, valor } = cambio;
   if (ruta.startsWith('bloques.')) return `Nivel del bloque ${nombreBloque(ruta.slice('bloques.'.length))}: ${nombreNivel[valor] ?? valor}`;
-  if (ruta === 'patrones_url') return `Patrones de URL extra: ${valor.length ? valor.join(' · ') : 'ninguno'}`;
-  if (ruta === 'nunca_bloquear') return `Nunca bloquear: ${valor.length ? valor.join(' · ') : 'nada'}`;
+  // Una lista larga se resume: los 3 primeros y cuántos más (30 patrones enteros tapaban la vista).
+  const lista = (items) => (items.length > 4 ? `${items.slice(0, 3).join(' · ')} y ${items.length - 3} más` : items.join(' · '));
+  if (ruta === 'patrones_url') return `Patrones de URL extra: ${valor.length ? lista(valor) : 'ninguno'}`;
+  if (ruta === 'nunca_bloquear') return `Nunca bloquear: ${valor.length ? lista(valor) : 'nada'}`;
   const campo = CAMPOS_NIVELES.find((c) => c.ruta === ruta);
   if (!campo) return `${ruta}: ${JSON.stringify(valor)}`;
   if (campo.tipo === 'booleano') return `${campo.nombre}: ${valor ? 'sí' : 'no'}`;

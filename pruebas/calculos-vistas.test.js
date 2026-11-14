@@ -133,6 +133,7 @@ test('textoDeCambio: una frase por cada tipo de cambio pendiente', async () => {
   assert.equal(textoDeCambio({ ruta: 'total.frase_salida', valor: 'Me rindo' }), 'Frase de la salida de emergencia: "Me rindo"');
   assert.equal(textoDeCambio({ ruta: 'patrones_url', valor: [] }), 'Patrones de URL extra: ninguno');
   assert.equal(textoDeCambio({ ruta: 'nunca_bloquear', valor: ['spotify', 'zoom'] }), 'Nunca bloquear: spotify · zoom');
+  assert.equal(textoDeCambio({ ruta: 'nunca_bloquear', valor: ['a', 'b', 'c', 'd', 'e', 'f'] }), 'Nunca bloquear: a · b · c y 3 más'); // lista larga, resumida
   assert.equal(textoDeCambio({ ruta: 'bloques.b-bd1-lun', valor: 'aviso' }, { nombreBloque: () => 'BD I (lun)', nombreNivel: { aviso: 'Aviso' } }), 'Nivel del bloque BD I (lun): Aviso');
   assert.equal(textoDeCambio({ ruta: 'otra.cosa', valor: 1 }), 'otra.cosa: 1');
 });
