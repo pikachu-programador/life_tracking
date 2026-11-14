@@ -113,7 +113,7 @@ export function render(contenedor, parametros) {
     };
     const d = dia.dia;
     const tarjetaHoras = crearTarjeta({
-      titulo: 'Despertar y dormir', clase: 'ancho-5',
+      titulo: 'Despertar y dormir', clase: 'ancho-6',
       subtitulo: 'Con estos dos check-ins, el día lógico va exactamente de uno a otro (aunque no uses la PC).',
       contenido: el('div', { class: 'diario-horas' },
         filaHora('despertar', 'Despertar', d.sinDatos && d.fuenteInicio !== 'checkin' ? null : horaLocal(d.inicio), d.fuenteInicio),
@@ -134,7 +134,7 @@ export function render(contenedor, parametros) {
     };
     const marcables = marcablesDelDia(items, checkins);
     const tarjetaMarcar = crearTarjeta({
-      titulo: 'Rutinas, estudio en papel y asistencia', clase: 'ancho-7',
+      titulo: 'Rutinas, estudio en papel y asistencia', clase: 'ancho-6',
       subtitulo: 'Lo que la PC no puede medir. Si te equivocas, marca de nuevo: vale el último.',
       contenido: marcables.length
         ? el('ul', { class: 'diario-marcables' }, marcables.map((m) => {
