@@ -85,6 +85,38 @@ export function textoObjetivo(objetivo) {
   return m ? `${m[2] || 'desconocido'} (${m[1]})` : String(objetivo ?? '');
 }
 
+// ── Diario (F5-01) ──
+
+/**
+ * Lo que se puede marcar con un check-in en un día: las rutinas con check-in, los bloques de estudio en papel
+ * y las clases de ese día, cada uno con el valor que tiene ahora (el último check-in registrado, o null).
+ * El `refId` es el id del plan (rutina, bloque o clase), que es lo que usa el motor (§12).
+ * @param {import('../motor/tipos.js').ItemsDelDia} items
+ * @param {import('../motor/tipos.js').Checkin[]} checkins  los del día
+ * @returns {Array<{tipo: ('rutina'|'papel'|'asistencia'), refId: string, item: object, valor: string|null,
+ *                  opciones: [string, string]}>}  en el orden: rutinas, bloques de papel, clases
+ */
+export function marcablesDelDia(items, checkins) {
+  // El que manda es el último registrado (mayor instante), igual que en el motor.
+  const actual = (tipo, refId) => {
+    let elegido = null;
+    for (const c of checkins ?? []) {
+      if (c.tipo !== tipo || c.refId !== refId) continue;
+      if (elegido === null || c.instante >= elegido.instante) elegido = c;
+    }
+    return elegido?.valor ?? null;
+  };
+  const hecho = ['hecho', 'no_hecho'];
+  return [
+    ...(items?.rutinas ?? []).filter((r) => r.medicion === 'checkin')
+      .map((r) => ({ tipo: 'rutina', refId: r.rutinaId, item: r, valor: actual('rutina', r.rutinaId), opciones: hecho })),
+    ...(items?.bloques ?? []).filter((b) => b.tipo === 'estudio_papel')
+      .map((b) => ({ tipo: 'papel', refId: b.bloqueId, item: b, valor: actual('papel', b.bloqueId), opciones: hecho })),
+    ...(items?.clases ?? [])
+      .map((c) => ({ tipo: 'asistencia', refId: c.claseId, item: c, valor: actual('asistencia', c.claseId), opciones: ['asistio', 'falto'] })),
+  ];
+}
+
 // ── Clasificación (F2-07) ──
 
 /** Clase con más tiempo en un grupo de agruparPor (en empate, la primera en el orden de CLASES). */

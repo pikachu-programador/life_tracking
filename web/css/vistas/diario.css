@@ -1,0 +1,30 @@
+/*
+  Vista Diario (F5-01, F5-04). Solo usa variables de tokens.css.
+*/
+
+/* Despertar y dormir: campo de hora + botón Guardar en un renglón, y debajo lo registrado o lo estimado. */
+.diario-horas { display: grid; gap: var(--espacio-4); }
+.diario-hora { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: var(--espacio-1) var(--espacio-2); }
+.diario-hora .campo-ayuda { grid-column: 1 / -1; }
+
+/* Lista de lo que se marca con un check-in: nombre y detalle a la izquierda, botones a la derecha. */
+.diario-marcables { list-style: none; margin: 0; padding: 0; display: grid; }
+.diario-marcables li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espacio-2) var(--espacio-4);
+  padding: var(--espacio-3) 0;
+  border-bottom: 1px solid var(--color-borde);
+}
+.diario-marcables li:first-child { padding-top: 0; }
+.diario-marcables li:last-child { padding-bottom: 0; border-bottom: 0; }
+.diario-marcable-texto { display: grid; gap: 2px; min-width: 0; flex: 1 1 14rem; }
+.diario-marcable-nombre { font-size: var(--texto-s); font-weight: var(--peso-medio); overflow-wrap: anywhere; }
+/* El botón del valor elegido se ve "hundido" y lleva una marca: no depende solo del color. */
+.diario-marcables .boton[aria-pressed="true"] {
+  background: var(--color-acento-suave);
+  border-color: var(--color-acento);
+}
+.diario-marcables .boton[aria-pressed="true"]::before { content: "✓"; }

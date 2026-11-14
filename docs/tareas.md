@@ -350,9 +350,10 @@ Cambios en las tareas: F5-02 se hace dentro de F2-01 y F5-03 dentro de F4-02, po
 | F5-04 | Vista Diario | Dashboard | F5-01 | 2 | M | Importante |
 | F5-05 | Rachas por rutina | Dashboard | F5-03, F4-08 | 2 | S | Importante |
 
-- [ ] **F5-01 · Registro de check-ins**
+- [x] **F5-01 · Registro de check-ins**
   - Objetivo: crear `rastreador-checkins_<host>` y registrar despertar, dormir, rutina hecha, estudio en papel y asistencia desde el dashboard.
   - Hecho cuando: cada check-in aparece en el Timeline de AW y en la vista Diario.
+  - Resultado (2026-11-10): vista Diario (`web/js/vistas/diario.js`, estilos en `web/css/vistas/diario.css`) con selector de un día: despertar y dormir (hora y botón Guardar; muestra lo registrado o lo estimado por la PC), y botones Hecho / No hecho o Asistí / Falté para las rutinas con check-in, los bloques de estudio en papel y las clases de ese día (`marcablesDelDia` en `web/js/calculos-vistas.js`, con su prueba); el botón del valor vigente queda marcado y debajo se listan los check-ins del día. Guarda con `datos.registrarCheckin` (crea el bucket `rastreador-checkins_<host>` si falta) con la `fecha` del día elegido, así se puede corregir un día pasado (lo que F5-02 dejaba para esta vista). Comprobado en el navegador con el AW falso: en el 13-oct (día sin PC) se registraron despertar 08:10, dormir 23:40 y la rutina Ejercicio; los tres quedaron en el bucket y el día pasó a durar 15,5 h de check-in a check-in; sin errores de consola. Por comprobar (Dremy): que cada check-in aparezca en el Timeline del AW real.
 - [x] **F5-02 · Día lógico con check-ins**
   - Objetivo: usar los check-ins de despertar y dormir en el cálculo del día lógico.
   - Hecho cuando: el check-in de despertar manda sobre la estimación y se puede corregir un día pasado.

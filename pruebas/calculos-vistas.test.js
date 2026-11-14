@@ -75,6 +75,29 @@ test('textoObjetivo: web y app en texto; lo demás, igual', async () => {
   assert.equal(textoObjetivo(null), '');
 });
 
+// ── Diario (F5-01) ──
+
+test('marcablesDelDia: rutinas con check-in, bloques de papel y clases, con su valor actual (el último registrado)', async () => {
+  const { marcablesDelDia } = await import('../web/js/calculos-vistas.js');
+  const { expandirDia } = await import('../web/motor/horario.js');
+  const { planEjemplo } = await import('./ayudantes/ejemplo.js');
+  const items = expandirDia(planEjemplo(), '2026-10-13'); // martes: Ejercicio (check-in) y una clase de DBP
+  const ck = (tipo, refId, valor, instante) => ({ id: instante, instante, fecha: '2026-10-13', tipo, refId, valor, nota: '' });
+  const lista = marcablesDelDia(items, [
+    ck('rutina', 'ejercicio', 'no_hecho', 1), ck('rutina', 'ejercicio', 'hecho', 2),   // manda el último
+    ck('rutina', 'otra', 'hecho', 3),                                                    // de otra rutina: no cuenta
+  ]);
+  assert.deepEqual(lista.map((m) => [m.tipo, m.refId, m.valor]), [
+    ['rutina', 'ejercicio', 'hecho'],
+    ['asistencia', items.clases[0].claseId, null],
+  ]);
+  assert.deepEqual(lista[1].opciones, ['asistio', 'falto']);
+  // Miércoles: hay un bloque de estudio en papel (EDO).
+  const miercoles = marcablesDelDia(expandirDia(planEjemplo(), '2026-10-14'), []);
+  assert.deepEqual(miercoles.filter((m) => m.tipo === 'papel').map((m) => [m.item.curso, m.valor, m.opciones]), [['edo', null, ['hecho', 'no_hecho']]]);
+  assert.deepEqual(marcablesDelDia(null, null), []);
+});
+
 // ── Clasificación (F2-07) ──
 
 test('masUsados: por app y por dominio, con su clase dominante, el filtro por clase y el resto en "otros"', async () => {
