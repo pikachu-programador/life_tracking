@@ -133,8 +133,9 @@ export function render(contenedor) {
         descripcion: 'Nivel vigente de cada bloque del plan',
         vacio: 'El plan todavía no tiene bloques (se crean en Horario).',
         columnas: [
-          { clave: 'curso', titulo: 'Curso', formato: (v) => crearEtiqueta(colorCurso(plan, v) ?? 'neutral', nombreCurso(plan, v)) },
-          { clave: 'cuando', titulo: 'Cuándo', formato: (_, b) => textoRepeticion(b) },
+          // Un nombre de curso largo se corta con "…" (entero en el title) y "Cuándo" va en un renglón: así la tabla no ensancha la página.
+          { clave: 'curso', titulo: 'Curso', formato: (v) => el('span', { class: 'cortar celda-larga', title: nombreCurso(plan, v) }, crearEtiqueta(colorCurso(plan, v) ?? 'neutral', nombreCurso(plan, v))) },
+          { clave: 'cuando', titulo: 'Cuándo', formato: (_, b) => el('span', { class: 'cifra' }, textoRepeticion(b)) },
           { clave: 'vigente', titulo: 'Hoy', formato: (_, b) => crearChipNivel(nivelVigente(b, config)) },
           { clave: 'nivel', titulo: 'Cambiar a', formato: (_, b) => {
             const actual = nivelVigente(b, config);

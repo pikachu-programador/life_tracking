@@ -23,3 +23,7 @@
 
 /* Rampa del foco: separación entre el aviso de estado y los campos. */
 .rampa-campos { margin-top: var(--espacio-4); margin-bottom: var(--espacio-3); }
+
+/* Un pendiente con un texto largo sin espacios (una frase, un patrón) se parte en vez de ensanchar la página. */
+.ajuste-pendiente { overflow-wrap: anywhere; }
+.ajuste .control { min-width: 0; }
