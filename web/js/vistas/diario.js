@@ -205,7 +205,8 @@ export function render(contenedor, parametros) {
   function columnasDeCheckins(aQue, vigentes) {
     const descripcion = (c) => `${NOMBRE_TIPO_CHECKIN[c.tipo] ?? c.tipo}${aQue(c) !== '—' ? ' de ' + aQue(c) : ''}: ${NOMBRE_VALOR_CHECKIN[c.valor] ?? c.valor}`;
     return [
-      { clave: 'instante', titulo: 'Registrado', formato: (v) => `${fechaCorta(fechaLocal(v))}, ${horaLocal(v)}` },
+      // .cifra: en un solo renglón (en una tabla angosta la fecha se partía en tres).
+      { clave: 'instante', titulo: 'Registrado', formato: (v) => el('span', { class: 'cifra' }, `${fechaCorta(fechaLocal(v))}, ${horaLocal(v)}`) },
       { clave: 'tipo', titulo: 'Tipo', formato: (v) => NOMBRE_TIPO_CHECKIN[v] ?? v },
       { clave: 'refId', titulo: 'De', formato: (_, c) => aQue(c) },
       { clave: 'valor', titulo: 'Valor', formato: (v, c) => el('span', {}, NOMBRE_VALOR_CHECKIN[v] ?? v,
