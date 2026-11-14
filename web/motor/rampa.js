@@ -70,9 +70,76 @@ export function rampaVigente(umbrales, fecha) {
   return vigente;
 }
 
+// ── Foco fijo ("Foco para cumplido" de los umbrales) ──
+// También tiene versiones, para que bajarlo espere a mañana (asimetría de §11) y los días pasados se sigan midiendo
+// con el valor que valía entonces:
+//   umbrales.foco_cumplido   = el valor base (el que vale antes de cualquier versión)
+//   umbrales.focos_cumplido  = [{ aplica_desde: '2026-11-15', valor: 0.6 }, …]   (opcional)
+
+/** Versiones bien formadas del foco fijo, en el orden en que valen. */
+function versionesDeFoco(umbrales) {
+  const lista = Array.isArray(umbrales?.focos_cumplido) ? umbrales.focos_cumplido : [];
+  return lista
+    .map((v, indice) => ({ v, indice }))
+    .filter(({ v }) => v && esFechaValida(v.aplica_desde) && esProporcion(v.valor))
+    .sort((a, b) => (a.v.aplica_desde < b.v.aplica_desde ? -1 : a.v.aplica_desde > b.v.aplica_desde ? 1 : a.indice - b.indice))
+    .map(({ v }) => v);
+}
+
+/**
+ * "Foco para cumplido" fijo que vale en el día lógico `fecha`: el de la última versión con aplica_desde ≤ fecha;
+ * si no hay ninguna, umbrales.foco_cumplido. (Con una rampa vigente manda la rampa: ver umbralFoco.)
+ * @param {import('./tipos.js').Umbrales} umbrales
+ * @param {string} fecha
+ * @returns {number}
+ */
+export function focoFijo(umbrales, fecha) {
+  let valor = umbrales?.foco_cumplido ?? 0.7;
+  for (const version of versionesDeFoco(umbrales)) {
+    if (version.aplica_desde <= fecha) valor = version.valor;
+  }
+  return valor;
+}
+
+/** El cambio del foco fijo que todavía no vale en `hoy` ("se aplica mañana"), o null.
+ *  @returns {{aplica_desde: string, valor: number}|null} */
+export function focoFijoPendiente(umbrales, hoy) {
+  return versionesDeFoco(umbrales).filter((v) => v.aplica_desde > hoy).at(-1) ?? null;
+}
+
+/**
+ * Cambia el "Foco para cumplido" fijo con la asimetría de §11: subirlo (endurecer) vale desde `hoy`; bajarlo (aflojar)
+ * queda pendiente hasta el día lógico siguiente. Se compara contra el valor que vale hoy (no contra uno pendiente);
+ * un cambio pendiente anterior se reemplaza, y volver al valor de hoy lo cancela. Los días pasados no cambian.
+ * No modifica `umbrales`: devuelve una copia.
+ * @param {import('./tipos.js').Umbrales} umbrales
+ * @param {number} valor  0 a 1 (0.6 = 60 %)
+ * @param {{hoy: string}} cuando
+ * @returns {{umbrales: import('./tipos.js').Umbrales, aplicaDesde: string, inmediato: boolean, tipo: ('endurece'|'afloja'|'igual')}}
+ * @throws {Error} si falta hoy o el valor no está entre 0 y 1
+ */
+export function proponerFocoCumplido(umbrales, valor, { hoy } = {}) {
+  if (!esFechaValida(hoy)) throw new Error('Falta la fecha de hoy (AAAA-MM-DD)');
+  if (!esProporcion(valor)) throw new Error('El foco para "cumplido" tiene que estar entre 0 y 1 (0.7 = 70 %).');
+  const vigentes = versionesDeFoco(umbrales).filter((v) => v.aplica_desde <= hoy); // sin lo pendiente
+  const actual = focoFijo({ ...umbrales, focos_cumplido: vigentes }, hoy);
+  const tipo = valor < actual - EPSILON ? 'afloja' : valor > actual + EPSILON ? 'endurece' : 'igual';
+  const aplicaDesde = tipo === 'afloja' ? sumarDias(hoy, 1) : hoy;
+
+  let lista = vigentes.map((v) => ({ aplica_desde: v.aplica_desde, valor: v.valor }));
+  if (tipo !== 'igual') {
+    lista = lista.filter((v) => v.aplica_desde !== aplicaDesde); // una sola versión por día
+    lista.push({ aplica_desde: aplicaDesde, valor });
+  }
+  const copia = { ...umbrales };
+  if (lista.length) copia.focos_cumplido = lista;
+  else delete copia.focos_cumplido;
+  return { umbrales: copia, aplicaDesde, inmediato: aplicaDesde === hoy, tipo };
+}
+
 /**
  * Foco que hace falta para "cumplido" en el día lógico `fecha` (0 a 1).
- * - Sin rampa vigente ese día (o antes de su `inicio`): el `foco_cumplido` fijo del plan.
+ * - Sin rampa vigente ese día (o antes de su `inicio`): el foco fijo de ese día (focoFijo).
  * - Con rampa: valor_inicial + paso_por_semana × semanas completas desde `inicio`, sin pasar de `meta`.
  *   La primera semana (días 0 a 6) vale valor_inicial; el día 7 sube el primer paso.
  * Solo depende de la fecha: fallar no lo baja.
@@ -81,7 +148,7 @@ export function rampaVigente(umbrales, fecha) {
  * @returns {number}
  */
 export function umbralFoco(umbrales, fecha) {
-  const fijo = umbrales?.foco_cumplido ?? 0.7;
+  const fijo = focoFijo(umbrales, fecha);
   const rampa = rampaVigente(umbrales, fecha);
   if (!rampa || fecha < rampa.inicio) return fijo;
   const semanas = Math.floor(diasEntre(rampa.inicio, fecha) / 7);

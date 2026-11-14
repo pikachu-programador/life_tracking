@@ -242,6 +242,9 @@ export function normalizarPlan(plan) {
   // Si no es una lista se deja tal cual, para que validarPlan lo reporte.
   const rampas = esObjeto(plan.umbrales) ? plan.umbrales.rampas_foco : undefined;
   if (Array.isArray(rampas) ? rampas.length > 0 : rampas != null) umbrales.rampas_foco = structuredClone(rampas);
+  // Versiones del "Foco para cumplido" fijo (rampa.js, proponerFocoCumplido): igual, solo si hay alguna.
+  const focos = esObjeto(plan.umbrales) ? plan.umbrales.focos_cumplido : undefined;
+  if (Array.isArray(focos) ? focos.length > 0 : focos != null) umbrales.focos_cumplido = structuredClone(focos);
 
   return {
     version: typeof plan.version === 'number' ? plan.version : 1,
@@ -457,6 +460,16 @@ function revisarUmbrales(umbrales, resultado) {
   r.numero(umbrales, 'peso_despertar_dormir_min', NOMBRE_UMBRAL.peso_despertar_dormir_min, { min: 0 });
   if (cumplidoBien && parcialBien && umbrales.foco_parcial >= umbrales.foco_cumplido) {
     r.error('foco_parcial', `el foco para "parcial" (${umbrales.foco_parcial}) tiene que ser menor que el foco para "cumplido" (${umbrales.foco_cumplido}).`);
+  }
+  // Versiones del foco fijo: una lista de {aplica_desde, valor} (rampa.js).
+  const focos = umbrales.focos_cumplido;
+  if (focos !== undefined && !Array.isArray(focos)) {
+    r.error('focos_cumplido', `las versiones del foco para "cumplido" (focos_cumplido) tienen que ser una lista; ahora es ${mostrar(focos)}.`);
+  } else if (focos !== undefined) {
+    focos.forEach((version, i) => {
+      const bien = esObjeto(version) && esFechaValida(version.aplica_desde) && typeof version.valor === 'number' && version.valor > 0 && version.valor <= 1;
+      if (!bien) r.error(`focos_cumplido[${i}]`, 'cada versión del foco para "cumplido" necesita aplica_desde (AAAA-MM-DD) y un valor entre 0 y 1.');
+    });
   }
   // Rampa del foco: una lista de versiones {aplica_desde, rampa} (rampa.js).
   const rampas = umbrales.rampas_foco;

@@ -14,7 +14,7 @@ Solo lo que te toca a ti. Lo pendiente del código está en cada nota de tarea y
 - [ ] Activar la rampa del foco en Ajustes (viene desactivada; activarla empieza al día siguiente) → [[Rampa del foco]]
 - [ ] En Cumplimiento, los días anteriores al primer dato de AW salen fallidos (0 %). ¿Deberían quedar "sin medir"? → [[F4-08]]
 - [ ] Borrar y volver a crear un bloque, o agregar hoy una excepción que cancela bloques, se salta la asimetría de niveles. ¿Se cierra ese hueco? → [[F3-04]] · [[Bloques únicos en feriados]]
-- [ ] Los demás umbrales (foco para "parcial", día cumplido, tolerancia) se cambian sin asimetría. ¿También deben esperar a mañana al aflojarlos? → [[F4-09]]
+- [ ] "Foco para cumplido" ya espera a mañana al bajarlo (2026-11-14). Los demás umbrales (foco para "parcial", día cumplido, tolerancia) siguen sin asimetría. ¿También deben esperar? → [[F4-09]] · [[Rampa del foco]]
 - [ ] Al importar un respaldo, los niveles solo se restauran si aquí nunca se cambiaron. ¿Te sirve así? → [[F3-02]]
 - [ ] En vivo, una cena de más de 3 h corta el día de hoy. ¿Molesta? → [[Día lógico]]
 

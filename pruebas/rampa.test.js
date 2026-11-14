@@ -3,6 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   RAMPA_FOCO_INICIAL, errorDeRampa, rampaVigente, umbralFoco, umbralesDelDia, rampaPendiente, proponerRampa, fechaDeMeta,
+  focoFijo, focoFijoPendiente, proponerFocoCumplido,
 } from '../web/motor/rampa.js';
 import { UMBRALES_INICIALES, normalizarPlan, validarPlan, planVacio } from '../web/motor/plan.js';
 import { resumirDia } from '../web/motor/resumen.js';
@@ -181,4 +182,63 @@ test('resumirDia evalúa cada día con el umbral de su fecha: 50 % de foco es pa
   assert.equal(estado({ ...UMBRALES_INICIALES }), 'parcial');
   assert.equal(estado(base), 'cumplido');                                             // el 16-nov el umbral es 40 %
   assert.equal(estado(con({ aplica_desde: HOY, rampa: { ...RAMPA, inicio: '2026-10-05' } })), 'parcial'); // 6 semanas: 64 %
+});
+
+// ── "Foco para cumplido" fijo: bajarlo espera a mañana ──
+
+test('proponerFocoCumplido: bajarlo (aflojar) se aplica mañana; hoy y los días pasados siguen igual', () => {
+  const r = proponerFocoCumplido(congelar({ ...UMBRALES_INICIALES }), 0.5, { hoy: HOY });
+  assert.deepEqual([r.tipo, r.inmediato, r.aplicaDesde], ['afloja', false, MANANA]);
+  assert.equal(r.umbrales.foco_cumplido, 0.7);            // el valor base no se toca
+  assert.equal(focoFijo(r.umbrales, HOY), 0.7);
+  assert.equal(focoFijo(r.umbrales, '2026-11-01'), 0.7);
+  assert.equal(focoFijo(r.umbrales, MANANA), 0.5);
+  assert.equal(umbralFoco(r.umbrales, HOY), 0.7);         // lo que usa el cumplimiento
+  assert.equal(umbralFoco(r.umbrales, MANANA), 0.5);
+  assert.deepEqual(focoFijoPendiente(r.umbrales, HOY), { aplica_desde: MANANA, valor: 0.5 });
+  assert.equal(focoFijoPendiente(r.umbrales, MANANA), null);
+});
+
+test('proponerFocoCumplido: subirlo (endurecer) vale en el acto, sin cambiar los días anteriores', () => {
+  const r = proponerFocoCumplido({ ...UMBRALES_INICIALES }, 0.8, { hoy: HOY });
+  assert.deepEqual([r.tipo, r.inmediato, r.aplicaDesde], ['endurece', true, HOY]);
+  assert.equal(focoFijo(r.umbrales, HOY), 0.8);
+  assert.equal(focoFijo(r.umbrales, '2026-11-13'), 0.7);  // ayer se midió con 70 %
+  assert.equal(focoFijoPendiente(r.umbrales, HOY), null);
+});
+
+test('proponerFocoCumplido: lo pendiente se reemplaza; volver al valor de hoy lo cancela; se compara con lo vigente hoy', () => {
+  const pendiente = proponerFocoCumplido({ ...UMBRALES_INICIALES }, 0.5, { hoy: HOY }).umbrales;
+  const otro = proponerFocoCumplido(pendiente, 0.6, { hoy: HOY });
+  assert.deepEqual([otro.tipo, otro.umbrales.focos_cumplido], ['afloja', [{ aplica_desde: MANANA, valor: 0.6 }]]);
+  const cancelar = proponerFocoCumplido(pendiente, 0.7, { hoy: HOY });
+  assert.equal(cancelar.tipo, 'igual');
+  assert.equal('focos_cumplido' in cancelar.umbrales, false);
+  // Con algo pendiente, subir sobre el valor de hoy sigue siendo endurecer (y quita lo pendiente).
+  const subir = proponerFocoCumplido(pendiente, 0.75, { hoy: HOY });
+  assert.deepEqual([subir.tipo, subir.umbrales.focos_cumplido], ['endurece', [{ aplica_desde: HOY, valor: 0.75 }]]);
+  // Al día siguiente, el 50 % ya vale: subir a 60 % endurece y bajar a 40 % afloja.
+  assert.equal(proponerFocoCumplido(pendiente, 0.6, { hoy: MANANA }).tipo, 'endurece');
+  assert.equal(proponerFocoCumplido(pendiente, 0.4, { hoy: MANANA }).tipo, 'afloja');
+});
+
+test('proponerFocoCumplido rechaza valores fuera de rango; el plan guarda y valida las versiones', () => {
+  assert.throws(() => proponerFocoCumplido({ ...UMBRALES_INICIALES }, 70, { hoy: HOY }), /entre 0 y 1/);
+  assert.throws(() => proponerFocoCumplido({ ...UMBRALES_INICIALES }, 0, { hoy: HOY }), /entre 0 y 1/);
+  assert.throws(() => proponerFocoCumplido({ ...UMBRALES_INICIALES }, 0.5, {}), /hoy/);
+  const umbrales = proponerFocoCumplido({ ...UMBRALES_INICIALES }, 0.5, { hoy: HOY }).umbrales;
+  const plan = { ...planVacio(), umbrales };
+  assert.deepEqual(normalizarPlan(plan).umbrales.focos_cumplido, [{ aplica_desde: MANANA, valor: 0.5 }]);
+  assert.equal(validarPlan(plan).valido, true);
+  assert.equal(validarPlan({ ...planVacio(), umbrales: { ...UMBRALES_INICIALES, focos_cumplido: [{ aplica_desde: HOY, valor: 5 }] } }).valido, false);
+  assert.equal('focos_cumplido' in normalizarPlan(planVacio()).umbrales, false);
+  // Las versiones mal formadas se ignoran al calcular.
+  assert.equal(focoFijo({ ...UMBRALES_INICIALES, focos_cumplido: [{ aplica_desde: 'ayer', valor: 0.1 }, null] }, HOY), 0.7);
+});
+
+test('con una rampa vigente manda la rampa; al quitarla vuelve el foco fijo de ese día', () => {
+  const conFoco = proponerFocoCumplido(structuredClone(base), 0.8, { hoy: HOY }).umbrales; // rampa 40 % + fijo 80 %
+  assert.equal(umbralFoco(conFoco, HOY), 0.4);
+  const sinRampa = proponerRampa(conFoco, null, { hoy: HOY }).umbrales;
+  assert.equal(umbralFoco(sinRampa, HOY), 0.8);
 });

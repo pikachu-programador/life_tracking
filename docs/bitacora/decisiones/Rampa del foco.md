@@ -11,6 +11,7 @@ tags: [decision, cumplimiento]
 - **No retrocede si fallo:** solo depende de la fecha. **Cada día se evalúa con el umbral de su fecha.**
 - En el plan: `umbrales.rampas_foco`, una lista de versiones `{aplica_desde, rampa: {inicio, valor_inicial, meta, paso_por_semana}}` (así cambiarla no reescribe el pasado). Motor: `web/motor/rampa.js` (`umbralFoco(umbrales, fecha)`), 13 pruebas.
 - Se configura en Ajustes: pedir más foco vale hoy; pedir menos espera a mañana.
+- **Foco fijo (2026-11-14, pedido de Dremy):** bajar "Foco para cumplido" en Ajustes también espera al día siguiente; subirlo vale en el acto. Versiones en `umbrales.focos_cumplido` (`proponerFocoCumplido`), arquitectura v6.5.
 - **Viene desactivada:** hasta activarla vale el 70 % fijo. Arquitectura v6.4 (§6.7, §8, §9, §19). Commit: `dc3708d`.
 
 Ver: [[Umbrales y niveles]] · [[F4-09]] · [[V-01]] · [[2026-11-14]]

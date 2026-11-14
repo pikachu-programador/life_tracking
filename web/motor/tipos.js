@@ -292,6 +292,8 @@ export const CLAVES_METRICAS = ['estudio', 'estudioTotal', 'papel', 'clases', 'i
  * @property {number} dia_cumplido                 0.8
  * @property {number} hueco_sueno_h                3
  * @property {number} peso_despertar_dormir_min    30
+ * @property {Array<{aplica_desde: string, valor: number}>} [focos_cumplido]
+ *   versiones del foco_cumplido fijo (rampa.js): vale la última con aplica_desde ≤ fecha; si no hay, foco_cumplido
  * @property {Array<{aplica_desde: string, rampa: (RampaFoco|null)}>} [rampas_foco]
  *   versiones de la rampa del foco (rampa.js); vale la última con aplica_desde ≤ fecha; rampa null = sin rampa
  */

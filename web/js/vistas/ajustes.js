@@ -13,7 +13,9 @@ import { crearTarjeta, crearCargando, crearError, crearAviso, crearTabla, crearC
 import { exportarRespaldo, importarRespaldo, resumenDePlan } from '../componentes/respaldo.js';
 import { configuracionVigente, proponerCambio, cambiosPendientes } from '../../motor/niveles.js';
 import { NIVELES, NOMBRE_NIVEL } from '../../motor/tipos.js';
-import { RAMPA_FOCO_INICIAL, umbralFoco, rampaVigente, rampaPendiente, proponerRampa, fechaDeMeta } from '../../motor/rampa.js';
+import {
+  RAMPA_FOCO_INICIAL, umbralFoco, rampaVigente, rampaPendiente, proponerRampa, fechaDeMeta, focoFijo, focoFijoPendiente, proponerFocoCumplido,
+} from '../../motor/rampa.js';
 import { porcentajeLegible } from '../formato.js';
 import { CAMPOS_NIVELES, valorDeRuta, textoDeCambio } from '../calculos-vistas.js';
 import { nombreCurso, colorCurso, textoRepeticion } from '../textos-plan.js';
@@ -24,7 +26,7 @@ export const titulo = 'Ajustes';
 /** Umbrales del plan (§8). `porcentaje`: se guarda de 0 a 1 y se muestra de 0 a 100. */
 const CAMPOS_UMBRALES = [
   { clave: 'tolerancia_inicio_min', nombre: 'Tolerancia de inicio (min)', ayuda: 'Minutos de margen antes de contar un bloque como "empezó tarde".' },
-  { clave: 'foco_cumplido', nombre: 'Foco para "cumplido" (%)', porcentaje: true, ayuda: 'Estudio ÷ duración del bloque. Con la rampa del foco activa, manda la rampa.' },
+  { clave: 'foco_cumplido', nombre: 'Foco para "cumplido" (%)', porcentaje: true, ayuda: 'Estudio ÷ duración del bloque. Subirlo vale desde hoy; bajarlo, desde mañana. Con la rampa del foco activa, manda la rampa.' },
   { clave: 'foco_parcial', nombre: 'Foco para "parcial" (%)', porcentaje: true, ayuda: 'Menor que el de "cumplido".' },
   { clave: 'dia_cumplido', nombre: 'Día cumplido (%)', porcentaje: true, ayuda: 'Desde qué % un día cuenta para la racha.' },
   { clave: 'hueco_sueno_h', nombre: 'Hueco que cuenta como sueño (h)', ayuda: 'Sin actividad durante este tiempo: ahí se corta el día lógico.' },
@@ -178,7 +180,8 @@ export function render(contenedor) {
 
     // ── Umbrales del plan ──
     const camposUmbral = CAMPOS_UMBRALES.map((u) => {
-      const valor = plan.umbrales[u.clave];
+      // "Foco para cumplido" muestra el valor que vale HOY (puede tener un cambio pendiente para mañana).
+      const valor = u.clave === 'foco_cumplido' ? focoFijo(plan.umbrales, estado.hoy) : plan.umbrales[u.clave];
       return { u, campo: crearCampo({ etiqueta: u.nombre, tipo: 'number', valor: u.porcentaje ? Math.round(valor * 100) : valor, ayuda: u.ayuda, atributos: { min: 0, step: u.clave === 'hueco_sueno_h' ? 0.5 : 1, ...(u.porcentaje ? { max: 100 } : {}) } }) };
     });
     const tarjetaUmbrales = crearTarjeta({
@@ -194,16 +197,25 @@ export function render(contenedor) {
             umbrales[u.clave] = u.porcentaje ? Number(texto) / 100 : Number(texto);
           }
           try {
-            // Los demás datos de los umbrales (la rampa del foco) se conservan.
-            await datos.guardarPlan({ ...structuredClone(plan), umbrales: { ...structuredClone(plan.umbrales), ...umbrales } });
+            // "Foco para cumplido" pasa por la asimetría: subirlo vale hoy; bajarlo espera a mañana (proponerFocoCumplido).
+            const { foco_cumplido: focoNuevo, ...resto } = umbrales;
+            const cambio = proponerFocoCumplido(structuredClone(plan.umbrales), focoNuevo, { hoy: estado.hoy });
+            // Los demás datos de los umbrales (la rampa del foco, las versiones del foco) se conservan.
+            await datos.guardarPlan({ ...structuredClone(plan), umbrales: { ...cambio.umbrales, ...resto } });
             await cargar();
-            decir('exito', 'Umbrales guardados.');
+            if (cambio.tipo === 'afloja') decir('info', `Umbrales guardados. Bajar el foco para "cumplido" a ${porcentajeLegible(focoNuevo)} afloja, así que se aplica mañana (${fechaLegible(cambio.aplicaDesde)}); hoy sigue en ${porcentajeLegible(focoFijo(cambio.umbrales, estado.hoy))}.`);
+            else if (cambio.tipo === 'endurece') decir('exito', `Umbrales guardados. Subir el foco para "cumplido" a ${porcentajeLegible(focoNuevo)} endurece, así que ya está aplicado.`);
+            else decir('exito', 'Umbrales guardados.');
           } catch (error) {
             decir('error', error?.errores ? error.errores.map((e) => e.mensaje).join(' ') : textoDeError(error));
           }
         },
       }, 'Guardar umbrales'),
-      contenido: el('div', { class: 'ajustes-rejilla' }, camposUmbral.map(({ campo }) => el('div', { class: 'ajuste' }, campo))),
+      contenido: el('div', { class: 'ajustes-rejilla' }, camposUmbral.map(({ u, campo }) => {
+        const pendienteFoco = u.clave === 'foco_cumplido' ? focoFijoPendiente(plan.umbrales, estado.hoy) : null;
+        return el('div', { class: 'ajuste' }, campo,
+          pendienteFoco && el('p', { class: 'ajuste-pendiente' }, `Pendiente: ${porcentajeLegible(pendienteFoco.valor)}, desde ${fechaCorta(pendienteFoco.aplica_desde)}.`));
+      })),
     });
 
     // ── Rampa del foco (arquitectura §8, v6.4) ──
@@ -254,7 +266,7 @@ export function render(contenedor) {
       ],
       contenido: [
         crearAviso(vigente ? 'exito' : 'info',
-          vigente ? `Rampa activa: ${textoRampa(vigente)}.` : `Sin rampa: vale el foco fijo de los umbrales (${porcentajeLegible(plan.umbrales.foco_cumplido)}).`,
+          vigente ? `Rampa activa: ${textoRampa(vigente)}.` : `Sin rampa: vale el foco fijo de los umbrales (${porcentajeLegible(focoFijo(plan.umbrales, hoy))}).`,
           { titulo: `Hoy el foco para "cumplido" es ${porcentajeLegible(umbralFoco(plan.umbrales, hoy))}` }),
         pendiente && el('p', { class: 'ajuste-pendiente' }, `Pendiente desde ${fechaCorta(pendiente.aplica_desde)}: ${pendiente.rampa ? textoRampa(pendiente.rampa) : 'quitar la rampa'}.`),
         el('div', { class: 'ajustes-rejilla rampa-campos' }, Object.values(camposRampa).map((campo) => el('div', { class: 'ajuste' }, campo))),
